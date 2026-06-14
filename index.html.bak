@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casting Tools Hub — TMMIN Casting Division</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ═══ VARIABLES ═══════════════════════════════════════════ */
+    :root {
+      --red:         #EB0A1E;
+      --red-d:       #C5081A;
+      --red-glow:    rgba(235,10,30,0.14);
+      --white:       #FFFFFF;
+      --grey:        #58595B;
+      --grey-lt:     #F0F0F0;
+      --border:      #E0E0E0;
+      --ink:         #1A1A1A;
+      --ink-2:       #2B2B2B;
+      --green:       #1DA35C;
+      --green-bg:    rgba(29,163,92,0.12);
+      --amber:       #B45309;
+      --amber-bg:    rgba(180,83,9,0.10);
+
+      --c-mon:  #1A6DB0; --c-mon-bg:  rgba(26,109,176,0.10);
+      --c-cal:  #1D8A56; --c-cal-bg:  rgba(29,138,86,0.10);
+      --c-chk:  #C47A00; --c-chk-bg:  rgba(196,122,0,0.10);
+      --c-inp:  #7330C0; --c-inp-bg:  rgba(115,48,192,0.10);
+
+      --sh-sm:  0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.05);
+      --sh-md:  0 4px 16px rgba(0,0,0,0.09), 0 8px 24px rgba(0,0,0,0.06);
+      --sh-lg:  0 8px 32px rgba(0,0,0,0.13), 0 16px 40px rgba(0,0,0,0.07);
+    }
+
+    /* ═══ RESET ════════════════════════════════════════════════ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--grey-lt);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font-family: inherit; cursor: pointer; }
+    a { text-decoration: none; }
+
+    /* ═══ HEADER ═══════════════════════════════════════════════ */
+    header {
+      background: var(--ink);
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+    }
+    .hd-inner {
+      position: relative; z-index: 1;
+      max-width: 1240px; margin: 0 auto;
+      padding: 22px 32px 0;
+    }
+    .hd-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 20px;
+      margin-bottom: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .toyota-badge {
+      background: var(--red); color: #fff;
+      font-size: 12px; font-weight: 800;
+      letter-spacing: 0.18em; padding: 6px 14px 5px;
+      text-transform: uppercase; line-height: 1; flex-shrink: 0;
+    }
+    .brand-meta { padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.12); }
+    .brand-meta .co {
+      font-size: 10.5px; font-weight: 600;
+      letter-spacing: 0.10em; color: rgba(255,255,255,0.38);
+      text-transform: uppercase; line-height: 1;
+    }
+    .brand-meta .div {
+      font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,0.58); margin-top: 4px; line-height: 1;
+    }
+    .hd-right { display: flex; align-items: flex-start; gap: 20px; }
+    .hd-clock { text-align: right; }
+    #clock {
+      font-size: 24px; font-weight: 300;
+      color: rgba(255,255,255,0.88);
+      letter-spacing: 0.06em; font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    #dateline { font-size: 11px; color: rgba(255,255,255,0.36); margin-top: 5px; }
+
+    /* admin mode indicator in header */
+    .admin-hd-controls {
+      display: none;
+      align-items: center; gap: 10px;
+    }
+    .admin-hd-controls.show { display: flex; }
+    .badge-admin {
+      background: rgba(235,10,30,0.22); border: 1px solid rgba(235,10,30,0.4);
+      color: #ff7070; font-size: 10.5px; font-weight: 700;
+      letter-spacing: 0.1em; padding: 4px 10px; border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .btn-sm {
+      font-size: 12px; font-weight: 600;
+      padding: 6px 14px; border-radius: 7px;
+      border: 1px solid; cursor: pointer; transition: opacity .15s;
+      line-height: 1;
+    }
+    .btn-sm:hover { opacity: .8; }
+    .btn-sm-ghost {
+      background: transparent; border-color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.7);
+    }
+    .btn-sm-red {
+      background: var(--red); border-color: var(--red); color: #fff;
+    }
+
+    .hd-title { margin-bottom: 22px; }
+    .portal-title {
+      font-size: clamp(24px,4vw,42px); font-weight: 800;
+      color: #fff; letter-spacing: -0.025em; line-height: 1.08;
+    }
+    .portal-sub {
+      font-size: 13px; color: rgba(255,255,255,0.4);
+      margin-top: 6px; font-weight: 400;
+    }
+    .hd-stripe { height: 4px; background: var(--red); }
+
+    /* ═══ VIEWS ════════════════════════════════════════════════ */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ═══ PORTAL (PUBLIC) ══════════════════════════════════════ */
+    #view-portal { max-width: 1240px; margin: 0 auto; padding: 44px 32px 72px; }
+
+    .cat-section { margin-bottom: 50px; }
+    .cat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .cat-stripe { width: 4px; height: 24px; background: var(--red); border-radius: 2px; flex-shrink: 0; }
+    .cat-title { font-size: 16.5px; font-weight: 700; letter-spacing: -.01em; }
+    .cat-pill {
+      font-size: 11px; font-weight: 700; color: var(--red);
+      background: var(--red-glow); padding: 3px 10px;
+      border-radius: 20px; border: 1px solid rgba(235,10,30,0.2);
+    }
+
+    /* ═══ CARD GRID ════════════════════════════════════════════ */
+    .apps-grid {
+      display: grid; gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    /* ═══ APP CARD ═════════════════════════════════════════════ */
+    .app-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 22px 20px;
+      box-shadow: var(--sh-sm);
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      transition: transform .22s cubic-bezier(.22,.61,.36,1),
+                  box-shadow .22s cubic-bezier(.22,.61,.36,1),
+                  border-color .22s ease,
+                  opacity .2s ease;
+    }
+    .app-card::before {
+      content: ''; position: absolute; top:0; left:0; right:0;
+      height: 3px; background: var(--red);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .28s cubic-bezier(.22,.61,.36,1);
+    }
+    .app-card:hover { transform: translateY(-4px); box-shadow: var(--sh-lg); border-color: rgba(235,10,30,.2); }
+    .app-card:hover::before { transform: scaleX(1); }
+
+    /* inactive state */
+    .app-card.inactive { opacity: .52; background: #f7f7f7; }
+    .app-card.inactive:hover { transform: none; box-shadow: var(--sh-sm); border-color: var(--border); }
+    .app-card.inactive:hover::before { transform: scaleX(0); }
+
+    .app-icon {
+      width: 52px; height: 52px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px; flex-shrink: 0;
+    }
+    .app-icon svg { width: 23px; height: 23px; }
+    .app-name { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.3; margin-bottom: 7px; letter-spacing: -.01em; }
+    .app-desc { font-size: 13px; color: var(--grey); line-height: 1.6; flex: 1; margin-bottom: 20px; }
+
+    .btn-open {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--red); color: #fff;
+      font-size: 12.5px; font-weight: 700; letter-spacing: .03em;
+      padding: 10px 18px; border-radius: 8px; align-self: flex-start;
+      transition: background .14s ease, transform .12s ease, box-shadow .14s ease;
+      border: none;
+    }
+    .btn-open svg { width: 13px; height: 13px; transition: transform .14s ease; }
+    .btn-open:hover { background: var(--red-d); transform: translateX(2px); box-shadow: 0 4px 12px rgba(235,10,30,.28); }
+    .btn-open:hover svg { transform: translateX(2px); }
+
+    /* status badge on card */
+    .status-badge {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: .08em;
+      padding: 3px 8px; border-radius: 4px; text-transform: uppercase;
+    }
+    .status-badge.aktif { background: var(--green-bg); color: var(--green); border: 1px solid rgba(29,163,92,.25); }
+    .status-badge.nonaktif { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(180,83,9,.25); }
+
+    /* admin card extras */
+    .card-admin-bar {
+      display: none;
+      align-items: center; justify-content: space-between;
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .card-admin-bar.show { display: flex; }
+
+    /* toggle switch */
+    .toggle-wrap { display: flex; align-items: center; gap: 8px; }
+    .toggle-label { font-size: 11.5px; font-weight: 600; color: var(--grey); }
+    .toggle {
+      position: relative; display: inline-block;
+      width: 40px; height: 22px; flex-shrink: 0;
+    }
+    .toggle input { display: none; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: #CACACA; border-radius: 22px;
+      transition: background .2s;
+    }
+    .toggle input:checked + .toggle-track { background: var(--green); }
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px; background: white;
+      border-radius: 50%;
+      box-shadow: 0 1px 4px rgba(0,0,0,.22);
+      transition: transform .2s cubic-bezier(.22,.61,.36,1);
+    }
+    .toggle input:checked + .toggle-track .toggle-thumb { transform: translateX(18px); }
+
+    .card-actions { display: flex; gap: 8px; }
+    .btn-edit, .btn-del {
+      font-size: 12px; font-weight: 600; padding: 6px 12px;
+      border-radius: 7px; border: 1px solid; transition: opacity .14s;
+    }
+    .btn-edit { background: transparent; border-color: #C0C0C0; color: var(--grey); }
+    .btn-edit:hover { opacity: .7; }
+    .btn-del { background: transparent; border-color: rgba(235,10,30,.3); color: var(--red); }
+    .btn-del:hover { opacity: .7; }
+
+    /* ═══ ADMIN PANEL ══════════════════════════════════════════ */
+    #view-admin { max-width: 1240px; margin: 0 auto; padding: 36px 32px 72px; }
+
+    .admin-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 32px; flex-wrap: wrap;
+    }
+    .admin-toolbar-left h2 {
+      font-size: 20px; font-weight: 800; letter-spacing: -.02em;
+    }
+    .admin-toolbar-left p { font-size: 13px; color: var(--grey); margin-top: 4px; }
+    .btn-add {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--ink); color: #fff;
+      font-size: 13px; font-weight: 700;
+      padding: 11px 22px; border-radius: 9px;
+      border: none; transition: background .14s;
+    }
+    .btn-add:hover { background: #333; }
+    .btn-add svg { width: 15px; height: 15px; }
+
+    .admin-info-bar {
+      background: rgba(235,10,30,.06); border: 1px solid rgba(235,10,30,.14);
+      border-radius: 10px; padding: 12px 18px;
+      font-size: 12.5px; color: #8B0000; margin-bottom: 28px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .admin-info-bar svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--red); }
+
+    /* ═══ FOOTER ═══════════════════════════════════════════════ */
+    footer {
+      background: var(--ink-2); border-top: 3px solid #111;
+      padding: 22px 32px;
+    }
+    .ft-inner {
+      max-width: 1240px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .ft-doc { font-size: 11px; color: rgba(255,255,255,0.28); letter-spacing: .05em; text-transform: uppercase; }
+    .ft-contact { font-size: 12px; color: rgba(255,255,255,0.38); }
+    .btn-admin-trigger {
+      font-size: 11.5px; font-weight: 600;
+      color: rgba(255,255,255,.35);
+      background: transparent; border: 1px solid rgba(255,255,255,.14);
+      padding: 6px 12px; border-radius: 6px;
+      transition: color .14s, border-color .14s;
+    }
+    .btn-admin-trigger:hover { color: rgba(255,255,255,.7); border-color: rgba(255,255,255,.3); }
+
+    /* ═══ MODALS ═══════════════════════════════════════════════ */
+    .overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; opacity: 0; pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .overlay.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--white); border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.25);
+      width: 100%; max-height: 90vh; overflow-y: auto;
+      transform: translateY(12px) scale(.98);
+      transition: transform .24s cubic-bezier(.22,.61,.36,1);
+    }
+    .overlay.show .modal { transform: translateY(0) scale(1); }
+
+    /* login modal */
+    #modal-login .modal { max-width: 380px; }
+    .modal-login-hd {
+      background: var(--ink); border-radius: 16px 16px 0 0;
+      padding: 28px 28px 24px; text-align: center;
+    }
+    .modal-login-hd .toyota-badge-sm {
+      display: inline-block; background: var(--red); color: #fff;
+      font-size: 11px; font-weight: 800; letter-spacing: .15em;
+      padding: 4px 12px; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .modal-login-hd h3 { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+    .modal-login-hd p { font-size: 12px; color: rgba(255,255,255,.45); margin-top: 5px; }
+    .modal-login-body { padding: 28px; }
+
+    /* app form modal */
+    #modal-app .modal { max-width: 520px; }
+    .modal-hd {
+      padding: 24px 28px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-hd h3 { font-size: 17px; font-weight: 800; letter-spacing: -.015em; }
+    .btn-modal-close {
+      background: #f0f0f0; border: none; border-radius: 50%;
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .14s;
+    }
+    .btn-modal-close:hover { background: #e0e0e0; }
+    .btn-modal-close svg { width: 16px; height: 16px; }
+    .modal-body { padding: 24px 28px 28px; }
+
+    /* form fields */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block; font-size: 12.5px; font-weight: 700;
+      color: var(--ink); margin-bottom: 7px; letter-spacing: .01em;
+    }
+    .field label span { color: var(--red); }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--border); border-radius: 9px;
+      font-family: inherit; font-size: 14px; color: var(--ink);
+      background: #FAFAFA; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .field textarea { min-height: 80px; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--red); box-shadow: 0 0 0 3px var(--red-glow);
+      background: var(--white);
+    }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field-hint { font-size: 11.5px; color: var(--grey); margin-top: 5px; }
+    .form-error {
+      background: rgba(235,10,30,.08); border: 1px solid rgba(235,10,30,.2);
+      color: var(--red); font-size: 13px; font-weight: 600;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; display: none;
+    }
+    .form-error.show { display: block; }
+    .modal-actions {
+      display: flex; gap: 10px; justify-content: flex-end;
+      padding-top: 6px;
+    }
+    .btn-cancel {
+      background: transparent; border: 1.5px solid var(--border); color: var(--grey);
+      font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 9px;
+      transition: border-color .14s;
+    }
+    .btn-cancel:hover { border-color: #aaa; }
+    .btn-save {
+      background: var(--red); color: #fff; border: none;
+      font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 9px;
+      transition: background .14s;
+    }
+    .btn-save:hover { background: var(--red-d); }
+
+    /* confirm dialog */
+    #modal-confirm .modal { max-width: 340px; padding: 28px; text-align: center; }
+    #modal-confirm .modal h3 { font-size: 17px; font-weight: 800; margin-bottom: 10px; }
+    #modal-confirm .modal p { font-size: 13px; color: var(--grey); margin-bottom: 24px; line-height: 1.55; }
+    .confirm-btns { display: flex; gap: 10px; justify-content: center; }
+    .btn-confirm-del {
+      background: var(--red); color: #fff; border: none;
+      font-size: 13px; font-weight: 700; padding: 10px 22px; border-radius: 9px;
+      transition: background .14s;
+    }
+    .btn-confirm-del:hover { background: var(--red-d); }
+
+    /* ═══ EMPTY STATE ══════════════════════════════════════════ */
+    .empty-state {
+      text-align: center; padding: 80px 20px; color: var(--grey);
+    }
+    .empty-state svg { width: 48px; height: 48px; opacity: .3; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+    .empty-state p { font-size: 13.5px; }
+
+    /* ═══ ANIMATIONS ═══════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .app-card { animation: fadeUp .4s cubic-bezier(.22,.61,.36,1) both; }
+
+    /* ═══ RESPONSIVE ════════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      .hd-inner { padding: 18px 18px 0; }
+      #view-portal, #view-admin { padding: 26px 16px 60px; }
+      footer { padding: 18px 18px; }
+      .hd-top { flex-direction: column-reverse; gap: 10px; }
+      .hd-right { flex-direction: row-reverse; align-items: center; }
+      .hd-clock { text-align: left; }
+      #clock { font-size: 19px; }
+      .apps-grid { grid-template-columns: 1fr; }
+      .admin-toolbar { flex-direction: column; align-items: flex-start; }
+      .field-row { grid-template-columns: 1fr; }
+      .ft-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
+    @media (min-width: 601px) and (max-width: 900px) {
+      .apps-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 901px) {
+      .apps-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 1280px) {
+      .apps-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ══════════════════════════════════════════════════ -->
+<header>
+  <div class="hd-inner">
+    <div class="hd-top">
+      <div class="brand">
+        <div class="toyota-badge">TOYOTA</div>
+        <div class="brand-meta">
+          <div class="co">TMMIN · EPSD Sunter 2</div>
+          <div class="div">Casting Division — Melting, Pouring &amp; Analysis</div>
+        </div>
+      </div>
+      <div class="hd-right">
+        <div class="admin-hd-controls" id="adminHdControls">
+          <span class="badge-admin">Admin Mode</span>
+          <button class="btn-sm btn-sm-ghost" onclick="goToPortal()">&#8592; Lihat Portal</button>
+          <button class="btn-sm btn-sm-red" onclick="logout()">Logout</button>
+        </div>
+        <div class="hd-clock">
+          <div id="clock">--:--:--</div>
+          <div id="dateline">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="hd-title">
+      <h1 class="portal-title">Casting Tools Hub</h1>
+      <p class="portal-sub">Portal Akses Terpusat Aplikasi Internal &nbsp;·&nbsp; v1.0</p>
+    </div>
+  </div>
+  <div class="hd-stripe"></div>
+</header>
+
+<!-- ═══ VIEW: PORTAL (PUBLIC) ═══════════════════════════════════ -->
+<div id="view-portal" class="view active">
+  <!-- rendered by JS -->
+</div>
+
+<!-- ═══ VIEW: ADMIN PANEL ═══════════════════════════════════════ -->
+<div id="view-admin" class="view">
+  <div class="admin-toolbar">
+    <div class="admin-toolbar-left">
+      <h2>Kelola Aplikasi</h2>
+      <p>Tambah, ubah, hapus aplikasi, atau atur status aktif/nonaktif.</p>
+    </div>
+    <button class="btn-add" onclick="openAppModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Tambah Aplikasi
+    </button>
+  </div>
+  <div class="admin-info-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    Perubahan disimpan otomatis di browser ini. Toggle status memengaruhi tampilan portal publik.
+  </div>
+  <div id="admin-grid">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════════════ -->
+<footer>
+  <div class="ft-inner">
+    <div>
+      <div class="ft-doc">PRD-TMMIN-CAST-HUB-001 · v1.0 · 14 Juni 2026</div>
+      <div class="ft-contact" style="margin-top:4px">Penambahan aplikasi → Admin Portal · Casting Division</div>
+    </div>
+    <button class="btn-admin-trigger" onclick="showLoginModal()" id="btnAdminTrigger">
+      ⚙ Admin
+    </button>
+  </div>
+</footer>
+
+<!-- ═══ MODAL: LOGIN ═════════════════════════════════════════════ -->
+<div class="overlay" id="modal-login" onclick="handleOverlayClick(event,'modal-login')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-login-hd">
+      <div class="toyota-badge-sm">TOYOTA</div>
+      <h3>Admin Login</h3>
+      <p>Casting Tools Hub · Casting Division</p>
+    </div>
+    <div class="modal-login-body">
+      <div class="form-error" id="login-error">Username atau password salah.</div>
+      <div class="field">
+        <label>Username <span>*</span></label>
+        <input type="text" id="inp-user" placeholder="username" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Password <span>*</span></label>
+        <input type="password" id="inp-pass" placeholder="password" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="modal-actions" style="padding-top:4px">
+        <button class="btn-cancel" onclick="hideModal('modal-login')">Batal</button>
+        <button class="btn-save" onclick="doLogin()">Masuk</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: APP FORM ══════════════════════════════════════════ -->
+<div class="overlay" id="modal-app" onclick="handleOverlayClick(event,'modal-app')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <h3 id="modal-app-title">Tambah Aplikasi</h3>
+      <button class="btn-modal-close" onclick="hideModal('modal-app')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-error" id="app-error"></div>
+      <input type="hidden" id="edit-id">
+      <div class="field">
+        <label>Nama Aplikasi <span>*</span></label>
+        <input type="text" id="f-nama" placeholder="mis. Furnace Tapping Tracker">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Kategori <span>*</span></label>
+          <select id="f-kategori">
+            <option value="">-- Pilih --</option>
+            <option>Monitoring</option>
+            <option>Kalkulator</option>
+            <option>Checksheet</option>
+            <option>Input Harian</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ikon</label>
+          <select id="f-icon">
+            <option value="activity">Aktivitas / Monitoring</option>
+            <option value="calculator">Kalkulator</option>
+            <option value="thermometer">Termometer</option>
+            <option value="clipboard">Clipboard / Checksheet</option>
+            <option value="pencil">Input / Pencil</option>
+            <option value="chart">Grafik / Chart</option>
+            <option value="box">Kotak / Default</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Deskripsi Singkat <span>*</span></label>
+        <textarea id="f-desc" placeholder="Jelaskan fungsi aplikasi ini dalam 1–2 kalimat."></textarea>
+      </div>
+      <div class="field">
+        <label>URL / Link Aplikasi <span>*</span></label>
+        <input type="url" id="f-link" placeholder="https://...">
+        <div class="field-hint">Masukkan link lengkap termasuk https://</div>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="f-aktif">
+          <option value="1">Aktif — tampil di portal publik</option>
+          <option value="0">Nonaktif — tersembunyi dari portal publik</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="hideModal('modal-app')">Batal</button>
+        <button class="btn-save" onclick="saveApp()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: CONFIRM DELETE ════════════════════════════════════ -->
+<div class="overlay" id="modal-confirm" onclick="handleOverlayClick(event,'modal-confirm')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Hapus Aplikasi?</h3>
+    <p id="confirm-msg">Aplikasi ini akan dihapus permanen dari portal.</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="hideModal('modal-confirm')">Batal</button>
+      <button class="btn-confirm-del" id="btn-confirm-del">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCRIPT
+═══════════════════════════════════════════════════════════════ -->
+<script>
+/* ─────────────────────────────────────────────────────────────
+   KONFIGURASI ADMIN
+   Ganti username dan password di bawah untuk keamanan.
+   (Karena aplikasi ini berjalan di browser tanpa backend,
+    password terlihat di source code — hanya untuk penggunaan
+    internal yang terbatas.)
+───────────────────────────────────────────────────────────── */
+const ADMIN_CRED = { user: 'admin', pass: 'Cast2026!' };
+
+/* ─────────────────────────────────────────────────────────────
+   KONFIGURASI KATEGORI
+───────────────────────────────────────────────────────────── */
+const CATEGORIES = [
+  { key: 'Monitoring',   color: 'var(--c-mon)', bg: 'var(--c-mon-bg)' },
+  { key: 'Kalkulator',   color: 'var(--c-cal)', bg: 'var(--c-cal-bg)' },
+  { key: 'Checksheet',   color: 'var(--c-chk)', bg: 'var(--c-chk-bg)' },
+  { key: 'Input Harian', color: 'var(--c-inp)', bg: 'var(--c-inp-bg)' },
+];
+
+/* ─────────────────────────────────────────────────────────────
+   DEFAULT APPS (digunakan saat pertama kali dibuka)
+   Ganti link '#' dengan URL aplikasi yang sesungguhnya.
+───────────────────────────────────────────────────────────── */
+const DEFAULT_APPS = [
+  {
+    id: 1, aktif: true,
+    nama: 'Furnace Tapping Tracker',
+    kategori: 'Monitoring',
+    deskripsi: 'Monitoring waktu tapping 5 furnace (MF1–MF3, LF4–LF5) secara real-time.',
+    link: '#',
+    icon: 'activity',
+  },
+  {
+    id: 2, aktif: true,
+    nama: 'MatPrep',
+    kategori: 'Kalkulator',
+    deskripsi: 'Kalkulasi kebutuhan bon material per shift (2TR / 1TR / KAI / CRANK).',
+    link: '#',
+    icon: 'calculator',
+  },
+  {
+    id: 3, aktif: true,
+    nama: 'Thermoholder Checksheet',
+    kategori: 'Checksheet',
+    deskripsi: 'Checksheet digital pemeriksaan 16 unit thermoholder.',
+    link: '#',
+    icon: 'thermometer',
+  },
+  {
+    id: 4, aktif: true,
+    nama: 'FC/FCD Pouring Checksheet',
+    kategori: 'Checksheet',
+    deskripsi: 'Checksheet pouring runner shift Red/White untuk FC dan FCD.',
+    link: '#',
+    icon: 'clipboard',
+  },
+  {
+    id: 5, aktif: true,
+    nama: 'Scrap Recording',
+    kategori: 'Input Harian',
+    deskripsi: 'Pencatatan 5 jenis scrap harian beserta perbandingan selisih berat.',
+    link: '#',
+    icon: 'pencil',
+  },
+];
+
+/* ─────────────────────────────────────────────────────────────
+   SVG ICONS
+───────────────────────────────────────────────────────────── */
+const SVG = {
+  activity: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  calculator: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><rect x="8" y="6" width="8" height="3" rx="0.5"/><circle cx="9" cy="13" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="13" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="13" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="17" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="17" r="1" fill="currentColor" stroke="none"/></svg>`,
+  thermometer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>`,
+  clipboard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 12 11 14 15 10"/></svg>`,
+  pencil: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+  box: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/></svg>`,
+  arrow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+};
+
+/* ─────────────────────────────────────────────────────────────
+   STATE
+───────────────────────────────────────────────────────────── */
+const STORAGE_KEY   = 'casting_hub_v1';
+const SESSION_KEY   = 'casting_hub_admin';
+let apps            = [];
+let isAdmin         = false;
+let _pendingDelete  = null;
+
+/* ─────────────────────────────────────────────────────────────
+   STORAGE
+───────────────────────────────────────────────────────────── */
+function loadApps() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  apps = raw ? JSON.parse(raw) : DEFAULT_APPS.map(a => ({ ...a }));
+}
+
+function saveApps() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
+}
+
+function checkSession() {
+  return sessionStorage.getItem(SESSION_KEY) === '1';
+}
+
+function startSession() { sessionStorage.setItem(SESSION_KEY, '1'); }
+function endSession()   { sessionStorage.removeItem(SESSION_KEY); }
+
+/* ─────────────────────────────────────────────────────────────
+   UTILS
+───────────────────────────────────────────────────────────── */
+function getCat(key) { return CATEGORIES.find(c => c.key === key) || { color: 'var(--grey)', bg: '#f0f0f0' }; }
+function nextId()    { return apps.length ? Math.max(...apps.map(a => a.id)) + 1 : 1; }
+function esc(s)      { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ─────────────────────────────────────────────────────────────
+   CLOCK
+───────────────────────────────────────────────────────────── */
+function tick() {
+  const n = new Date();
+  document.getElementById('clock').textContent = n.toLocaleTimeString('id-ID', { hour12: false });
+  document.getElementById('dateline').textContent = n.toLocaleDateString('id-ID', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CARD HTML (shared between portal + admin)
+───────────────────────────────────────────────────────────── */
+function buildCard(app, adminMode, delay) {
+  const cat    = getCat(app.kategori);
+  const icon   = SVG[app.icon] || SVG.box;
+  const active = app.aktif;
+
+  const statusBadge = adminMode
+    ? `<span class="status-badge ${active ? 'aktif' : 'nonaktif'}">${active ? 'Aktif' : 'Nonaktif'}</span>`
+    : '';
+
+  const openBtn = active || adminMode
+    ? `<a class="btn-open" href="${esc(app.link)}" target="_blank" rel="noopener noreferrer"
+          onclick="event.stopPropagation()">Buka Aplikasi ${SVG.arrow}</a>`
+    : '';
+
+  const adminBar = adminMode ? `
+    <div class="card-admin-bar show">
+      <div class="toggle-wrap">
+        <label class="toggle">
+          <input type="checkbox" ${active ? 'checked' : ''}
+                 onchange="toggleApp(${app.id})">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+        <span class="toggle-label">${active ? 'Aktif' : 'Nonaktif'}</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn-edit" onclick="openAppModal(${app.id})">Edit</button>
+        <button class="btn-del"  onclick="confirmDelete(${app.id}, '${esc(app.nama)}')">Hapus</button>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="app-card${!active && adminMode ? ' inactive' : ''}" style="animation-delay:${delay}ms">
+      ${statusBadge}
+      <div class="app-icon" style="background:${cat.bg};color:${cat.color}">${icon}</div>
+      <div class="app-name">${esc(app.nama)}</div>
+      <div class="app-desc">${esc(app.deskripsi)}</div>
+      ${openBtn}
+      ${adminBar}
+    </div>`;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RENDER: PORTAL (PUBLIC)
+───────────────────────────────────────────────────────────── */
+function renderPortal() {
+  const el = document.getElementById('view-portal');
+  const activeApps = apps.filter(a => a.aktif);
+
+  if (!activeApps.length) {
+    el.innerHTML = `<div class="empty-state">
+      ${SVG.box}
+      <h3>Belum Ada Aplikasi</h3>
+      <p>Admin belum mengaktifkan aplikasi apapun.</p>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  CATEGORIES.forEach(cat => {
+    const list = activeApps.filter(a => a.kategori === cat.key);
+    if (!list.length) return;
+    html += `<section class="cat-section">
+      <div class="cat-header">
+        <div class="cat-stripe"></div>
+        <h2 class="cat-title">${cat.key}</h2>
+        <span class="cat-pill">${list.length} aplikasi</span>
+      </div>
+      <div class="apps-grid">
+        ${list.map((a, i) => buildCard(a, false, i * 65)).join('')}
+      </div>
+    </section>`;
+  });
+
+  // apps with unknown categories
+  const knownCats = CATEGORIES.map(c => c.key);
+  const others = activeApps.filter(a => !knownCats.includes(a.kategori));
+  if (others.length) {
+    html += `<section class="cat-section">
+      <div class="cat-header">
+        <div class="cat-stripe"></div>
+        <h2 class="cat-title">Lainnya</h2>
+        <span class="cat-pill">${others.length} aplikasi</span>
+      </div>
+      <div class="apps-grid">
+        ${others.map((a, i) => buildCard(a, false, i * 65)).join('')}
+      </div>
+    </section>`;
+  }
+
+  el.innerHTML = html;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RENDER: ADMIN GRID
+───────────────────────────────────────────────────────────── */
+function renderAdminGrid() {
+  const el = document.getElementById('admin-grid');
+
+  if (!apps.length) {
+    el.innerHTML = `<div class="empty-state">
+      ${SVG.box}
+      <h3>Belum Ada Aplikasi</h3>
+      <p>Klik "Tambah Aplikasi" untuk memulai.</p>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  const allCats = [...CATEGORIES.map(c => c.key), ...new Set(apps.map(a => a.kategori).filter(c => !CATEGORIES.map(x=>x.key).includes(c)))];
+
+  allCats.forEach(catKey => {
+    const list = apps.filter(a => a.kategori === catKey);
+    if (!list.length) return;
+    html += `<section class="cat-section">
+      <div class="cat-header">
+        <div class="cat-stripe"></div>
+        <h2 class="cat-title">${catKey}</h2>
+        <span class="cat-pill">${list.length} total &nbsp;·&nbsp; ${list.filter(a=>a.aktif).length} aktif</span>
+      </div>
+      <div class="apps-grid">
+        ${list.map((a, i) => buildCard(a, true, i * 55)).join('')}
+      </div>
+    </section>`;
+  });
+
+  el.innerHTML = html;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   VIEWS
+───────────────────────────────────────────────────────────── */
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+}
+
+function goToPortal() {
+  renderPortal();
+  showView('portal');
+  document.getElementById('adminHdControls').classList.remove('show');
+  document.getElementById('btnAdminTrigger').style.display = '';
+}
+
+function goToAdmin() {
+  renderAdminGrid();
+  showView('admin');
+  document.getElementById('adminHdControls').classList.add('show');
+  document.getElementById('btnAdminTrigger').style.display = 'none';
+}
+
+/* ─────────────────────────────────────────────────────────────
+   AUTH
+───────────────────────────────────────────────────────────── */
+function showLoginModal() {
+  document.getElementById('inp-user').value = '';
+  document.getElementById('inp-pass').value = '';
+  document.getElementById('login-error').classList.remove('show');
+  showModal('modal-login');
+  setTimeout(() => document.getElementById('inp-user').focus(), 200);
+}
+
+function doLogin() {
+  const u = document.getElementById('inp-user').value.trim();
+  const p = document.getElementById('inp-pass').value;
+  if (u === ADMIN_CRED.user && p === ADMIN_CRED.pass) {
+    startSession();
+    isAdmin = true;
+    hideModal('modal-login');
+    goToAdmin();
+  } else {
+    const err = document.getElementById('login-error');
+    err.classList.add('show');
+    document.getElementById('inp-pass').value = '';
+    document.getElementById('inp-pass').focus();
+  }
+}
+
+function logout() {
+  endSession();
+  isAdmin = false;
+  goToPortal();
+}
+
+/* ─────────────────────────────────────────────────────────────
+   APP CRUD
+───────────────────────────────────────────────────────────── */
+function toggleApp(id) {
+  const app = apps.find(a => a.id === id);
+  if (!app) return;
+  app.aktif = !app.aktif;
+  saveApps();
+  renderAdminGrid();
+}
+
+function openAppModal(id) {
+  const err = document.getElementById('app-error');
+  err.classList.remove('show');
+
+  if (id) {
+    const app = apps.find(a => a.id === id);
+    if (!app) return;
+    document.getElementById('modal-app-title').textContent = 'Edit Aplikasi';
+    document.getElementById('edit-id').value  = app.id;
+    document.getElementById('f-nama').value   = app.nama;
+    document.getElementById('f-kategori').value = app.kategori;
+    document.getElementById('f-icon').value   = app.icon;
+    document.getElementById('f-desc').value   = app.deskripsi;
+    document.getElementById('f-link').value   = app.link;
+    document.getElementById('f-aktif').value  = app.aktif ? '1' : '0';
+  } else {
+    document.getElementById('modal-app-title').textContent = 'Tambah Aplikasi';
+    document.getElementById('edit-id').value  = '';
+    document.getElementById('f-nama').value   = '';
+    document.getElementById('f-kategori').value = '';
+    document.getElementById('f-icon').value   = 'activity';
+    document.getElementById('f-desc').value   = '';
+    document.getElementById('f-link').value   = '';
+    document.getElementById('f-aktif').value  = '1';
+  }
+
+  showModal('modal-app');
+}
+
+function saveApp() {
+  const err  = document.getElementById('app-error');
+  const nama = document.getElementById('f-nama').value.trim();
+  const kat  = document.getElementById('f-kategori').value;
+  const desc = document.getElementById('f-desc').value.trim();
+  const link = document.getElementById('f-link').value.trim();
+  const icon = document.getElementById('f-icon').value;
+  const aktif= document.getElementById('f-aktif').value === '1';
+  const editId = document.getElementById('edit-id').value;
+
+  if (!nama || !kat || !desc || !link) {
+    err.textContent = 'Semua field wajib (*) harus diisi.';
+    err.classList.add('show');
+    return;
+  }
+  if (!link.startsWith('http://') && !link.startsWith('https://') && link !== '#') {
+    err.textContent = 'Link harus dimulai dengan https:// atau http://';
+    err.classList.add('show');
+    return;
+  }
+
+  if (editId) {
+    const app = apps.find(a => a.id === parseInt(editId));
+    if (app) { app.nama = nama; app.kategori = kat; app.deskripsi = desc; app.link = link; app.icon = icon; app.aktif = aktif; }
+  } else {
+    apps.push({ id: nextId(), nama, kategori: kat, deskripsi: desc, link, icon, aktif });
+  }
+
+  saveApps();
+  hideModal('modal-app');
+  renderAdminGrid();
+}
+
+function confirmDelete(id, nama) {
+  _pendingDelete = id;
+  document.getElementById('confirm-msg').textContent = `"${nama}" akan dihapus permanen dari portal.`;
+  document.getElementById('btn-confirm-del').onclick = () => {
+    apps = apps.filter(a => a.id !== _pendingDelete);
+    saveApps();
+    hideModal('modal-confirm');
+    renderAdminGrid();
+  };
+  showModal('modal-confirm');
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MODAL HELPERS
+───────────────────────────────────────────────────────────── */
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+function handleOverlayClick(e, id) { if (e.target.id === id) hideModal(id); }
+
+// Close modals on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['modal-login','modal-app','modal-confirm'].forEach(id => {
+      document.getElementById(id).classList.remove('show');
+    });
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────────────────────── */
+function init() {
+  loadApps();
+  tick();
+  setInterval(tick, 1000);
+
+  if (checkSession()) {
+    isAdmin = true;
+    goToAdmin();
+  } else {
+    renderPortal();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
