@@ -10,15 +10,15 @@ import type { App, Category, IconKey } from './types';
 ─────────────────────────────────────────────────────── */
 export const ADMIN_CRED = { user: 'admin', pass: 'Cast2026!' };
 
-export const STORAGE_KEY  = 'casting_hub_v1';
+export const STORAGE_KEY  = 'casting_hub_v2';
 export const SESSION_KEY  = 'casting_hub_admin';
 
 /* ── Categories ─────────────────────────────────────────── */
 export const CATEGORIES: Category[] = [
   { key: 'Monitoring',   color: '#1A6DB0', bg: 'rgba(26,109,176,0.10)'  },
-  { key: 'Kalkulator',   color: '#1D8A56', bg: 'rgba(29,138,86,0.10)'   },
-  { key: 'Checksheet',   color: '#C47A00', bg: 'rgba(196,122,0,0.10)'   },
   { key: 'Input Harian', color: '#7330C0', bg: 'rgba(115,48,192,0.10)'  },
+  { key: 'Laporan',      color: '#C47A00', bg: 'rgba(196,122,0,0.10)'   },
+  { key: 'Kaizen',       color: '#1D8A56', bg: 'rgba(29,138,86,0.10)'   },
 ];
 
 /* ── Icon map ────────────────────────────────────────────── */
@@ -42,48 +42,53 @@ export const ICON_OPTIONS: { value: string; label: string }[] = [
   { value: 'box',         label: 'Kotak / Default' },
 ];
 
-export const CATEGORY_OPTIONS = ['Monitoring', 'Kalkulator', 'Checksheet', 'Input Harian'];
+export const CATEGORY_OPTIONS = ['Monitoring', 'Input Harian', 'Laporan', 'Kaizen'];
 
 /* ── Default apps (first load) ──────────────────────────── */
 export const DEFAULT_APPS: App[] = [
   {
     id: 1, aktif: true,
-    nama: 'Furnace Tapping Tracker',
-    kategori: 'Monitoring',
-    deskripsi: 'Monitoring waktu tapping 5 furnace (MF1–MF3, LF4–LF5) secara real-time.',
+    nama: 'e-Henkaten',
+    kategori: 'Input Harian',
+    deskripsi: 'Catat setiap perubahan kondisi kerja yang tidak dilakukan seperti biasanya — perubahan Man, Machine, Material, atau Method — agar tidak ada yang terlewat dan bisa ditelusuri.',
     link: '#',
     icon: 'activity',
+    logo: '/icons/e-henkaten.png',
   },
   {
     id: 2, aktif: true,
-    nama: 'MatPrep',
-    kategori: 'Kalkulator',
-    deskripsi: 'Kalkulasi kebutuhan bon material per shift (2TR / 1TR / KAI / CRANK).',
+    nama: 'Form BNF',
+    kategori: 'Laporan',
+    deskripsi: 'Buat dan generate laporan problem resmi (Safety, Kualitas, Mesin, Outsource) lengkap dengan kronologi, penyebab, tanda tangan DpH/SH, langsung dalam format PDF siap kirim.',
     link: '#',
-    icon: 'calculator',
+    icon: 'chart',
+    logo: '/icons/form-bnf.png',
   },
   {
     id: 3, aktif: true,
-    nama: 'Thermoholder Checksheet',
-    kategori: 'Checksheet',
-    deskripsi: 'Checksheet digital pemeriksaan 16 unit thermoholder.',
+    nama: 'Kaizen Order Sheet',
+    kategori: 'Kaizen',
+    deskripsi: 'Ajukan ide perbaikan secara terstruktur — dari identifikasi masalah hingga order pelaksanaan kaizen — dalam satu lembar digital yang mudah dilacak.',
     link: '#',
-    icon: 'thermometer',
+    icon: 'clipboard',
+    logo: '/icons/kaizen-order-sheet.png',
   },
   {
     id: 4, aktif: true,
-    nama: 'FC/FCD Pouring Checksheet',
-    kategori: 'Checksheet',
-    deskripsi: 'Checksheet pouring runner shift Red/White untuk FC dan FCD.',
+    nama: 'Voice Member',
+    kategori: 'Input Harian',
+    deskripsi: 'Sampaikan aspirasi, keluhan, atau masukan perbaikan dari anggota line. Setiap suara tercatat, terorganisir, dan bisa disertai foto dokumentasi.',
     link: '#',
-    icon: 'clipboard',
+    icon: 'pencil',
+    logo: '/icons/voice-member.png',
   },
   {
     id: 5, aktif: true,
-    nama: 'Scrap Recording',
-    kategori: 'Input Harian',
-    deskripsi: 'Pencatatan 5 jenis scrap harian beserta perbandingan selisih berat.',
+    nama: 'Problem Produksi',
+    kategori: 'Monitoring',
+    deskripsi: 'Dashboard monitoring dan pelaporan problem yang menghambat produksi secara real-time — lihat status On Progress/Finish, input problem baru, dan kelola data lintas line.',
     link: '#',
-    icon: 'pencil',
+    icon: 'chart',
+    logo: '/icons/problem-produksi.png',
   },
 ];

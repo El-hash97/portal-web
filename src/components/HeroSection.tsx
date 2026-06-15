@@ -1,92 +1,75 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { useAppStore } from '@/context/AppContext';
+import { cn } from '@/lib/utils';
 
-function CountUp({ to, duration = 1200 }: { to: number; duration?: number }) {
-  const [val, setVal] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
-          started.current = true;
-          const t0 = performance.now();
-          const tick = (now: number) => {
-            const p = Math.min((now - t0) / duration, 1);
-            const ease = 1 - Math.pow(1 - p, 3);
-            setVal(Math.round(ease * to));
-            if (p < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [to, duration]);
-
-  return <span ref={ref}>{val}</span>;
+function ElegantShape({
+  className,
+  delay = 0,
+  width = 400,
+  height = 100,
+  rotate = 0,
+  gradient = 'from-white/[0.08]',
+}: {
+  className?: string;
+  delay?: number;
+  width?: number;
+  height?: number;
+  rotate?: number;
+  gradient?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -150, rotate: rotate - 15 }}
+      animate={{ opacity: 1, y: 0, rotate }}
+      transition={{
+        duration: 2.4,
+        delay,
+        ease: [0.23, 0.86, 0.39, 0.96],
+        opacity: { duration: 1.2 },
+      }}
+      className={cn('absolute', className)}
+    >
+      <motion.div
+        animate={{ y: [0, 15, 0] }}
+        transition={{ duration: 12, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
+        style={{ width, height }}
+        className="relative"
+      >
+        <div
+          className={cn(
+            'absolute inset-0 rounded-full',
+            'bg-gradient-to-r to-transparent',
+            gradient,
+            'backdrop-blur-[2px] border-2 border-white/[0.15]',
+            'shadow-[0_8px_32px_0_rgba(255,255,255,0.1)]',
+            'after:absolute after:inset-0 after:rounded-full',
+            'after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]',
+          )}
+        />
+      </motion.div>
+    </motion.div>
+  );
 }
 
-interface Particle {
-  id: number;
-  x: number;
-  size: number;
-  duration: number;
-  delay: number;
-  opacity: number;
-  orange: boolean;
-}
+const fadeUp = (i: number) => ({
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1,
+      delay: 0.5 + i * 0.2,
+      ease: [0.25, 0.4, 0.25, 1] as const,
+    },
+  },
+});
 
 export function HeroSection() {
-  const { apps } = useAppStore();
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    // Client-side only — avoids SSR hydration mismatch
-    setParticles(
-      Array.from({ length: 22 }, (_, i) => ({
-        id: i,
-        x: (i * 4.7 + Math.sin(i * 1.3) * 3.5) % 100,
-        size: 1.4 + (i % 4) * 0.55,
-        duration: 5.5 + (i % 6) * 1.1,
-        delay: -((i * 0.55) % 9),
-        opacity: 0.22 + (i % 5) * 0.1,
-        orange: i % 6 === 0,
-      }))
-    );
-    const t = setTimeout(() => setRevealed(true), 80);
-    return () => clearTimeout(t);
-  }, []);
-
-  const totalApps = apps.length || 5;
-  const activeApps = apps.filter(a => a.aktif).length || 5;
-
-  const stats = [
-    { value: 5,         label: 'Furnace',  sub: 'MF1–3, LF4–5' },
-    { value: 3,         label: 'Shift',    sub: 'per hari' },
-    { value: totalApps, label: 'Aplikasi', sub: `${activeApps} aktif` },
-    { value: 4,         label: 'Kategori', sub: 'tools internal' },
-  ];
-
   function scrollToApps() {
     document.getElementById('apps-content')?.scrollIntoView({ behavior: 'smooth' });
   }
-
-  const reveal = (delay: number): React.CSSProperties => ({
-    opacity: revealed ? 1 : 0,
-    transform: revealed ? 'translateY(0)' : 'translateY(14px)',
-    transition: 'opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,0.61,0.36,1)',
-    transitionDelay: `${delay}ms`,
-  });
 
   return (
     <section
@@ -105,55 +88,67 @@ export function HeroSection() {
         }}
       />
 
-      {/* Furnace heat glow — bottom left */}
+      {/* Red glow — bottom left */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 62% 52% at -8% 118%, rgba(235,10,30,0.28) 0%, rgba(255,68,0,0.09) 38%, transparent 66%)',
+            'radial-gradient(ellipse 62% 52% at -8% 118%, rgba(235,10,30,0.22) 0%, rgba(255,68,0,0.07) 38%, transparent 66%)',
         }}
       />
 
-      {/* Cool accent — top right */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 36% 32% at 112% -8%, rgba(150,165,200,0.055) 0%, transparent 55%)',
-        }}
-      />
-
-      {/* Radar scan line */}
-      <div className="hero-scan-line pointer-events-none" />
-
-      {/* Ember particles */}
-      {particles.map(p => (
-        <div
-          key={p.id}
-          className="hero-ember pointer-events-none"
-          style={{
-            left: `${p.x}%`,
-            width: `${p.size}px`,
-            height: `${p.size * 1.9}px`,
-            background: p.orange ? '#FF6200' : '#EB0A1E',
-            opacity: p.opacity,
-            animationDuration: `${p.duration}s`,
-            animationDelay: `${p.delay}s`,
-          }}
+      {/* Floating ElegantShapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <ElegantShape
+          delay={0.3}
+          width={580}
+          height={130}
+          rotate={12}
+          gradient="from-red-500/[0.12]"
+          className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
         />
-      ))}
+        <ElegantShape
+          delay={0.5}
+          width={460}
+          height={110}
+          rotate={-15}
+          gradient="from-orange-500/[0.10]"
+          className="right-[-5%] md:right-[0%] top-[60%] md:top-[65%]"
+        />
+        <ElegantShape
+          delay={0.4}
+          width={280}
+          height={75}
+          rotate={-8}
+          gradient="from-rose-700/[0.10]"
+          className="left-[5%] md:left-[10%] bottom-[8%] md:bottom-[12%]"
+        />
+        <ElegantShape
+          delay={0.6}
+          width={180}
+          height={55}
+          rotate={20}
+          gradient="from-red-400/[0.09]"
+          className="right-[15%] md:right-[20%] top-[10%] md:top-[14%]"
+        />
+        <ElegantShape
+          delay={0.7}
+          width={140}
+          height={38}
+          rotate={-25}
+          gradient="from-orange-300/[0.08]"
+          className="left-[20%] md:left-[26%] top-[5%] md:top-[9%]"
+        />
+      </div>
 
       {/* Main content */}
-      <div className="relative z-10 max-w-[1240px] mx-auto px-6 sm:px-10 py-16 sm:py-20 flex flex-col justify-center">
+      <div className="relative z-10 max-w-[1240px] mx-auto px-6 sm:px-10 py-16 sm:py-20 flex flex-col items-center justify-center text-center">
 
         {/* Corner targeting brackets */}
-        {(
-          [
-            'top-7 left-6 sm:left-10 border-t border-l',
-            'top-7 right-6 sm:right-10 border-t border-r',
-            'bottom-14 left-6 sm:left-10 border-b border-l',
-            'bottom-14 right-6 sm:right-10 border-b border-r',
-          ] as const
+        {(['top-7 left-6 sm:left-10 border-t border-l',
+           'top-7 right-6 sm:right-10 border-t border-r',
+           'bottom-14 left-6 sm:left-10 border-b border-l',
+           'bottom-14 right-6 sm:right-10 border-b border-r'] as const
         ).map((cls, i) => (
           <div
             key={i}
@@ -162,107 +157,82 @@ export function HeroSection() {
           />
         ))}
 
-        {/* Live indicator badge */}
-        <div className="inline-flex items-center gap-2 self-start mb-8" style={reveal(0)}>
+        {/* Live badge */}
+        <motion.div
+          variants={fadeUp(0)}
+          initial="hidden"
+          animate="visible"
+          className="inline-flex items-center gap-2 mb-8"
+        >
           <span className="w-1.5 h-1.5 rounded-full hero-pulse-dot" style={{ background: '#EB0A1E' }} />
           <span
             className="text-[10px] font-bold tracking-[0.2em] uppercase"
             style={{ color: 'rgba(255,255,255,0.38)' }}
           >
-            TMMIN · Casting Division · EPSD Sunter 2
+            PT. Toyota Motor Manufacturing Indonesia · EPSD Sunter 2 · Casting Division
           </span>
-        </div>
+        </motion.div>
 
-        {/* Headline line 1 — white, masked slide-up */}
-        <div style={{ overflow: 'hidden', marginBottom: '4px' }}>
-          <div
-            style={{
-              fontSize: 'clamp(38px, 7.5vw, 82px)',
-              fontWeight: 900,
-              color: '#FFFFFF',
-              letterSpacing: '-0.04em',
-              lineHeight: 1.0,
-              opacity: revealed ? 1 : 0,
-              transform: revealed ? 'translateY(0)' : 'translateY(105%)',
-              transition: 'opacity 0.4s ease, transform 0.75s cubic-bezier(0.22,0.61,0.36,1)',
-              transitionDelay: '100ms',
-            }}
-          >
-            Semua Tools.
-          </div>
-        </div>
+        {/* Headline line 1 */}
+        <motion.div
+          variants={fadeUp(1)}
+          initial="hidden"
+          animate="visible"
+          style={{
+            fontSize: 'clamp(38px, 7.5vw, 82px)',
+            fontWeight: 900,
+            color: '#FFFFFF',
+            letterSpacing: '-0.04em',
+            lineHeight: 1.15,
+            marginBottom: '4px',
+          }}
+        >
+          Casting Tools
+        </motion.div>
 
         {/* Headline line 2 — Toyota Red */}
-        <div style={{ overflow: 'hidden', marginBottom: '28px' }}>
-          <div
-            style={{
-              fontSize: 'clamp(38px, 7.5vw, 82px)',
-              fontWeight: 900,
-              color: '#EB0A1E',
-              letterSpacing: '-0.04em',
-              lineHeight: 1.0,
-              opacity: revealed ? 1 : 0,
-              transform: revealed ? 'translateY(0)' : 'translateY(105%)',
-              transition: 'opacity 0.4s ease, transform 0.75s cubic-bezier(0.22,0.61,0.36,1)',
-              transitionDelay: '210ms',
-            }}
-          >
-            Satu Klik.
-          </div>
-        </div>
-
-        {/* Red accent underline — expands left to right */}
-        <div
+        <motion.div
+          variants={fadeUp(2)}
+          initial="hidden"
+          animate="visible"
           style={{
-            height: '2px',
-            background: '#EB0A1E',
-            marginBottom: '24px',
-            width: revealed ? '72px' : '0px',
-            opacity: revealed ? 1 : 0,
-            transition: 'width 0.55s cubic-bezier(0.22,0.61,0.36,1), opacity 0.3s ease',
-            transitionDelay: '370ms',
+            fontSize: 'clamp(38px, 7.5vw, 82px)',
+            fontWeight: 900,
+            color: '#EB0A1E',
+            letterSpacing: '-0.04em',
+            lineHeight: 1.15,
+            marginBottom: '28px',
           }}
+        >
+          Hub
+        </motion.div>
+
+        {/* Red accent underline */}
+        <motion.div
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: 72, opacity: 1 }}
+          transition={{ duration: 0.55, delay: 1.1, ease: [0.22, 0.61, 0.36, 1] }}
+          style={{ height: '2px', background: '#EB0A1E', marginBottom: '24px' }}
         />
 
         {/* Subtitle */}
-        <p
-          className="max-w-[460px] leading-relaxed mb-10"
-          style={{
-            fontSize: '13.5px',
-            color: 'rgba(255,255,255,0.4)',
-            ...reveal(450),
-          }}
+        <motion.p
+          variants={fadeUp(3)}
+          initial="hidden"
+          animate="visible"
+          className="max-w-[520px] mx-auto leading-relaxed mb-10"
+          style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.4)' }}
         >
-          Portal akses terpusat untuk seluruh aplikasi digital Casting Division —
-          input harian, checksheet, kalkulator proses, hingga monitoring produksi.
-        </p>
-
-        {/* Stat cards */}
-        <div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-[580px] mb-10"
-          style={reveal(550)}
-        >
-          {stats.map((s, i) => (
-            <div key={s.label} className="hero-stat-card rounded-xl p-4">
-              <div
-                className="tabular-nums font-black leading-none mb-1"
-                style={{ fontSize: '28px', color: '#EB0A1E', letterSpacing: '-0.04em' }}
-              >
-                <CountUp to={s.value} duration={1100 + i * 130} />
-              </div>
-              <div className="text-[12px] font-bold text-white">{s.label}</div>
-              <div className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.28)' }}>
-                {s.sub}
-              </div>
-            </div>
-          ))}
-        </div>
+          Satu pintu akses ke seluruh aplikasi digital Casting Division — dari input harian hingga pelaporan resmi.
+        </motion.p>
 
         {/* CTA */}
-        <button
+        <motion.button
+          variants={fadeUp(4)}
+          initial="hidden"
+          animate="visible"
           onClick={scrollToApps}
-          className="inline-flex items-center gap-2.5 self-start group"
-          style={reveal(680)}
+          className="inline-flex items-center gap-2.5 group"
         >
           <span
             className="text-[13px] font-semibold hero-cta-text"
@@ -279,19 +249,14 @@ export function HeroSection() {
           >
             <ChevronDown size={13} style={{ color: '#EB0A1E' }} />
           </div>
-        </button>
+        </motion.button>
       </div>
 
-      {/* Diagonal SVG divider into body #F0F0F0 */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-        <svg
-          viewBox="0 0 1440 52"
-          preserveAspectRatio="none"
-          style={{ display: 'block', width: '100%', height: '52px' }}
-        >
-          <path d="M0,52 L0,22 L1440,0 L1440,52 Z" fill="#F0F0F0" />
-        </svg>
-      </div>
+      {/* Gradient fade to content */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-28 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, transparent, #0a0a0a)' }}
+      />
     </section>
   );
 }

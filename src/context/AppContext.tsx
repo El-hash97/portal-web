@@ -5,11 +5,8 @@ import React, {
   useCallback, type ReactNode,
 } from 'react';
 import type { App } from '@/lib/types';
-import { ADMIN_CRED, CATEGORIES } from '@/lib/constants';
-import {
-  loadApps, saveApps,
-  isAdminLoggedIn, startAdminSession, clearAdminSession,
-} from '@/lib/storage';
+import { ADMIN_CRED, CATEGORIES, DEFAULT_APPS } from '@/lib/constants';
+import { isAdminLoggedIn, startAdminSession, clearAdminSession } from '@/lib/storage';
 
 interface AppStore {
   apps: App[];
@@ -30,17 +27,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    setApps(loadApps());
+    fetch('/api/apps')
+      .then(r => r.json())
+      .then((data: App[]) => setApps(data.length ? data : DEFAULT_APPS))
+      .catch(() => setApps(DEFAULT_APPS));
     setIsAdmin(isAdminLoggedIn());
   }, []);
-
-  const persist = useCallback((next: App[]) => {
-    setApps(next);
-    saveApps(next);
-  }, []);
-
-  // suppress unused warning — persist is used internally
-  void persist;
 
   const login = useCallback((user: string, pass: string) => {
     if (user === ADMIN_CRED.user && pass === ADMIN_CRED.pass) {
@@ -59,34 +51,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const toggleApp = useCallback((id: number) => {
     setApps(prev => {
       const next = prev.map(a => a.id === id ? { ...a, aktif: !a.aktif } : a);
-      saveApps(next);
+      const target = next.find(a => a.id === id);
+      if (target) {
+        fetch(`/api/apps/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ aktif: target.aktif }),
+        });
+      }
       return next;
     });
   }, []);
 
   const addApp = useCallback((data: Omit<App, 'id'>) => {
-    setApps(prev => {
-      const id = prev.length ? Math.max(...prev.map(a => a.id)) + 1 : 1;
-      const next = [...prev, { ...data, id }];
-      saveApps(next);
-      return next;
-    });
+    const tempId = -Date.now();
+    setApps(prev => [...prev, { ...data, id: tempId }]);
+
+    fetch('/api/apps', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+      .then(r => r.json())
+      .then((created: App) => {
+        setApps(prev => prev.map(a => a.id === tempId ? created : a));
+      });
   }, []);
 
   const updateApp = useCallback((id: number, data: Partial<Omit<App, 'id'>>) => {
-    setApps(prev => {
-      const next = prev.map(a => a.id === id ? { ...a, ...data } : a);
-      saveApps(next);
-      return next;
+    setApps(prev => prev.map(a => a.id === id ? { ...a, ...data } : a));
+
+    fetch(`/api/apps/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     });
   }, []);
 
   const deleteApp = useCallback((id: number) => {
-    setApps(prev => {
-      const next = prev.filter(a => a.id !== id);
-      saveApps(next);
-      return next;
-    });
+    setApps(prev => prev.filter(a => a.id !== id));
+
+    fetch(`/api/apps/${id}`, { method: 'DELETE' });
   }, []);
 
   const getCategoryStyle = useCallback((key: string) => {

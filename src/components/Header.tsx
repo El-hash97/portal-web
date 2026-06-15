@@ -32,15 +32,15 @@ export function Header() {
         }}
       />
 
-      <div className="relative max-w-[1240px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+      <div className="relative max-w-[1240px] mx-auto px-4 sm:px-6 h-[68px] flex items-center justify-between gap-3">
         {/* ── LEFT: brand + title ── */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <span
-            className="shrink-0 text-[10px] font-black tracking-[.18em] px-2.5 py-1 uppercase leading-none text-white"
-            style={{ background: '#EB0A1E' }}
-          >
-            TOYOTA
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="h-9 w-auto shrink-0 object-contain"
+          />
 
           <div className="hidden sm:block h-5 w-px bg-white/15 shrink-0" />
 
@@ -57,7 +57,7 @@ export function Header() {
 
           <Link
             href="/"
-            className="text-white font-bold text-[15px] leading-none tracking-tight hover:text-white/80 transition-colors truncate"
+            className="text-white font-bold text-[15px] leading-tight tracking-tight hover:text-white/80 transition-colors truncate"
           >
             Casting Tools Hub
           </Link>
@@ -103,6 +103,30 @@ export function Header() {
               {date}
             </div>
           </div>
+
+          {!onAdmin && (
+            <Link
+              href="/admin"
+              title="Admin Panel"
+              className="ml-1 pl-2 border-l border-white/10 flex items-center justify-center transition-opacity hover:opacity-70"
+              style={{ color: 'rgba(255,255,255,0.45)' }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            </Link>
+          )}
         </div>
       </div>
 

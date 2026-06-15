@@ -38,12 +38,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="px-8 py-7 text-center" style={{ background: '#1A1A1A' }}>
-            <span
-              className="inline-block text-[10px] font-black tracking-[.18em] px-3 py-1 uppercase text-white mb-4"
-              style={{ background: '#EB0A1E' }}
-            >
-              TOYOTA
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Logo" className="h-10 w-auto mx-auto mb-4 object-contain" />
             <h2 className="text-[22px] font-bold text-white tracking-tight">Admin Login</h2>
             <p className="text-[12px] mt-1.5" style={{ color: 'rgba(255,255,255,0.42)' }}>
               Casting Tools Hub · Casting Division

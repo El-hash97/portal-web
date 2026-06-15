@@ -12,7 +12,7 @@ interface AppFormModalProps {
   editApp?: App | null;
 }
 
-const EMPTY = { nama: '', kategori: '', deskripsi: '', link: '', icon: 'activity', aktif: true };
+const EMPTY = { nama: '', kategori: '', deskripsi: '', link: '', icon: 'activity', logo: '', aktif: true };
 
 export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
   const { addApp, updateApp } = useAppStore();
@@ -22,7 +22,7 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
   useEffect(() => {
     if (open) {
       setForm(editApp
-        ? { nama: editApp.nama, kategori: editApp.kategori, deskripsi: editApp.deskripsi, link: editApp.link, icon: editApp.icon, aktif: editApp.aktif }
+        ? { nama: editApp.nama, kategori: editApp.kategori, deskripsi: editApp.deskripsi, link: editApp.link, icon: editApp.icon, logo: editApp.logo ?? '', aktif: editApp.aktif }
         : EMPTY
       );
       setError('');
@@ -43,10 +43,11 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
       setError('Link harus dimulai dengan https:// atau http://');
       return;
     }
+    const payload = { ...form, logo: form.logo.trim() || undefined };
     if (editApp) {
-      updateApp(editApp.id, { ...form });
+      updateApp(editApp.id, payload);
     } else {
-      addApp({ ...form });
+      addApp(payload);
     }
     onClose();
   }
@@ -110,6 +111,13 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
           <input type="text" value={form.link} onChange={e => set('link', e.target.value)}
             placeholder="https://..." className={inputCls} style={inputStyle} {...fh} />
           <p className="text-[11.5px] text-[#58595B] mt-1.5">Masukkan link lengkap termasuk https://</p>
+        </div>
+
+        <div>
+          <label className="block text-[12.5px] font-bold text-[#1A1A1A] mb-2">Logo (path gambar)</label>
+          <input type="text" value={form.logo} onChange={e => set('logo', e.target.value)}
+            placeholder="/icons/nama-app.png" className={inputCls} style={inputStyle} {...fh} />
+          <p className="text-[11.5px] text-[#58595B] mt-1.5">Opsional — path relatif ke folder /public (mis. /icons/e-henkaten.png)</p>
         </div>
 
         <div>

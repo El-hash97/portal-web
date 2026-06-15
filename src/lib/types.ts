@@ -5,6 +5,7 @@ export interface App {
   deskripsi: string;
   link: string;
   icon: string;
+  logo?: string;
   aktif: boolean;
 }
 

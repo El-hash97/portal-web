@@ -1,49 +1,41 @@
 'use client';
 
 import { Box } from 'lucide-react';
-import { CATEGORIES } from '@/lib/constants';
 import { useAppStore } from '@/context/AppContext';
-import { CategorySection } from './CategorySection';
+import { AppCard } from './AppCard';
 import { HeroSection } from './HeroSection';
+import { GradientBars } from '@/components/ui/gradient-bars-background';
 
 export function Portal() {
   const { apps } = useAppStore();
   const activeApps = apps.filter(a => a.aktif);
-  const knownKeys = CATEGORIES.map(c => c.key);
-  const otherApps = activeApps.filter(a => !knownKeys.includes(a.kategori));
 
   return (
     <>
       <HeroSection />
-      <main id="apps-content" className="max-w-[1240px] mx-auto px-4 sm:px-6 py-10">
-        {activeApps.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center px-4">
-            <Box size={48} className="text-gray-300 mb-4" />
-            <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">Belum Ada Aplikasi</h3>
-            <p className="text-[14px] text-[#58595B]">Admin belum mengaktifkan aplikasi apapun.</p>
-          </div>
-        ) : (
-          <>
-            {CATEGORIES.map((cat, ci) => {
-              const list = activeApps.filter(a => a.kategori === cat.key);
-              return (
-                <CategorySection
-                  key={cat.key}
-                  category={cat}
-                  apps={list}
-                  delayBase={ci * 100}
-                />
-              );
-            })}
-            {otherApps.length > 0 && (
-              <CategorySection
-                category={{ key: 'Lainnya', color: '#58595B', bg: 'rgba(88,89,91,0.10)' }}
-                apps={otherApps}
-              />
-            )}
-          </>
-        )}
-      </main>
+      <div className="relative" style={{ background: '#0a0a0a' }}>
+        <GradientBars
+          numBars={15}
+          gradientFrom="rgba(235, 10, 30, 0.18)"
+          gradientTo="transparent"
+          animationDuration={3}
+        />
+        <main id="apps-content" className="relative z-10 max-w-[1240px] mx-auto px-4 sm:px-6 py-10">
+          {activeApps.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center px-4">
+              <Box size={48} className="mb-4" style={{ color: 'rgba(255,255,255,0.2)' }} />
+              <h3 className="text-xl font-bold mb-2" style={{ color: 'rgba(255,255,255,0.85)' }}>Belum Ada Aplikasi</h3>
+              <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Admin belum mengaktifkan aplikasi apapun.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {activeApps.map((app, i) => (
+                <AppCard key={app.id} app={app} delay={i * 60} />
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
     </>
   );
 }

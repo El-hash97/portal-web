@@ -21,15 +21,16 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
   return (
     <div
       className={`
-        bg-white border rounded-2xl p-6 flex flex-col relative overflow-hidden
+        border rounded-2xl p-6 flex flex-col relative overflow-hidden
         transition-all duration-200 group
         ${adminMode && !app.aktif
-          ? 'opacity-50 border-gray-200'
-          : 'border-gray-200 hover:-translate-y-1 hover:shadow-xl hover:border-[rgba(235,10,30,0.2)]'
+          ? 'opacity-40 border-white/10'
+          : 'border-white/10 hover:-translate-y-1 hover:border-[rgba(235,10,30,0.5)]'
         }
       `}
       style={{
-        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)',
+        background: 'linear-gradient(135deg, #0f0f0f 0%, #1e0808 100%)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
         animationDelay: `${delay}ms`,
       }}
     >
@@ -52,18 +53,26 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
         </span>
       )}
 
-      {/* icon */}
-      <div
-        className="w-[52px] h-[52px] rounded-[13px] flex items-center justify-center mb-4 shrink-0"
-        style={{ background: style.bg, color: style.color }}
-      >
-        <Icon size={23} />
-      </div>
+      {/* icon / logo */}
+      {app.logo ? (
+        <img
+          src={app.logo}
+          alt={app.nama}
+          className="w-[56px] h-[56px] rounded-[14px] mb-4 shrink-0 object-cover"
+        />
+      ) : (
+        <div
+          className="w-[52px] h-[52px] rounded-[13px] flex items-center justify-center mb-4 shrink-0"
+          style={{ background: style.bg, color: style.color }}
+        >
+          <Icon size={23} />
+        </div>
+      )}
 
-      <div className="text-[15.5px] font-bold text-[#1A1A1A] leading-snug mb-2 tracking-tight pr-14">
+      <div className="text-[15.5px] font-bold leading-snug mb-2 tracking-tight pr-14" style={{ color: 'rgba(255,255,255,0.92)' }}>
         {app.nama}
       </div>
-      <div className="text-[13px] leading-relaxed flex-1 mb-5" style={{ color: '#58595B' }}>
+      <div className="text-[13px] leading-relaxed flex-1 mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>
         {app.deskripsi}
       </div>
 
@@ -80,7 +89,7 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
             Buka Aplikasi <ArrowRight size={13} />
           </a>
         ) : (
-          <span className="inline-flex items-center gap-2 text-[12.5px] font-bold tracking-wide px-4 py-2.5 rounded-lg cursor-not-allowed" style={{ background: '#D0D0D0', color: '#888' }}>
+          <span className="inline-flex items-center gap-2 text-[12.5px] font-bold tracking-wide px-4 py-2.5 rounded-lg cursor-not-allowed" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.3)' }}>
             Link Belum Diisi
           </span>
         )}
@@ -100,7 +109,8 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
             </button>
             <button
               onClick={() => onEdit?.(app)}
-              className="p-2 rounded-lg border border-gray-200 text-gray-500 hover:border-gray-300 transition-colors"
+              className="p-2 rounded-lg border transition-colors"
+              style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.5)' }}
               title="Edit"
             >
               <Pencil size={13} />
