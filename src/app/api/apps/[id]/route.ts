@@ -38,8 +38,9 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (err) {
-    console.error('[PATCH /api/apps/:id]', err);
-    return NextResponse.json({ error: 'Gagal mengupdate aplikasi' }, { status: 500 });
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error('[PATCH /api/apps/:id]', detail);
+    return NextResponse.json({ error: 'Gagal mengupdate aplikasi', detail }, { status: 500 });
   }
 }
 

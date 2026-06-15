@@ -85,7 +85,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    if (!res.ok) return false;
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      console.error('[updateApp] PATCH failed', res.status, body);
+      return false;
+    }
     const updated: App = await res.json();
     setApps(prev => prev.map(a => a.id === id ? normalize(updated) : a));
     return true;
