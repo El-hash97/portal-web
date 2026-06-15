@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/db';
+import { neonSql, db } from '@/db';
 import { apps } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
@@ -10,38 +10,33 @@ export async function PATCH(
   try {
     const { id: idParam } = await params;
     const id = parseInt(idParam, 10);
-    if (isNaN(id)) return NextResponse.json({ error: 'ID tidak valid', detail: `id param: ${idParam}` }, { status: 400 });
+    if (isNaN(id)) return NextResponse.json({ error: 'ID tidak valid' }, { status: 400 });
 
     const body = await request.json();
 
-    // Use typed partial to ensure Drizzle maps columns correctly
-    const update: {
-      nama?: string; kategori?: string; deskripsi?: string;
-      link?: string; icon?: string; logo?: string | null; aktif?: boolean;
-    } = {};
-    if (typeof body.nama      === 'string')  update.nama      = body.nama;
-    if (typeof body.kategori  === 'string')  update.kategori  = body.kategori;
-    if (typeof body.deskripsi === 'string')  update.deskripsi = body.deskripsi;
-    if (typeof body.link      === 'string')  update.link      = body.link;
-    if (typeof body.icon      === 'string')  update.icon      = body.icon;
-    if ('logo' in body)                      update.logo      = body.logo ?? null;
-    if (typeof body.aktif     === 'boolean') update.aktif     = body.aktif;
+    // Use neon tagged template directly — bypasses Drizzle ORM serialization
+    // which has a known issue with boolean/integer params on the neon-http driver.
+    const rows = await neonSql`
+      UPDATE apps SET
+        nama      = ${body.nama      ?? null},
+        kategori  = ${body.kategori  ?? null},
+        deskripsi = ${body.deskripsi ?? null},
+        link      = ${body.link      ?? null},
+        icon      = ${body.icon      ?? null},
+        logo      = ${body.logo      ?? null},
+        aktif     = ${body.aktif     ?? true}
+      WHERE id = ${id}
+      RETURNING *
+    `;
 
-    if (Object.keys(update).length === 0) {
-      return NextResponse.json({ error: 'Tidak ada field yang diupdate', detail: `body keys: ${Object.keys(body).join(',')}` }, { status: 400 });
-    }
+    if (!rows[0]) return NextResponse.json({ error: 'Aplikasi tidak ditemukan' }, { status: 404 });
 
-    const [updated] = await db
-      .update(apps)
-      .set(update)
-      .where(eq(apps.id, id))
-      .returning();
-
-    if (!updated) return NextResponse.json({ error: 'Aplikasi tidak ditemukan', detail: `id: ${id}` }, { status: 404 });
-
-    return NextResponse.json(updated);
+    return NextResponse.json(rows[0]);
   } catch (err) {
-    const detail = err instanceof Error ? `${err.message} | stack: ${err.stack?.split('\n')[1]?.trim()}` : String(err);
+    const cause = (err as Record<string, unknown>).cause;
+    const detail = err instanceof Error
+      ? `${err.message} | cause: ${JSON.stringify(cause)}`
+      : String(err);
     console.error('[PATCH /api/apps/:id]', detail);
     return NextResponse.json({ error: 'Gagal mengupdate aplikasi', detail }, { status: 500 });
   }

@@ -16,5 +16,5 @@ function getDbUrl(): string {
   }
 }
 
-const sql = neon(getDbUrl());
-export const db = drizzle(sql, { schema });
+export const neonSql = neon(getDbUrl());
+export const db = drizzle(neonSql, { schema });
