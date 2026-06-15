@@ -14,13 +14,17 @@ interface AppStore {
   login: (user: string, pass: string) => boolean;
   logout: () => void;
   toggleApp: (id: number) => void;
-  addApp: (data: Omit<App, 'id'>) => void;
-  updateApp: (id: number, data: Partial<Omit<App, 'id'>>) => void;
+  addApp: (data: Omit<App, 'id'>) => Promise<boolean>;
+  updateApp: (id: number, data: Partial<Omit<App, 'id'>>) => Promise<boolean>;
   deleteApp: (id: number) => void;
   getCategoryStyle: (key: string) => { color: string; bg: string };
 }
 
 const AppContext = createContext<AppStore | null>(null);
+
+function normalize(app: App): App {
+  return { ...app, logo: app.logo ?? undefined };
+}
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [apps, setApps]       = useState<App[]>([]);
@@ -28,8 +32,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetch('/api/apps')
-      .then(r => r.json())
-      .then((data: App[]) => setApps(data.length ? data : DEFAULT_APPS))
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((data: App[]) => setApps(data.length ? data.map(normalize) : DEFAULT_APPS))
       .catch(() => setApps(DEFAULT_APPS));
     setIsAdmin(isAdminLoggedIn());
   }, []);
@@ -63,45 +67,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const addApp = useCallback((data: Omit<App, 'id'>) => {
-    const tempId = -Date.now();
-    setApps(prev => [...prev, { ...data, id: tempId }]);
-
-    fetch('/api/apps', {
+  const addApp = useCallback(async (data: Omit<App, 'id'>): Promise<boolean> => {
+    const res = await fetch('/api/apps', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    })
-      .then(r => r.json())
-      .then((created: App) => {
-        setApps(prev => prev.map(a => a.id === tempId ? created : a));
-      });
+    });
+    if (!res.ok) return false;
+    const created: App = await res.json();
+    setApps(prev => [...prev, normalize(created)]);
+    return true;
   }, []);
 
-  const updateApp = useCallback((id: number, data: Partial<Omit<App, 'id'>>) => {
-    let snapshot: App[] | null = null;
-
-    setApps(prev => {
-      snapshot = prev;
-      return prev.map(a => a.id === id ? { ...a, ...data } : a);
-    });
-
-    fetch(`/api/apps/${id}`, {
+  const updateApp = useCallback(async (id: number, data: Partial<Omit<App, 'id'>>): Promise<boolean> => {
+    const res = await fetch(`/api/apps/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    })
-      .then(res => {
-        if (!res.ok && snapshot) setApps(snapshot);
-      })
-      .catch(() => {
-        if (snapshot) setApps(snapshot);
-      });
+    });
+    if (!res.ok) return false;
+    const updated: App = await res.json();
+    setApps(prev => prev.map(a => a.id === id ? normalize(updated) : a));
+    return true;
   }, []);
 
   const deleteApp = useCallback((id: number) => {
     setApps(prev => prev.filter(a => a.id !== id));
-
     fetch(`/api/apps/${id}`, { method: 'DELETE' });
   }, []);
 

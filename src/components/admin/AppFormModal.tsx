@@ -16,8 +16,9 @@ const EMPTY = { nama: '', kategori: '', deskripsi: '', link: '', icon: 'activity
 
 export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
   const { addApp, updateApp } = useAppStore();
-  const [form, setForm] = useState(EMPTY);
-  const [error, setError] = useState('');
+  const [form, setForm]     = useState(EMPTY);
+  const [error, setError]   = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -26,6 +27,7 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
         : EMPTY
       );
       setError('');
+      setSaving(false);
     }
   }, [open, editApp]);
 
@@ -33,7 +35,7 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
     setForm(p => ({ ...p, [field]: val }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nama.trim() || !form.kategori || !form.deskripsi.trim() || !form.link.trim()) {
       setError('Semua field wajib (*) harus diisi.');
@@ -43,13 +45,21 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
       setError('Link harus dimulai dengan https:// atau http://');
       return;
     }
+
+    setSaving(true);
+    setError('');
+
     const payload = { ...form, logo: form.logo.trim() || undefined };
-    if (editApp) {
-      updateApp(editApp.id, payload);
+    const ok = editApp
+      ? await updateApp(editApp.id, payload)
+      : await addApp(payload as Omit<App, 'id'>);
+
+    if (ok) {
+      onClose();
     } else {
-      addApp(payload);
+      setError('Gagal menyimpan ke database. Periksa koneksi dan coba lagi.');
+      setSaving(false);
     }
-    onClose();
   }
 
   const inputCls = "w-full px-3.5 py-2.5 rounded-xl text-[14px] text-[#1A1A1A] outline-none";
@@ -66,7 +76,7 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={editApp ? 'Edit Aplikasi' : 'Tambah Aplikasi'} maxWidth="max-w-xl">
+    <Modal open={open} onClose={saving ? () => {} : onClose} title={editApp ? 'Edit Aplikasi' : 'Tambah Aplikasi'} maxWidth="max-w-xl">
       <form onSubmit={handleSubmit} className="px-7 py-6 space-y-4">
         {error && (
           <div className="text-[13px] font-semibold px-4 py-3 rounded-lg"
@@ -129,15 +139,21 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose}
-            className="px-5 py-2.5 rounded-xl text-[13px] font-bold"
+          <button type="button" onClick={onClose} disabled={saving}
+            className="px-5 py-2.5 rounded-xl text-[13px] font-bold disabled:opacity-40"
             style={{ border: '1.5px solid #E0E0E0', color: '#58595B' }}>
             Batal
           </button>
-          <button type="submit"
-            className="px-6 py-2.5 rounded-xl text-[13px] font-bold text-white"
+          <button type="submit" disabled={saving}
+            className="px-6 py-2.5 rounded-xl text-[13px] font-bold text-white flex items-center gap-2 disabled:opacity-70"
             style={{ background: '#EB0A1E' }}>
-            Simpan
+            {saving && (
+              <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeOpacity="0.3" />
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+            )}
+            {saving ? 'Menyimpan...' : 'Simpan'}
           </button>
         </div>
       </form>
