@@ -79,13 +79,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateApp = useCallback((id: number, data: Partial<Omit<App, 'id'>>) => {
-    setApps(prev => prev.map(a => a.id === id ? { ...a, ...data } : a));
+    let snapshot: App[] | null = null;
+
+    setApps(prev => {
+      snapshot = prev;
+      return prev.map(a => a.id === id ? { ...a, ...data } : a);
+    });
 
     fetch(`/api/apps/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    });
+    })
+      .then(res => {
+        if (!res.ok && snapshot) setApps(snapshot);
+      })
+      .catch(() => {
+        if (snapshot) setApps(snapshot);
+      });
   }, []);
 
   const deleteApp = useCallback((id: number) => {

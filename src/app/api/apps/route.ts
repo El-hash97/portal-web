@@ -3,10 +3,14 @@ import { db } from '@/db';
 import { apps } from '@/db/schema';
 import { asc } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const result = await db.select().from(apps).orderBy(asc(apps.id));
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
   } catch (err) {
     console.error('[GET /api/apps]', err);
     return NextResponse.json([], { status: 500 });
