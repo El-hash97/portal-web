@@ -50,14 +50,14 @@ export function AppFormModal({ open, onClose, editApp }: AppFormModalProps) {
     setError('');
 
     const payload = { ...form, logo: form.logo.trim() || undefined };
-    const ok = editApp
+    const errMsg = editApp
       ? await updateApp(editApp.id, payload)
       : await addApp(payload as Omit<App, 'id'>);
 
-    if (ok) {
+    if (errMsg === null) {
       onClose();
     } else {
-      setError('Gagal menyimpan ke database. Periksa koneksi dan coba lagi.');
+      setError(errMsg);
       setSaving(false);
     }
   }

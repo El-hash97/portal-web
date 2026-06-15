@@ -14,8 +14,8 @@ interface AppStore {
   login: (user: string, pass: string) => boolean;
   logout: () => void;
   toggleApp: (id: number) => void;
-  addApp: (data: Omit<App, 'id'>) => Promise<boolean>;
-  updateApp: (id: number, data: Partial<Omit<App, 'id'>>) => Promise<boolean>;
+  addApp: (data: Omit<App, 'id'>) => Promise<string | null>;
+  updateApp: (id: number, data: Partial<Omit<App, 'id'>>) => Promise<string | null>;
   deleteApp: (id: number) => void;
   getCategoryStyle: (key: string) => { color: string; bg: string };
 }
@@ -67,19 +67,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const addApp = useCallback(async (data: Omit<App, 'id'>): Promise<boolean> => {
+  const addApp = useCallback(async (data: Omit<App, 'id'>): Promise<string | null> => {
     const res = await fetch('/api/apps', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    if (!res.ok) return false;
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      return body.detail || body.error || `HTTP ${res.status}`;
+    }
     const created: App = await res.json();
     setApps(prev => [...prev, normalize(created)]);
-    return true;
+    return null;
   }, []);
 
-  const updateApp = useCallback(async (id: number, data: Partial<Omit<App, 'id'>>): Promise<boolean> => {
+  const updateApp = useCallback(async (id: number, data: Partial<Omit<App, 'id'>>): Promise<string | null> => {
     const res = await fetch(`/api/apps/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -87,12 +90,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      console.error('[updateApp] PATCH failed', res.status, body);
-      return false;
+      return body.detail || body.error || `HTTP ${res.status}`;
     }
     const updated: App = await res.json();
     setApps(prev => prev.map(a => a.id === id ? normalize(updated) : a));
-    return true;
+    return null;
   }, []);
 
   const deleteApp = useCallback((id: number) => {
