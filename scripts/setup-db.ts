@@ -3,8 +3,16 @@ import { config } from 'dotenv';
 
 config({ path: '.env.local' });
 
+function getDbUrl(): string {
+  const raw = process.env.DATABASE_URL ?? '';
+  // channel_binding=require breaks TCP connections through PgBouncer (Neon pooler)
+  return raw.replace(/[?&]channel_binding=[^&]*/g, '')
+            .replace(/\?&/, '?')
+            .replace(/[?&]$/, '');
+}
+
 async function main() {
-  const sql = postgres(process.env.DATABASE_URL!);
+  const sql = postgres(getDbUrl());
 
   await sql`
     CREATE TABLE IF NOT EXISTS apps (

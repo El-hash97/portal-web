@@ -3,6 +3,13 @@ import { config } from 'dotenv';
 
 config({ path: '.env.local' });
 
+function getDbUrl(): string {
+  const raw = process.env.DATABASE_URL ?? '';
+  return raw.replace(/[?&]channel_binding=[^&]*/g, '')
+            .replace(/\?&/, '?')
+            .replace(/[?&]$/, '');
+}
+
 const DEFAULT_APPS = [
   { nama: 'e-Henkaten',        kategori: 'Input Harian', icon: 'activity',  logo: '/icons/e-henkaten.png',        aktif: true, link: '#', deskripsi: 'Catat setiap perubahan kondisi kerja yang tidak dilakukan seperti biasanya — perubahan Man, Machine, Material, atau Method — agar tidak ada yang terlewat dan bisa ditelusuri.' },
   { nama: 'Form BNF',          kategori: 'Laporan',      icon: 'chart',     logo: '/icons/form-bnf.png',          aktif: true, link: '#', deskripsi: 'Buat dan generate laporan problem resmi (Safety, Kualitas, Mesin, Outsource) lengkap dengan kronologi, penyebab, tanda tangan DpH/SH, langsung dalam format PDF siap kirim.' },
@@ -12,7 +19,7 @@ const DEFAULT_APPS = [
 ];
 
 async function main() {
-  const sql = postgres(process.env.DATABASE_URL!);
+  const sql = postgres(getDbUrl());
 
   const [{ count }] = await sql<[{ count: number }]>`SELECT COUNT(*)::int AS count FROM apps`;
   if (count > 0) {
