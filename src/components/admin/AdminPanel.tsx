@@ -6,6 +6,7 @@ import { useAppStore } from '@/context/AppContext';
 import { AppCard } from '@/components/AppCard';
 import { AppFormModal } from './AppFormModal';
 import { ConfirmModal } from './ConfirmModal';
+import { KpiSection } from './KpiSection';
 import type { App } from '@/lib/types';
 
 export function AdminPanel() {
@@ -42,6 +43,8 @@ export function AdminPanel() {
         <Info size={15} className="shrink-0" style={{ color: '#EB0A1E' }} />
         Perubahan disimpan otomatis. Toggle status memengaruhi tampilan portal publik secara langsung.
       </div>
+
+      <KpiSection apps={apps} />
 
       {apps.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">

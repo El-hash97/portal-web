@@ -83,6 +83,10 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
             href={app.link}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => {
+              try { navigator.sendBeacon(`/api/apps/${app.id}/click`); }
+              catch { fetch(`/api/apps/${app.id}/click`, { method: 'POST' }).catch(() => {}); }
+            }}
             className="inline-flex items-center gap-2 text-white text-[12.5px] font-bold tracking-wide px-4 py-2.5 rounded-lg transition-all hover:translate-x-0.5"
             style={{ background: '#EB0A1E' }}
           >

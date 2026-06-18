@@ -27,7 +27,18 @@ async function main() {
     )
   `;
 
-  console.log('Table "apps" ready.');
+  await sql`
+    CREATE TABLE IF NOT EXISTS app_clicks (
+      id         SERIAL PRIMARY KEY,
+      app_id     INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+      clicked_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`CREATE INDEX IF NOT EXISTS idx_app_clicks_app_id     ON app_clicks(app_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_app_clicks_clicked_at ON app_clicks(clicked_at DESC)`;
+
+  console.log('Tables "apps" and "app_clicks" ready.');
   await sql.end();
 }
 
