@@ -38,6 +38,33 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS idx_app_clicks_app_id     ON app_clicks(app_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_app_clicks_clicked_at ON app_clicks(clicked_at DESC)`;
 
+  // Rating table
+  await sql`
+    CREATE TABLE IF NOT EXISTS app_ratings (
+      id         SERIAL PRIMARY KEY,
+      app_id     INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+      device_id  TEXT    NOT NULL,
+      rating     INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+      rated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_app_ratings_app_device ON app_ratings(app_id, device_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_app_ratings_app_id ON app_ratings(app_id)`;
+
+  // Feedback table
+  await sql`
+    CREATE TABLE IF NOT EXISTS feedback (
+      id         SERIAL PRIMARY KEY,
+      app_id     INTEGER REFERENCES apps(id) ON DELETE SET NULL,
+      pesan      TEXT    NOT NULL,
+      status     TEXT    NOT NULL DEFAULT 'baru',
+      device_id  TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_feedback_status     ON feedback(status)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at DESC)`;
+
   console.log('Tables "apps" and "app_clicks" ready.');
   await sql.end();
 }

@@ -16,18 +16,34 @@ export async function PATCH(
 
     // Use neon tagged template directly — bypasses Drizzle ORM serialization
     // which has a known issue with boolean/integer params on the neon-http driver.
-    const rows = await neonSql`
-      UPDATE apps SET
-        nama      = ${body.nama      ?? null},
-        kategori  = ${body.kategori  ?? null},
-        deskripsi = ${body.deskripsi ?? null},
-        link      = ${body.link      ?? null},
-        icon      = ${body.icon      ?? null},
-        logo      = ${body.logo      ?? null},
-        aktif     = ${body.aktif     ?? true}
-      WHERE id = ${id}
-      RETURNING *
-    `;
+    //
+    // Two-path: if `nama` is present the caller is submitting the full form
+    // (all fields known); otherwise it's a partial toggle (aktif / maintenance only).
+    // COALESCE(provided, current_column) preserves existing values for absent fields.
+    let rows: Record<string, unknown>[];
+    if (body.nama !== undefined) {
+      rows = await neonSql`
+        UPDATE apps SET
+          nama        = ${body.nama},
+          kategori    = ${body.kategori},
+          deskripsi   = ${body.deskripsi},
+          link        = ${body.link},
+          icon        = ${body.icon},
+          logo        = ${body.logo ?? null},
+          aktif       = ${body.aktif ?? true},
+          maintenance = COALESCE(${body.maintenance ?? null}, maintenance)
+        WHERE id = ${id}
+        RETURNING *
+      `;
+    } else {
+      rows = await neonSql`
+        UPDATE apps SET
+          aktif       = COALESCE(${body.aktif       ?? null}, aktif),
+          maintenance = COALESCE(${body.maintenance ?? null}, maintenance)
+        WHERE id = ${id}
+        RETURNING *
+      `;
+    }
 
     if (!rows[0]) return NextResponse.json({ error: 'Aplikasi tidak ditemukan' }, { status: 404 });
 

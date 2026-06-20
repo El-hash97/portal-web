@@ -92,3 +92,18 @@ body {
 .group:hover .hero-cta-text {
   color: rgba(255,255,255,0.82) !important;
 }
+
+/* ── Orbit animation ─────────────────────────────────── */
+
+@keyframes cast-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes cast-counter {
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes cast-pulse-ring {
+  0%, 100% { opacity: 0.12; }
+  50%       { opacity: 0.22; }
+}

@@ -5,6 +5,8 @@ import { useAppStore } from '@/context/AppContext';
 import { AppCard } from './AppCard';
 import { HeroSection } from './HeroSection';
 import { GradientBars } from '@/components/ui/gradient-bars-background';
+import { PortalStats } from './PortalStats';
+import { FeedbackForm } from './FeedbackForm';
 
 export function Portal() {
   const { apps } = useAppStore();
@@ -21,6 +23,7 @@ export function Portal() {
           animationDuration={3}
         />
         <main id="apps-content" className="relative z-10 max-w-[1240px] mx-auto px-4 sm:px-6 py-10">
+          <PortalStats />
           {activeApps.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center px-4">
               <Box size={48} className="mb-4" style={{ color: 'rgba(255,255,255,0.2)' }} />
@@ -34,6 +37,7 @@ export function Portal() {
               ))}
             </div>
           )}
+          <FeedbackForm />
         </main>
       </div>
     </>

@@ -7,6 +7,7 @@ export interface App {
   icon: string;
   logo?: string;
   aktif: boolean;
+  maintenance?: boolean;
 }
 
 export interface Category {

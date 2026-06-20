@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '@/context/AppContext';
+import { RatingsProvider } from '@/context/RatingsContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
@@ -21,11 +22,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id" className={plusJakarta.variable}>
       <body className="min-h-screen flex flex-col antialiased">
         <AppProvider>
-          <Header />
-          <div className="flex-1 flex flex-col">
-            {children}
-          </div>
-          <Footer />
+          <RatingsProvider>
+            <Header />
+            <div className="flex-1 flex flex-col">
+              {children}
+            </div>
+            <Footer />
+          </RatingsProvider>
         </AppProvider>
       </body>
     </html>

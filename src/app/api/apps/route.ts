@@ -28,8 +28,9 @@ export async function POST(request: Request) {
         deskripsi: body.deskripsi,
         link:      body.link,
         icon:      body.icon,
-        logo:      body.logo ?? null,
-        aktif:     body.aktif ?? true,
+        logo:        body.logo ?? null,
+        aktif:       body.aktif       ?? true,
+        maintenance: body.maintenance ?? false,
       })
       .returning();
     return NextResponse.json(newApp, { status: 201 });

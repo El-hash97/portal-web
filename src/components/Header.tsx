@@ -71,7 +71,7 @@ export function Header() {
                 className="hidden sm:inline text-[10px] font-bold tracking-[.1em] px-2 py-1 rounded uppercase"
                 style={{ color: '#ff7070', background: 'rgba(235,10,30,0.18)', border: '1px solid rgba(235,10,30,0.3)' }}
               >
-                ADMIN
+                DEVELOPER
               </span>
               <Link
                 href="/"
@@ -107,7 +107,7 @@ export function Header() {
           {!onAdmin && (
             <Link
               href="/admin"
-              title="Admin Panel"
+              title="Developer Panel"
               className="ml-1 pl-2 border-l border-white/10 flex items-center justify-center transition-opacity hover:opacity-70"
               style={{ color: 'rgba(255,255,255,0.45)' }}
             >

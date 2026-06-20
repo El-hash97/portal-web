@@ -14,6 +14,7 @@ interface AppStore {
   login: (user: string, pass: string) => boolean;
   logout: () => void;
   toggleApp: (id: number) => void;
+  toggleMaintenance: (id: number) => void;
   addApp: (data: Omit<App, 'id'>) => Promise<string | null>;
   updateApp: (id: number, data: Partial<Omit<App, 'id'>>) => Promise<string | null>;
   deleteApp: (id: number) => void;
@@ -67,6 +68,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const toggleMaintenance = useCallback((id: number) => {
+    setApps(prev => {
+      const next = prev.map(a => a.id === id ? { ...a, maintenance: !(a.maintenance ?? false) } : a);
+      const target = next.find(a => a.id === id);
+      if (target) {
+        fetch(`/api/apps/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ maintenance: target.maintenance }),
+        });
+      }
+      return next;
+    });
+  }, []);
+
   const addApp = useCallback(async (data: Omit<App, 'id'>): Promise<string | null> => {
     const res = await fetch('/api/apps', {
       method: 'POST',
@@ -111,7 +127,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       apps, isAdmin,
       login, logout,
-      toggleApp, addApp, updateApp, deleteApp,
+      toggleApp, toggleMaintenance, addApp, updateApp, deleteApp,
       getCategoryStyle,
     }}>
       {children}

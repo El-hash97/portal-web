@@ -7,6 +7,7 @@ import { AppCard } from '@/components/AppCard';
 import { AppFormModal } from './AppFormModal';
 import { ConfirmModal } from './ConfirmModal';
 import { KpiSection } from './KpiSection';
+import { FeedbackInbox } from './FeedbackInbox';
 import type { App } from '@/lib/types';
 
 export function AdminPanel() {
@@ -79,6 +80,8 @@ export function AdminPanel() {
         onConfirm={() => { if (deleteTarget) deleteApp(deleteTarget.id); }}
         message={`"${deleteTarget?.nama}" akan dihapus permanen dari portal.`}
       />
+
+      <FeedbackInbox />
     </main>
   );
 }
