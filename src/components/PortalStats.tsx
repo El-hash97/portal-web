@@ -316,7 +316,7 @@ export function PortalStats() {
         >
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.18)' }}>
-              Tren Pembukaan
+              Tren Aktivitas
             </p>
             <div className="flex gap-1">
               {([7, 14, 30] as const).map(p => (
@@ -344,7 +344,7 @@ export function PortalStats() {
           style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
         >
           <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: 'rgba(255,255,255,0.18)' }}>
-            Ranking Pembukaan
+            Ranking Aktivitas
           </p>
           {kpiLoading
             ? <div className="h-20 flex items-center justify-center">
