@@ -8,7 +8,8 @@ export const apps = pgTable('apps', {
   link:      text('link').notNull(),
   icon:      text('icon').notNull(),
   logo:      text('logo'),
-  aktif:     boolean('aktif').notNull().default(true),
+  aktif:       boolean('aktif').notNull().default(true),
+  maintenance: boolean('maintenance').notNull().default(false),
 });
 
 export const appClicks = pgTable('app_clicks', {

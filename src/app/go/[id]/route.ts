@@ -14,9 +14,9 @@ export async function GET(
     return NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'));
   }
 
-  const rows = await neonSql<{ link: string | null; aktif: boolean; maintenance: boolean }[]>`
+  const rows = await neonSql`
     SELECT link, aktif, maintenance FROM apps WHERE id = ${appId} LIMIT 1
-  `;
+  ` as { link: string | null; aktif: boolean; maintenance: boolean }[];
 
   const app = rows[0];
 
