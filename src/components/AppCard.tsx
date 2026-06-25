@@ -1,6 +1,7 @@
 'use client';
 
-import { ArrowRight, Pencil, Trash2, Wrench } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, Check, Link2, Pencil, Trash2, Wrench } from 'lucide-react';
 import type { App } from '@/lib/types';
 import { ICON_MAP } from '@/lib/constants';
 import { useAppStore } from '@/context/AppContext';
@@ -22,6 +23,19 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
   const style = getCategoryStyle(app.kategori);
   const Icon  = ICON_MAP[app.icon] ?? ICON_MAP.box;
   const inMaintenance = app.maintenance ?? false;
+  const hasLink = !!app.link && app.link !== '#';
+
+  /* ── shareable tracking link ─────────────────────────── */
+  const [copied, setCopied] = useState(false);
+  async function copyShareLink() {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/go/${app.id}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable — ignore */
+    }
+  }
 
   /* ── border / hover ──────────────────────────────────── */
   const borderClass = (() => {
@@ -113,16 +127,31 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
           >
             <Wrench size={13} /> Sedang Maintenance
           </span>
-        ) : app.link && app.link !== '#' ? (
-          <a
-            href={`/go/${app.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-white text-[12.5px] font-bold tracking-wide px-4 py-2.5 rounded-lg transition-all hover:translate-x-0.5"
-            style={{ background: '#EB0A1E' }}
-          >
-            Buka Aplikasi <ArrowRight size={13} />
-          </a>
+        ) : hasLink ? (
+          <>
+            <a
+              href={`/go/${app.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-white text-[12.5px] font-bold tracking-wide px-4 py-2.5 rounded-lg transition-all hover:translate-x-0.5"
+              style={{ background: '#EB0A1E' }}
+            >
+              Buka Aplikasi <ArrowRight size={13} />
+            </a>
+
+            {/* Salin link (tracking) untuk dibagikan — ikon saja */}
+            <button
+              onClick={copyShareLink}
+              className="inline-flex items-center justify-center p-2.5 rounded-lg border transition-all"
+              style={copied
+                ? { borderColor: 'rgba(29,138,86,0.4)', color: '#1D8A56', background: 'rgba(29,138,86,0.10)' }
+                : { borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.55)', background: 'transparent' }
+              }
+              title={copied ? 'Tersalin' : 'Salin link untuk dibagikan'}
+            >
+              {copied ? <Check size={14} /> : <Link2 size={14} />}
+            </button>
+          </>
         ) : (
           <span
             className="inline-flex items-center gap-2 text-[12.5px] font-bold tracking-wide px-4 py-2.5 rounded-lg cursor-not-allowed"

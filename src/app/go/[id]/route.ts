@@ -24,8 +24,15 @@ export async function GET(
     return NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'));
   }
 
-  // Fire-and-forget — don't await so redirect is instant
-  neonSql`INSERT INTO app_clicks (app_id) VALUES (${appId})`.catch(() => {});
+  // Await the insert so the click is recorded reliably on serverless
+  // (Netlify) — the function may freeze right after returning the redirect,
+  // dropping any pending fire-and-forget write. Shared-link opens are the
+  // exact case we must not miss, so a wrapped failure must not block redirect.
+  try {
+    await neonSql`INSERT INTO app_clicks (app_id) VALUES (${appId})`;
+  } catch (err) {
+    console.error('[GET /go/:id] click insert failed', err);
+  }
 
   return NextResponse.redirect(app.link);
 }
