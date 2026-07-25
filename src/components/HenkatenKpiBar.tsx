@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { ClipboardList, AlertOctagon, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface HenkatenKpi {
-  totalActive: number;
+  total: number;
   high: number;
   medium: number;
   low: number;
@@ -24,10 +24,10 @@ export function HenkatenKpiBar() {
   if (failed) return null;
 
   const items = [
-    { icon: <ClipboardList size={20} />,   value: kpi?.totalActive, label: 'Henkaten', sub: 'Aktif',       bg: 'rgba(217,226,255,0.7)' },
-    { icon: <AlertOctagon size={16} />,    value: kpi?.high,        label: 'High Risk', sub: 'Aktif',       bg: '#EB0A1E' },
-    { icon: <AlertTriangle size={16} />,   value: kpi?.medium,      label: 'Medium Risk', sub: 'Aktif',     bg: '#F59E0B' },
-    { icon: <CheckCircle2 size={16} />,    value: kpi?.low,         label: 'Low Risk', sub: 'Aktif',        bg: '#10B981' },
+    { icon: <ClipboardList size={20} />,   value: kpi?.total,   label: 'Total', sub: 'Henkaten',      bg: 'rgba(217,226,255,0.7)' },
+    { icon: <AlertOctagon size={16} />,    value: kpi?.high,    label: 'High Risk', sub: 'Tercatat',   bg: '#EB0A1E' },
+    { icon: <AlertTriangle size={16} />,   value: kpi?.medium,  label: 'Medium Risk', sub: 'Tercatat', bg: '#F59E0B' },
+    { icon: <CheckCircle2 size={16} />,    value: kpi?.low,     label: 'Low Risk', sub: 'Tercatat',    bg: '#10B981' },
   ];
 
   return (
