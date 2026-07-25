@@ -9,7 +9,7 @@ export default function AdminPage() {
   const { isAdmin } = useAppStore();
 
   return (
-    <div className="relative min-h-screen" style={{ background: '#0a0a0a' }}>
+    <div className="relative flex-1 min-h-screen">
       <GradientBars
         numBars={15}
         gradientFrom="rgba(235, 10, 30, 0.18)"
