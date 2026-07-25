@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  Wrench, FileEdit, ClipboardList, TrendingUp, Mic, AlertTriangle, FileCheck2,
+  Wrench, FileEdit, ClipboardList, TrendingUp, Mic, AlertTriangle, FileCheck2, ArrowUpRight,
 } from 'lucide-react';
 import type { App } from '@/lib/types';
 import { ICON_MAP } from '@/lib/constants';
@@ -31,7 +31,7 @@ export function PortalAppCard({ app, index }: PortalAppCardProps) {
   const number = String(index + 1).padStart(2, '0');
 
   const body = (
-    <div className="snake-border-content p-6 h-full flex flex-col items-center justify-center text-center transition-transform duration-300 group-hover:scale-[1.03]">
+    <div className="snake-border-content p-6 h-full flex flex-col items-center justify-center text-center transition-transform duration-300 group-hover:scale-[1.02]">
       <span
         className="absolute top-3.5 left-4 text-white rounded-full w-6 h-6 flex items-center justify-center font-display text-[10px] font-bold z-10"
         style={{ background: inMaintenance ? '#F59E0B' : '#EB0A1E' }}
@@ -48,18 +48,28 @@ export function PortalAppCard({ app, index }: PortalAppCardProps) {
         </span>
       )}
 
-      <Icon size={32} className="mb-3" style={{ color: 'rgba(217,226,255,0.9)' }} />
+      <Icon size={34} className="mb-3.5" style={{ color: 'rgba(217,226,255,0.9)' }} />
 
-      <h3 className="font-mono-label text-[12.5px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(217,226,255,0.95)' }}>
+      <h3 className="font-mono-label text-[13px] font-bold uppercase tracking-wide mb-1.5" style={{ color: 'rgba(217,226,255,0.95)' }}>
         {app.nama}
       </h3>
-      <p className="text-[11px] leading-tight" style={{ color: 'rgba(217,226,255,0.42)' }}>
+      <p className="text-[11.5px] leading-snug mb-4" style={{ color: 'rgba(217,226,255,0.42)' }}>
         {blurb}
       </p>
+
+      <div
+        className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide transition-all duration-200 group-hover:gap-2"
+        style={{ color: inMaintenance ? '#F59E0B' : hasLink ? 'rgba(217,226,255,0.5)' : 'rgba(217,226,255,0.25)' }}
+      >
+        {inMaintenance ? 'Maintenance' : hasLink ? 'Buka Aplikasi' : 'Link Belum Diisi'}
+        {!inMaintenance && hasLink && (
+          <ArrowUpRight size={12} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        )}
+      </div>
     </div>
   );
 
-  const cardClass = `relative group snake-border-card h-44 sm:h-48 ${inMaintenance ? 'snake-border-amber' : ''}`;
+  const cardClass = `relative group snake-border-card h-48 sm:h-52 ${inMaintenance ? 'snake-border-amber' : ''}`;
 
   if (inMaintenance) {
     return (

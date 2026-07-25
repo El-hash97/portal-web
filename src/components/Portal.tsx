@@ -7,8 +7,8 @@ export function Portal() {
   return (
     <div className="flex-1 flex flex-col">
       <HeroSection />
-      <div className="flex-1 flex flex-col justify-end px-4 sm:px-10 lg:px-12 pb-4 sm:pb-6 pt-6">
-        <div className="max-w-5xl w-full mx-auto flex items-stretch gap-4">
+      <div className="px-4 sm:px-10 lg:px-12 pt-2 pb-8 sm:pb-10">
+        <div className="max-w-6xl w-full mx-auto flex items-stretch gap-4">
           <div className="flex-1 min-w-0">
             <HenkatenKpiBar />
           </div>

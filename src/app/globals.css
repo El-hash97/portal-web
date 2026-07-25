@@ -84,3 +84,12 @@ body {
     radial-gradient(ellipse 60% 45% at 15% 10%, rgba(235, 10, 30, 0.10) 0%, transparent 60%),
     radial-gradient(ellipse 50% 40% at 90% 85%, rgba(0, 219, 233, 0.08) 0%, transparent 60%);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

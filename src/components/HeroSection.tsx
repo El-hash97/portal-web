@@ -45,7 +45,7 @@ export function HeroSection() {
       </div>
 
       {/* App grid */}
-      <div id="apps-grid" className="relative max-w-5xl mx-auto scroll-mt-20">
+      <div id="apps-grid" className="relative max-w-6xl mx-auto scroll-mt-20">
         {activeApps.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Box size={40} className="mb-4" style={{ color: 'rgba(217,226,255,0.2)' }} />
@@ -53,7 +53,7 @@ export function HeroSection() {
             <p className="text-[13px]" style={{ color: 'rgba(217,226,255,0.35)' }}>Admin belum mengaktifkan aplikasi apapun.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {activeApps.map((app, i) => (
               <PortalAppCard key={app.id} app={app} index={i} />
             ))}
