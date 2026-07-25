@@ -13,21 +13,6 @@ export function HeroSection() {
       {/* Ambient glow */}
       <div className="absolute inset-0 v2-radial-glow pointer-events-none" />
 
-      {/* Slogan ribbon */}
-      <div className="absolute top-2 right-3 sm:right-8 lg:right-10 hidden sm:block z-10">
-        <div
-          className="px-5 py-2.5 sm:px-6 sm:py-3"
-          style={{
-            background: '#EB0A1E',
-            clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)',
-          }}
-        >
-          <p className="text-white font-bold uppercase italic text-[10px] sm:text-[12px] leading-tight tracking-wider text-right">
-            Stronger Tools<br />Smarter Process<br />Better Results
-          </p>
-        </div>
-      </div>
-
       {/* Hero headline */}
       <div className="relative max-w-3xl mx-auto text-center mb-10 sm:mb-14">
         <h1
@@ -42,7 +27,15 @@ export function HeroSection() {
         >
           Casting <span style={{ color: '#EB0A1E' }}>Tools</span>
         </h1>
-        <p className="font-display italic text-[16px] sm:text-[22px] font-light mb-3" style={{ color: '#b9c7e4' }}>
+        <p
+          className="font-display italic mb-3"
+          style={{
+            fontSize: 'clamp(15px, 3vw, 26px)',
+            fontWeight: 500,
+            letterSpacing: '0.06em',
+            color: '#b9c7e4',
+          }}
+        >
           One Door. All Tools. Better Tomorrow.
         </p>
         <p className="text-[12px] sm:text-[13px] max-w-xl mx-auto leading-relaxed px-2" style={{ color: 'rgba(217,226,255,0.5)' }}>

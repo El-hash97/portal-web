@@ -7,7 +7,7 @@ export function Navbar() {
         borderBottom: '1px solid #1f2942',
       }}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-1.5">
         <span className="font-mono-label text-[10px] tracking-[0.2em] uppercase" style={{ color: 'rgba(217,226,255,0.4)' }}>
           EPSD Sunter 2
         </span>
