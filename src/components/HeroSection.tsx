@@ -9,36 +9,22 @@ export function HeroSection() {
   const activeApps = apps.filter(a => a.aktif);
 
   return (
-    <section className="relative px-4 sm:px-10 lg:px-12 pt-6 sm:pt-10 pb-4">
+    <section className="relative px-4 sm:px-10 lg:px-12 pt-8 sm:pt-12 pb-4">
       {/* Ambient glow */}
       <div className="absolute inset-0 v2-radial-glow pointer-events-none" />
 
-      {/* Top strip: EPSD tag + Toyota production ribbon */}
-      <div className="relative flex justify-between items-start mb-8 sm:mb-10 gap-3 flex-wrap">
-        <div className="flex flex-col gap-1.5">
-          <span className="font-mono-label text-[9px] sm:text-[10px] tracking-[0.2em] uppercase" style={{ color: 'rgba(217,226,255,0.4)' }}>
-            EPSD Sunter 2
-          </span>
-          <span
-            className="font-mono-label text-[9px] sm:text-[10px] tracking-[0.15em] uppercase inline-block w-fit text-white px-2.5 py-1.5 sm:px-6 sm:py-1.5"
-            style={{
-              background: '#EB0A1E',
-              clipPath: 'polygon(0 0, 100% 0, 88% 100%, 0% 100%)',
-            }}
-          >
-            Casting Division
-          </span>
-        </div>
-
+      {/* Slogan ribbon */}
+      <div className="absolute top-2 right-3 sm:right-8 lg:right-10 hidden sm:block z-10">
         <div
-          className="text-white flex flex-col justify-center leading-tight px-4 py-2.5 pl-6 sm:px-7 sm:py-3 sm:pl-9"
+          className="px-5 py-2.5 sm:px-6 sm:py-3"
           style={{
             background: '#EB0A1E',
-            clipPath: 'polygon(12% 0, 100% 0, 100% 100%, 0% 100%)',
+            clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)',
           }}
         >
-          <span className="font-bold text-[11px] sm:text-[13px] tracking-wider">TOYOTA</span>
-          <span className="text-[9px] sm:text-[10px] font-normal">Production System</span>
+          <p className="text-white font-bold uppercase italic text-[10px] sm:text-[12px] leading-tight tracking-wider text-right">
+            Stronger Tools<br />Smarter Process<br />Better Results
+          </p>
         </div>
       </div>
 
