@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Home, LayoutDashboard, Grid3x3, Database, FileBarChart,
-  Bell, KanbanSquare, Settings, LogOut, UserCircle2, Menu, X,
+  Bell, KanbanSquare, LogOut, Menu, X,
 } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 
@@ -13,6 +13,24 @@ interface NavItem {
   label: string;
   icon: React.ReactNode;
   href?: string;
+}
+
+function GearIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
 }
 
 export function Sidebar() {
@@ -26,10 +44,9 @@ export function Sidebar() {
     { label: 'Dashboard',    icon: <LayoutDashboard size={18} /> },
     { label: 'Applications', icon: <Grid3x3 size={18} />,        href: '/#apps-grid' },
     { label: 'Data Center',  icon: <Database size={18} /> },
-    { label: 'Reports',      icon: <FileBarChart size={18} />,   href: '/admin' },
+    { label: 'Reports',      icon: <FileBarChart size={18} />,   href: '/reports' },
     { label: 'Notification', icon: <Bell size={18} /> },
     { label: 'Story Board',  icon: <KanbanSquare size={18} /> },
-    { label: 'Settings',     icon: <Settings size={18} />,       href: '/admin' },
   ];
 
   function handleLogout() {
@@ -41,7 +58,7 @@ export function Sidebar() {
   const content = (
     <>
       {/* Brand */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Link href="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Toyota" className="h-8 w-auto object-contain" />
@@ -57,21 +74,28 @@ export function Sidebar() {
         {navItems.map(item => {
           const active = item.href === '/'
             ? pathname === '/'
-            : item.href === '/admin'
-              ? pathname?.startsWith('/admin')
-              : false;
+            : item.href === '/#apps-grid'
+              ? false
+              : item.href
+                ? pathname?.startsWith(item.href)
+                : false;
 
           if (!item.href) {
             return (
-              <span
+              <div
                 key={item.label}
-                title="Segera hadir"
                 className="flex items-center gap-4 px-4 py-3 rounded-lg cursor-not-allowed select-none"
                 style={{ color: 'rgba(217,226,255,0.28)' }}
               >
                 {item.icon}
-                <span className="font-mono-label text-[11px] tracking-wide uppercase">{item.label}</span>
-              </span>
+                <span className="font-mono-label text-[11px] tracking-wide uppercase flex-1">{item.label}</span>
+                <span
+                  className="font-mono-label text-[8.5px] tracking-wide uppercase px-1.5 py-0.5 rounded shrink-0"
+                  style={{ color: 'rgba(217,226,255,0.35)', background: 'rgba(217,226,255,0.06)', border: '1px solid rgba(217,226,255,0.1)' }}
+                >
+                  Segera
+                </span>
+              </div>
             );
           }
 
@@ -94,35 +118,38 @@ export function Sidebar() {
       </nav>
 
       {/* Operator / session */}
-      <div className="mt-auto pt-4" style={{ borderTop: '1px solid #1f2942' }}>
+      <div className="mt-auto pt-4 flex items-center justify-between gap-2" style={{ borderTop: '1px solid #1f2942' }}>
         {isAdmin ? (
           <>
-            <div className="flex items-center gap-3 px-4 py-2" style={{ color: 'rgba(217,226,255,0.55)' }}>
-              <UserCircle2 size={18} />
-              <div className="flex flex-col">
-                <span className="font-mono-label text-[11px] uppercase tracking-wide">Operator</span>
-                <span className="text-[10px] opacity-70">Casting Division</span>
-              </div>
+            <div className="flex items-center gap-2 px-2" style={{ color: 'rgba(217,226,255,0.55)' }}>
+              <span className="font-mono-label text-[10px] uppercase tracking-wide">Operator</span>
             </div>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-4 px-4 py-3 mt-1 rounded-lg transition-colors duration-150 hover:bg-white/5"
+              title="Logout"
+              aria-label="Logout"
+              className="flex items-center justify-center p-2.5 rounded-lg transition-colors duration-150 hover:bg-white/5"
               style={{ color: 'rgba(217,226,255,0.55)' }}
             >
               <LogOut size={18} />
-              <span className="font-mono-label text-[11px] tracking-wide uppercase">Logout</span>
             </button>
           </>
         ) : (
-          <Link
-            href="/admin"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-4 px-4 py-3 rounded-lg transition-colors duration-150 hover:bg-white/5"
-            style={{ color: 'rgba(217,226,255,0.4)' }}
-          >
-            <UserCircle2 size={18} />
-            <span className="font-mono-label text-[11px] tracking-wide uppercase">Developer Login</span>
-          </Link>
+          <>
+            <span className="font-mono-label text-[10px] uppercase tracking-wide px-2" style={{ color: 'rgba(217,226,255,0.3)' }}>
+              Guest
+            </span>
+            <Link
+              href="/admin"
+              onClick={() => setMobileOpen(false)}
+              title="Developer Login"
+              aria-label="Developer Login"
+              className="flex items-center justify-center p-2.5 rounded-lg transition-colors duration-150 hover:bg-white/5"
+              style={{ color: 'rgba(217,226,255,0.4)' }}
+            >
+              <GearIcon size={18} />
+            </Link>
+          </>
         )}
       </div>
     </>
@@ -132,7 +159,7 @@ export function Sidebar() {
     <>
       {/* Mobile top bar toggle */}
       <div
-        className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14"
+        className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-3 sm:px-4 h-14"
         style={{ background: '#07122a', borderBottom: '1px solid #1f2942' }}
       >
         <Link href="/" className="flex items-center gap-2">
@@ -149,7 +176,7 @@ export function Sidebar() {
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div
-            className="w-72 h-full flex flex-col py-6 px-4"
+            className="w-[82vw] max-w-72 h-full flex flex-col py-6 px-4 overflow-y-auto"
             style={{ background: '#07122a', borderRight: '1px solid #1f2942' }}
           >
             {content}
