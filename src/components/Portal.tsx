@@ -5,11 +5,11 @@ import { QuickStatsBar } from './QuickStatsBar';
 
 export function Portal() {
   return (
-    <>
+    <div className="flex-1 flex flex-col">
       <HeroSection />
-      <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 pb-10 sm:pb-16">
+      <div className="flex-1 flex flex-col justify-end max-w-5xl w-full mx-auto px-4 sm:px-10 lg:px-12 pb-4 sm:pb-6 pt-6">
         <QuickStatsBar />
-      </main>
-    </>
+      </div>
+    </div>
   );
 }

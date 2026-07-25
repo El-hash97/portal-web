@@ -59,12 +59,9 @@ export function Sidebar() {
     <>
       {/* Brand */}
       <div className="mb-6 sm:mb-8">
-        <Link href="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
+        <Link href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Toyota" className="h-8 w-auto object-contain" />
-          <span className="font-display text-[13px] font-bold tracking-[0.15em] uppercase" style={{ color: '#EB0A1E' }}>
-            Toyota
-          </span>
         </Link>
         <div className="w-full h-px mt-4 opacity-30" style={{ background: '#2a344e' }} />
       </div>
@@ -84,17 +81,12 @@ export function Sidebar() {
             return (
               <div
                 key={item.label}
+                title="Segera hadir"
                 className="flex items-center gap-4 px-4 py-3 rounded-lg cursor-not-allowed select-none"
                 style={{ color: 'rgba(217,226,255,0.28)' }}
               >
                 {item.icon}
-                <span className="font-mono-label text-[11px] tracking-wide uppercase flex-1">{item.label}</span>
-                <span
-                  className="font-mono-label text-[8.5px] tracking-wide uppercase px-1.5 py-0.5 rounded shrink-0"
-                  style={{ color: 'rgba(217,226,255,0.35)', background: 'rgba(217,226,255,0.06)', border: '1px solid rgba(217,226,255,0.1)' }}
-                >
-                  Segera
-                </span>
+                <span className="font-mono-label text-[11px] tracking-wide uppercase">{item.label}</span>
               </div>
             );
           }
@@ -162,10 +154,9 @@ export function Sidebar() {
         className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-3 sm:px-4 h-14"
         style={{ background: '#07122a', borderBottom: '1px solid #1f2942' }}
       >
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Toyota" className="h-6 w-auto object-contain" />
-          <span className="font-display text-[12px] font-bold tracking-widest uppercase" style={{ color: '#EB0A1E' }}>Toyota</span>
+          <img src="/logo.png" alt="Toyota" className="h-7 w-auto object-contain" />
         </Link>
         <button onClick={() => setMobileOpen(o => !o)} style={{ color: 'rgba(217,226,255,0.8)' }} aria-label="Menu">
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}

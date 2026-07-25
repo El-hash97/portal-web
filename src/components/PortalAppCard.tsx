@@ -1,20 +1,31 @@
 'use client';
 
-import { Wrench } from 'lucide-react';
+import {
+  Wrench, FileEdit, ClipboardList, TrendingUp, Mic, AlertTriangle, FileCheck2,
+} from 'lucide-react';
 import type { App } from '@/lib/types';
 import { ICON_MAP } from '@/lib/constants';
-import { useRatingsStore } from '@/context/RatingsContext';
-import { StarRating } from '@/components/StarRating';
 
 interface PortalAppCardProps {
   app: App;
   index: number;
 }
 
+/* Icon + short blurb matched to the reference design, keyed by app name.
+   Falls back to the app's own icon/kategori for anything added later. */
+const CARD_META: Record<string, { icon: typeof FileEdit; blurb: string }> = {
+  'e-Henkaten':          { icon: FileEdit,      blurb: 'Change Point Management' },
+  'Form BNF':            { icon: ClipboardList, blurb: 'Problem Report (PDF)' },
+  'Kaizen Order Sheet':  { icon: TrendingUp,     blurb: 'Kaizen Activity Management' },
+  'Voice Member':        { icon: Mic,            blurb: 'Aspirasi & Keluhan' },
+  'Problem Produksi':    { icon: AlertTriangle,  blurb: 'Real-time Monitoring & Tracking' },
+  'Rekap Laporan 5W':    { icon: FileCheck2,     blurb: '5W Analysis & Report' },
+};
+
 export function PortalAppCard({ app, index }: PortalAppCardProps) {
-  const { ratings, rate } = useRatingsStore();
-  const ratingData = ratings[app.id] ?? { avg: 0, count: 0, mine: 0 };
-  const Icon = ICON_MAP[app.icon] ?? ICON_MAP.box;
+  const meta = CARD_META[app.nama];
+  const Icon = meta?.icon ?? ICON_MAP[app.icon] ?? ICON_MAP.box;
+  const blurb = meta?.blurb ?? app.kategori;
   const inMaintenance = app.maintenance ?? false;
   const hasLink = !!app.link && app.link !== '#';
   const number = String(index + 1).padStart(2, '0');
@@ -37,32 +48,18 @@ export function PortalAppCard({ app, index }: PortalAppCardProps) {
         </span>
       )}
 
-      {app.logo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={app.logo} alt={app.nama} className="w-11 h-11 rounded-xl object-cover mb-3" />
-      ) : (
-        <Icon size={30} className="mb-3" style={{ color: 'rgba(217,226,255,0.85)' }} />
-      )}
+      <Icon size={32} className="mb-3" style={{ color: 'rgba(217,226,255,0.9)' }} />
 
       <h3 className="font-mono-label text-[12.5px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(217,226,255,0.95)' }}>
         {app.nama}
       </h3>
-      <p className="text-[11px] leading-tight mb-3" style={{ color: 'rgba(217,226,255,0.42)' }}>
-        {app.kategori}
+      <p className="text-[11px] leading-tight" style={{ color: 'rgba(217,226,255,0.42)' }}>
+        {blurb}
       </p>
-
-      <div onClick={e => e.stopPropagation()}>
-        <StarRating
-          avg={ratingData.avg}
-          count={ratingData.count}
-          mine={ratingData.mine}
-          onRate={star => rate(app.id, star)}
-        />
-      </div>
     </div>
   );
 
-  const cardClass = `relative group snake-border-card h-52 ${inMaintenance ? 'snake-border-amber' : ''}`;
+  const cardClass = `relative group snake-border-card h-44 sm:h-48 ${inMaintenance ? 'snake-border-amber' : ''}`;
 
   if (inMaintenance) {
     return (
