@@ -61,7 +61,7 @@ export function PortalAppCard({ app, index }: PortalAppCardProps) {
         className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide transition-all duration-200 group-hover:gap-2"
         style={{ color: inMaintenance ? '#F59E0B' : hasLink ? 'rgba(217,226,255,0.5)' : 'rgba(217,226,255,0.25)' }}
       >
-        {inMaintenance ? 'Maintenance' : hasLink ? 'Buka Aplikasi' : 'Link Belum Diisi'}
+        {inMaintenance ? 'Maintenance' : hasLink ? 'Open' : 'Link Belum Diisi'}
         {!inMaintenance && hasLink && (
           <ArrowUpRight size={12} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         )}
