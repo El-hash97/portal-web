@@ -31,14 +31,14 @@ export function HeroSection() {
         </div>
 
         <div
-          className="text-white font-bold text-[11px] sm:text-[13px] tracking-wider flex items-center px-4 py-2.5 pl-6 sm:px-7 sm:py-3 sm:pl-9"
+          className="text-white flex flex-col justify-center leading-tight px-4 py-2.5 pl-6 sm:px-7 sm:py-3 sm:pl-9"
           style={{
             background: '#EB0A1E',
             clipPath: 'polygon(12% 0, 100% 0, 100% 100%, 0% 100%)',
           }}
         >
-          TOYOTA<br />
-          <span className="text-[9px] sm:text-[10px] font-normal block">Production System</span>
+          <span className="font-bold text-[11px] sm:text-[13px] tracking-wider">TOYOTA</span>
+          <span className="text-[9px] sm:text-[10px] font-normal">Production System</span>
         </div>
       </div>
 

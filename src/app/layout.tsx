@@ -32,11 +32,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className={`${plusJakarta.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen flex antialiased">
+      <body className="min-h-screen flex flex-col lg:flex-row antialiased">
         <AppProvider>
           <RatingsProvider>
             <Sidebar />
-            <div className="flex-1 flex flex-col min-h-screen min-w-0">
+            <div className="flex-1 flex flex-col min-w-0">
               <div className="flex-1 flex flex-col">
                 {children}
               </div>

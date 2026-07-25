@@ -42,7 +42,7 @@ export function Sidebar() {
   const navItems: NavItem[] = [
     { label: 'Home',         icon: <Home size={18} />,           href: '/' },
     { label: 'Dashboard',    icon: <LayoutDashboard size={18} /> },
-    { label: 'Applications', icon: <Grid3x3 size={18} />,        href: '/#apps-grid' },
+    { label: 'Applications', icon: <Grid3x3 size={18} />,        href: '/applications' },
     { label: 'Data Center',  icon: <Database size={18} /> },
     { label: 'Reports',      icon: <FileBarChart size={18} />,   href: '/reports' },
     { label: 'Notification', icon: <Bell size={18} /> },
@@ -71,11 +71,9 @@ export function Sidebar() {
         {navItems.map(item => {
           const active = item.href === '/'
             ? pathname === '/'
-            : item.href === '/#apps-grid'
-              ? false
-              : item.href
-                ? pathname?.startsWith(item.href)
-                : false;
+            : item.href
+              ? pathname?.startsWith(item.href)
+              : false;
 
           if (!item.href) {
             return (
@@ -151,7 +149,7 @@ export function Sidebar() {
     <>
       {/* Mobile top bar toggle */}
       <div
-        className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-3 sm:px-4 h-14"
+        className="lg:hidden sticky top-0 z-40 w-full flex items-center justify-between px-3 sm:px-4 h-14 shrink-0"
         style={{ background: '#07122a', borderBottom: '1px solid #1f2942' }}
       >
         <Link href="/" className="flex items-center">
