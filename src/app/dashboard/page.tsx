@@ -3,6 +3,8 @@
 import { DashboardAppSection } from '@/components/DashboardAppSection';
 import { HenkatenKpiBar } from '@/components/HenkatenKpiBar';
 import { HenkatenByLineChart } from '@/components/HenkatenByLineChart';
+import { ProblemProduksiKpiBar } from '@/components/ProblemProduksiKpiBar';
+import { ProblemProduksiChart } from '@/components/ProblemProduksiChart';
 
 export default function DashboardPage() {
   return (
@@ -22,6 +24,14 @@ export default function DashboardPage() {
       >
         <HenkatenKpiBar />
         <HenkatenByLineChart />
+      </DashboardAppSection>
+
+      <DashboardAppSection
+        name="Problem Produksi"
+        blurb="Data diambil langsung dari aplikasi Problem Produksi — monitoring problem yang menghambat produksi."
+      >
+        <ProblemProduksiKpiBar />
+        <ProblemProduksiChart />
       </DashboardAppSection>
     </main>
   );
