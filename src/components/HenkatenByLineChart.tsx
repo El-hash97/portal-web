@@ -13,6 +13,15 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
+import {
+  CARD_BORDER,
+  TEXT_PRIMARY,
+  TEXT_MUTED,
+  AXIS_LINE,
+  GRID_LINE,
+  tickStyle,
+  lineColor,
+} from "@/lib/chartTheme";
 
 interface LineTotal {
   line_name: string;
@@ -21,29 +30,6 @@ interface LineTotal {
 
 const CHART_H = 280;
 const SKELETON_RATIOS = [0.6, 0.9, 0.4, 0.75, 0.55];
-
-const CARD_BORDER = "#2f3952";
-const TEXT_PRIMARY = "#f5f7ff";
-const TEXT_MUTED = "rgba(217,226,255,0.55)";
-const AXIS_LINE = "rgba(217,226,255,0.35)";
-const GRID_LINE = "rgba(217,226,255,0.10)";
-
-const BAR_COLORS = [
-  "#EB0A1E",
-  "#F59E0B",
-  "#3B82F6",
-  "#10B981",
-  "#8B5CF6",
-  "#EC4899",
-  "#0EA5E9",
-  "#F97316",
-];
-
-const tickStyle = {
-  fill: TEXT_MUTED,
-  fontSize: 11,
-  fontFamily: "var(--font-data)",
-};
 
 function ChartTooltip({
   active,
@@ -150,8 +136,8 @@ export function HenkatenByLineChart() {
               />
               <Tooltip cursor={{ fill: "rgba(217,226,255,0.06)" }} content={<ChartTooltip />} />
               <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={56}>
-                {data.map((d, i) => (
-                  <Cell key={d.line_name} fill={BAR_COLORS[i % BAR_COLORS.length]} />
+                {data.map((d) => (
+                  <Cell key={d.line_name} fill={lineColor(d.line_name)} />
                 ))}
                 <LabelList
                   dataKey="total"
