@@ -56,6 +56,30 @@ const FIN_STATUS_COLOR = "#10B981";
 const opStackBackground = { fill: "rgba(245,158,11,0.12)" };
 const finStackBackground = { fill: "rgba(16,185,129,0.12)" };
 
+/**
+ * Recharts' Bar `background` rect is dropped by the same zero-height filter
+ * as the bar's own segment (verified in node_modules/recharts/lib/cartesian/
+ * Bar.js: `background` is computed before the minPointSize adjustment, but
+ * the whole rect — background included — is discarded unless the ADJUSTED
+ * height is non-zero). Attaching `background` to every line's Bar (so at
+ * least one survives per month) does work, but each survivor draws its own
+ * copy of the same translucent rect, and overlapping identical-alpha layers
+ * compound: a month where 5 lines are non-zero renders visibly darker than
+ * one where only 2 are, even though the fill color is identical in the DOM.
+ *
+ * Fix: draw the background from exactly ONE bar per stack (whichever line
+ * has the largest overall total, so it's non-zero most often), and force
+ * that one bar's height to never round to zero via `minPointSize`. Recharts'
+ * own docs warn minPointSize "might not be respected for tightly packed
+ * values" in stacked charts — but that caveat is about aggregate visual
+ * layout fidelity when MANY bars each request a minimum size and compete for
+ * limited pixel height. Here exactly one bar carries it, and the adjustment
+ * (`height < minPointSize` -> `height = minPointSize`) unconditionally
+ * clears the `height === 0` filter, so it reliably guarantees a single
+ * surviving rect regardless of that line's real value for the month.
+ */
+const BACKGROUND_MIN_POINT_SIZE = 1;
+
 /** Blank instead of a literal 0, so empty months stay uncluttered. */
 const hideZero = (value: RenderableText): RenderableText =>
   Number(value) > 0 ? value : "";
@@ -171,6 +195,11 @@ export function ProblemProduksiChart() {
   const rows = resp?.data ?? [];
   const hasData = rows.some((r) => r.opTotal > 0 || r.finTotal > 0);
 
+  // `lines` is ordered by total descending (see the by-month route), so the
+  // first entry is non-zero most often — the best single bar to anchor each
+  // stack's background rect to (see BACKGROUND_MIN_POINT_SIZE above).
+  const backgroundAnchorLine = lines[0];
+
   const summary = hasData
     ? `Problem per bulan: ${rows
         .filter((r) => r.opTotal > 0 || r.finTotal > 0)
@@ -262,7 +291,9 @@ export function ProblemProduksiChart() {
                     stackId="op"
                     name={line}
                     fill={lineColor(line)}
-                    background={opStackBackground}
+                    {...(line === backgroundAnchorLine
+                      ? { background: opStackBackground, minPointSize: BACKGROUND_MIN_POINT_SIZE }
+                      : {})}
                     maxBarSize={26}
                   >
                     <LabelList
@@ -283,7 +314,9 @@ export function ProblemProduksiChart() {
                     stackId="fin"
                     legendType="none"
                     fill={lineColor(line)}
-                    background={finStackBackground}
+                    {...(line === backgroundAnchorLine
+                      ? { background: finStackBackground, minPointSize: BACKGROUND_MIN_POINT_SIZE }
+                      : {})}
                     maxBarSize={26}
                   >
                     <LabelList
