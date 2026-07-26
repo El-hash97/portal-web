@@ -1,7 +1,7 @@
 'use client';
 
 import { HenkatenKpiBar } from '@/components/HenkatenKpiBar';
-import { HenkatenLineChart } from '@/components/HenkatenLineChart';
+import { HenkatenByLineChart } from '@/components/HenkatenByLineChart';
 
 export default function DashboardPage() {
   return (
@@ -16,7 +16,7 @@ export default function DashboardPage() {
       </div>
 
       <HenkatenKpiBar />
-      <HenkatenLineChart />
+      <HenkatenByLineChart />
     </main>
   );
 }

@@ -8,7 +8,10 @@ interface LineTotal {
   total: number;
 }
 
-export function HenkatenLineChart() {
+const COL_H = 120;
+const CARD_H = COL_H + 70;
+
+export function HenkatenByLineChart() {
   const [data, setData] = useState<LineTotal[] | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -19,10 +22,7 @@ export function HenkatenLineChart() {
       .catch(() => setFailed(true));
   }, []);
 
-  if (failed) return null;
-
   const max = data && data.length ? Math.max(...data.map((d) => d.total), 1) : 1;
-  const COL_H = 120;
 
   return (
     <div
@@ -43,14 +43,20 @@ export function HenkatenLineChart() {
         </span>
       </div>
 
-      {!data ? (
-        <div className="h-[120px] flex items-center justify-center">
+      {failed ? (
+        <div className="flex items-center justify-center" style={{ height: CARD_H }}>
+          <span className="text-[12px]" style={{ color: "rgba(217,226,255,0.3)" }}>
+            Data e-Henkaten per line tidak tersedia.
+          </span>
+        </div>
+      ) : !data ? (
+        <div className="flex items-center justify-center" style={{ height: CARD_H }}>
           <span className="text-[12px]" style={{ color: "rgba(217,226,255,0.3)" }}>
             —
           </span>
         </div>
       ) : data.length === 0 ? (
-        <div className="h-[120px] flex items-center justify-center">
+        <div className="flex items-center justify-center" style={{ height: CARD_H }}>
           <span className="text-[12px]" style={{ color: "rgba(217,226,255,0.3)" }}>
             Belum ada data.
           </span>
@@ -58,7 +64,7 @@ export function HenkatenLineChart() {
       ) : (
         <div
           className="flex items-end justify-center gap-6 sm:gap-10 px-2"
-          style={{ height: COL_H + 40 }}
+          style={{ height: CARD_H }}
         >
           {data.map((d) => {
             const barH = Math.max(6, Math.round((d.total / max) * COL_H));

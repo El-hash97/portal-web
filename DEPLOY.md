@@ -53,7 +53,7 @@ Di Netlify dashboard → **Site configuration → Environment variables**, pasti
 - `DATABASE_URL` — kemungkinan besar sudah ada (dipakai desain lama juga)
 - `E_HENKATEN` — **baru**, wajib ditambahkan manual. Ambil dari `.env.local` lokal (yang sudah pakai *Transaction pooler*, port `6543` — bukan direct connection, karena Netlify Functions itu serverless/IPv4)
 
-Tanpa `E_HENKATEN` di Netlify, bagian "e-Henkaten · Live" di home page akan otomatis hilang dari tampilan (sudah ada fallback `failed → return null` di kodenya), tidak bikin error, cuma datanya tidak muncul.
+Tanpa `E_HENKATEN` di Netlify, bagian "e-Henkaten · Live" di home page akan otomatis hilang dari tampilan (sudah ada fallback `failed → return null` di kodenya), tidak bikin error, cuma datanya tidak muncul. Halaman `/dashboard` (KPI bar + chart per line) juga bergantung pada env var yang sama — tanpanya, kedua bagian jatuh ke fallback masing-masing (bukan blank), tapi datanya tidak akan pernah muncul.
 
 ### Langkah 4: Verifikasi setelah deploy
 
@@ -61,6 +61,7 @@ Tanpa `E_HENKATEN` di Netlify, bagian "e-Henkaten · Live" di home page akan oto
 - [ ] `/applications` — deskripsi lengkap tiap app tampil
 - [ ] `/reports` — chart & form saran tampil
 - [ ] `/admin` — login masih berfungsi (`admin` / password sesuai `ADMIN_CRED`)
+- [ ] `/dashboard` — link Dashboard di sidebar berfungsi, KPI bar & chart per line tampil dengan data asli
 - [ ] Tampilan mobile — sidebar drawer & navbar responsif
 
 ---
