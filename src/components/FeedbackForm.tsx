@@ -78,7 +78,7 @@ export function FeedbackForm() {
                 onChange={e => setAppId(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none appearance-none"
                 style={{
-                  background: '#460a0aff',
+                  background: '#0a296cff',
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: 'rgba(255, 255, 255, 0.71)',
                 }}

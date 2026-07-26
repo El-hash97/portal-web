@@ -1,5 +1,6 @@
 'use client';
 
+import { DashboardAppSection } from '@/components/DashboardAppSection';
 import { HenkatenKpiBar } from '@/components/HenkatenKpiBar';
 import { HenkatenByLineChart } from '@/components/HenkatenByLineChart';
 
@@ -11,12 +12,17 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="text-[12.5px] mt-1" style={{ color: 'rgba(217,226,255,0.4)' }}>
-          Ringkasan data live dari aplikasi e-Henkaten.
+          Ringkasan data live dari tiap aplikasi.
         </p>
       </div>
 
-      <HenkatenKpiBar />
-      <HenkatenByLineChart />
+      <DashboardAppSection
+        name="Henkaten"
+        blurb="Data diambil langsung dari aplikasi e-Henkaten — Change Point Management."
+      >
+        <HenkatenKpiBar />
+        <HenkatenByLineChart />
+      </DashboardAppSection>
     </main>
   );
 }

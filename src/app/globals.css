@@ -4,6 +4,7 @@
   --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
   --font-display: var(--font-space-grotesk), var(--font-plus-jakarta), system-ui, sans-serif;
   --font-mono-label: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-data: var(--font-inter), system-ui, sans-serif;
 }
 
 body {
