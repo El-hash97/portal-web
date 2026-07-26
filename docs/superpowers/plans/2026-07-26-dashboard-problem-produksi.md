@@ -612,6 +612,27 @@ const labelStyle = {
 /** Blank instead of a literal 0, so empty months stay uncluttered. */
 const hideZero = (value: ReactNode) => (Number(value) > 0 ? value : "");
 
+// A bar segment with height 0 is dropped from the rendered rect array
+// entirely in Recharts (it is not drawn as an invisible zero-height rect at
+// the stack's running total), taking any LabelList attached to it along with
+// it — so a single fixed line's Bar is not a safe place to hang the
+// stack-total label. Every Bar instead carries a LabelList whose
+// valueAccessor scans `lines` from the end backwards; only the bar for the
+// first (topmost-stacked) line with a non-zero value that month emits the
+// total, every other bar in the stack emits an empty string.
+function topContributor(row: MonthRow, prefix: "op" | "fin", lines: string[]): string | undefined {
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i];
+    if (Number(row[`${prefix}:${line}`]) > 0) return line;
+  }
+  return undefined;
+}
+
+function stackLabelValue(row: MonthRow, prefix: "op" | "fin", line: string, lines: string[]) {
+  if (topContributor(row, prefix, lines) !== line) return "";
+  return prefix === "op" ? row.opTotal : row.finTotal;
+}
+
 function ChartTooltip({
   active,
   payload,
@@ -687,10 +708,6 @@ export function ProblemProduksiChart() {
   const lines = resp?.lines ?? [];
   const rows = resp?.data ?? [];
   const hasData = rows.some((r) => r.opTotal > 0 || r.finTotal > 0);
-
-  // The last line sits at the cumulative top of each stack, so its Bar is the
-  // one that carries the stack-total label.
-  const topLine = lines[lines.length - 1];
 
   const summary = hasData
     ? `Problem per bulan: ${rows
@@ -785,14 +802,12 @@ export function ProblemProduksiChart() {
                     fill={lineColor(line)}
                     maxBarSize={26}
                   >
-                    {line === topLine && (
-                      <LabelList
-                        dataKey="opTotal"
-                        position="top"
-                        formatter={hideZero}
-                        style={labelStyle}
-                      />
-                    )}
+                    <LabelList
+                      position="top"
+                      formatter={hideZero}
+                      style={labelStyle}
+                      valueAccessor={(entry) => stackLabelValue(entry.payload as MonthRow, "op", line, lines)}
+                    />
                   </Bar>
                 ))}
 
@@ -805,14 +820,12 @@ export function ProblemProduksiChart() {
                     fill={lineColor(line)}
                     maxBarSize={26}
                   >
-                    {line === topLine && (
-                      <LabelList
-                        dataKey="finTotal"
-                        position="top"
-                        formatter={hideZero}
-                        style={labelStyle}
-                      />
-                    )}
+                    <LabelList
+                      position="top"
+                      formatter={hideZero}
+                      style={labelStyle}
+                      valueAccessor={(entry) => stackLabelValue(entry.payload as MonthRow, "fin", line, lines)}
+                    />
                   </Bar>
                 ))}
               </BarChart>
