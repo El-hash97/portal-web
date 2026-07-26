@@ -53,8 +53,8 @@ const labelStyle = {
  */
 const OP_STATUS_COLOR = "#F59E0B";
 const FIN_STATUS_COLOR = "#10B981";
-const opStackBackground = { fill: "rgba(245,158,11,0.12)" };
-const finStackBackground = { fill: "rgba(16,185,129,0.12)" };
+const opStackBackground = { fill: "rgba(245,158,11,0.42)" };
+const finStackBackground = { fill: "rgba(16,185,129,0.42)" };
 
 /**
  * Recharts' Bar `background` rect is dropped by the same zero-height filter
@@ -77,8 +77,19 @@ const finStackBackground = { fill: "rgba(16,185,129,0.12)" };
  * (`height < minPointSize` -> `height = minPointSize`) unconditionally
  * clears the `height === 0` filter, so it reliably guarantees a single
  * surviving rect regardless of that line's real value for the month.
+ *
+ * `minPointSize` must NOT be a flat constant here: a flat 1 forces the
+ * anchor bar's height above zero even in months where the WHOLE stack is
+ * empty, which would draw a background panel on every month, not just the
+ * ones with real data. Recharts accepts a per-row function instead
+ * (`(value, index) => number`); using the row's own stack total to decide
+ * — force only when the stack genuinely has data that month — keeps the
+ * background scoped to populated months exactly like before.
  */
-const BACKGROUND_MIN_POINT_SIZE = 1;
+function makeAnchorMinPointSize(rows: MonthRow[], totalKey: "opTotal" | "finTotal") {
+  return (_value: number | null | undefined, index: number) =>
+    (rows[index]?.[totalKey] ?? 0) > 0 ? 1 : 0;
+}
 
 /** Blank instead of a literal 0, so empty months stay uncluttered. */
 const hideZero = (value: RenderableText): RenderableText =>
@@ -197,8 +208,10 @@ export function ProblemProduksiChart() {
 
   // `lines` is ordered by total descending (see the by-month route), so the
   // first entry is non-zero most often — the best single bar to anchor each
-  // stack's background rect to (see BACKGROUND_MIN_POINT_SIZE above).
+  // stack's background rect to (see makeAnchorMinPointSize above).
   const backgroundAnchorLine = lines[0];
+  const opAnchorMinPointSize = makeAnchorMinPointSize(rows, "opTotal");
+  const finAnchorMinPointSize = makeAnchorMinPointSize(rows, "finTotal");
 
   const summary = hasData
     ? `Problem per bulan: ${rows
@@ -292,7 +305,7 @@ export function ProblemProduksiChart() {
                     name={line}
                     fill={lineColor(line)}
                     {...(line === backgroundAnchorLine
-                      ? { background: opStackBackground, minPointSize: BACKGROUND_MIN_POINT_SIZE }
+                      ? { background: opStackBackground, minPointSize: opAnchorMinPointSize }
                       : {})}
                     maxBarSize={26}
                   >
@@ -315,7 +328,7 @@ export function ProblemProduksiChart() {
                     legendType="none"
                     fill={lineColor(line)}
                     {...(line === backgroundAnchorLine
-                      ? { background: finStackBackground, minPointSize: BACKGROUND_MIN_POINT_SIZE }
+                      ? { background: finStackBackground, minPointSize: finAnchorMinPointSize }
                       : {})}
                     maxBarSize={26}
                   >
