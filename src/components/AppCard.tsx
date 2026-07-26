@@ -61,11 +61,13 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
     <div
       className={`border rounded-2xl p-6 flex flex-col relative overflow-hidden transition-all duration-200 group ${borderClass}`}
       style={{
-        background:     'linear-gradient(135deg, #0f0f0f 0%, #1e0808 100%)',
         boxShadow:      '0 2px 8px rgba(0,0,0,0.4)',
         animationDelay: `${delay}ms`,
       }}
     >
+      {/* Background Pattern */}
+      <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#004b8e_100%)]" />
+
       {/* Top accent bar */}
       <div
         className="absolute top-0 left-0 right-0 h-[3px] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"

@@ -39,7 +39,7 @@ export function HeroSection() {
           One Door. All Tools. Better Tomorrow.
         </p>
         <p className="text-[12px] sm:text-[13px] max-w-xl mx-auto leading-relaxed px-2" style={{ color: 'rgba(217,226,255,0.5)' }}>
-          Integrated Digital Platform for Casting Division<br className="hidden sm:block" />
+          Integrated Digital Platform for Casting Division <br className="hidden sm:block" />
           Driving Efficiency, Quality and Continuous Improvement.
         </p>
       </div>
@@ -53,7 +53,7 @@ export function HeroSection() {
             <p className="text-[13px]" style={{ color: 'rgba(217,226,255,0.35)' }}>Admin belum mengaktifkan aplikasi apapun.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
             {activeApps.map((app, i) => (
               <PortalAppCard key={app.id} app={app} index={i} />
             ))}

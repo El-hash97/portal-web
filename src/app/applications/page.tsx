@@ -26,7 +26,7 @@ export default function ApplicationsPage() {
           <p className="text-[13px]" style={{ color: 'rgba(217,226,255,0.35)' }}>Admin belum mengaktifkan aplikasi apapun.</p>
         </div>
       ) : (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-3">
           {activeApps.map((app, i) => (
             <AppCard key={app.id} app={app} delay={i * 60} />
           ))}

@@ -35,9 +35,12 @@ function KpiCard({
   const display = typeof value === 'number' ? value.toLocaleString('id-ID') : value;
   return (
     <div
-      className="rounded-xl px-4 py-3.5 flex flex-col gap-1"
-      style={{ background: 'linear-gradient(135deg, #111 0%, #1a0808 100%)', border: '1px solid rgba(255,255,255,0.08)' }}
+      className="relative overflow-hidden rounded-xl px-4 py-3.5 flex flex-col gap-1"
+      style={{ border: '1px solid rgba(255,255,255,0.08)' }}
     >
+      {/* Background Pattern */}
+      <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#004b8e_100%)]" />
+
       <div className="flex items-center gap-1.5 mb-0.5">
         <span style={{ color: accent }}>{icon}</span>
         <span className="text-[10.5px] font-bold tracking-wide uppercase" style={{ color: 'rgba(255,255,255,0.38)' }}>

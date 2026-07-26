@@ -41,7 +41,7 @@ export function Sidebar() {
 
   const navItems: NavItem[] = [
     { label: 'Home',         icon: <Home size={18} />,           href: '/' },
-    { label: 'Dashboard',    icon: <LayoutDashboard size={18} /> },
+    { label: 'Dashboard',    icon: <LayoutDashboard size={18} />, href: '/dashboard' },
     { label: 'Applications', icon: <Grid3x3 size={18} />,        href: '/applications' },
     { label: 'Data Center',  icon: <Database size={18} /> },
     { label: 'Reports',      icon: <FileBarChart size={18} />,   href: '/reports' },
