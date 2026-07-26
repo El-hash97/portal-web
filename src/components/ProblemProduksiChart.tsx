@@ -46,6 +46,16 @@ const labelStyle = {
   fontFamily: "var(--font-data)",
 };
 
+/**
+ * Status colors, matching ProblemProduksiKpiBar's On Progress/Finish icons.
+ * Rendered as a low-opacity full-height panel behind each stack via Bar's
+ * `background` prop, so the two stacks read apart by color, not just position.
+ */
+const OP_STATUS_COLOR = "#F59E0B";
+const FIN_STATUS_COLOR = "#10B981";
+const opStackBackground = { fill: "rgba(245,158,11,0.12)" };
+const finStackBackground = { fill: "rgba(16,185,129,0.12)" };
+
 /** Blank instead of a literal 0, so empty months stay uncluttered. */
 const hideZero = (value: RenderableText): RenderableText =>
   Number(value) > 0 ? value : "";
@@ -252,6 +262,7 @@ export function ProblemProduksiChart() {
                     stackId="op"
                     name={line}
                     fill={lineColor(line)}
+                    background={opStackBackground}
                     maxBarSize={26}
                   >
                     <LabelList
@@ -272,6 +283,7 @@ export function ProblemProduksiChart() {
                     stackId="fin"
                     legendType="none"
                     fill={lineColor(line)}
+                    background={finStackBackground}
                     maxBarSize={26}
                   >
                     <LabelList
@@ -288,8 +300,21 @@ export function ProblemProduksiChart() {
             </ResponsiveContainer>
           </div>
 
-          <p className="text-[10.5px] text-center mt-1" style={{ color: TEXT_MUTED }}>
-            kiri: On Progress · kanan: Finish
+          <p
+            className="flex items-center justify-center gap-1.5 text-[10.5px] mt-1"
+            style={{ color: TEXT_MUTED }}
+          >
+            <span
+              className="w-2 h-2 rounded-sm shrink-0"
+              style={{ background: OP_STATUS_COLOR }}
+            />
+            On Progress
+            <span className="mx-1">·</span>
+            <span
+              className="w-2 h-2 rounded-sm shrink-0"
+              style={{ background: FIN_STATUS_COLOR }}
+            />
+            Finish
           </p>
         </>
       )}
