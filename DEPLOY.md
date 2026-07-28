@@ -54,10 +54,14 @@ Di Netlify dashboard → **Site configuration → Environment variables**, pasti
 - `E_HENKATEN` — **baru**, wajib ditambahkan manual. Ambil dari `.env.local` lokal (yang sudah pakai *Transaction pooler*, port `6543` — bukan direct connection, karena Netlify Functions itu serverless/IPv4)
 - `PP_INSFORGE_URL` — **baru**, wajib ditambahkan manual. URL backend InsForge milik aplikasi Problem Produksi (format `https://<appkey>.<region>.insforge.app`)
 - `PP_INSFORGE_API_KEY` — **baru**, wajib ditambahkan manual. Admin API key InsForge milik aplikasi Problem Produksi. Hanya dibaca di server (tanpa prefix `NEXT_PUBLIC_`), jadi tidak ikut ter-bundle ke browser
+- `KAIZEN_SUPABASE_URL` — **baru**, wajib ditambahkan manual. URL project Supabase milik aplikasi Kaizen Order Sheet (format `https://<ref>.supabase.co`)
+- `KAIZEN_SUPABASE_ANON_KEY` — **baru**, wajib ditambahkan manual. Anon key Supabase milik aplikasi Kaizen Order Sheet — key publik yang dibatasi oleh RLS, tapi tetap hanya dibaca di server (tanpa prefix `NEXT_PUBLIC_`) mengikuti konvensi variabel lain di file ini
 
 Tanpa `E_HENKATEN` di Netlify, bagian "e-Henkaten · Live" di home page akan otomatis hilang dari tampilan (sudah ada fallback `failed → return null` di kodenya), tidak bikin error, cuma datanya tidak muncul. Halaman `/dashboard` (KPI bar + chart per line) juga bergantung pada env var yang sama — tanpanya, kedua bagian jatuh ke fallback masing-masing (bukan blank), tapi datanya tidak akan pernah muncul.
 
 Tanpa kedua variabel di atas, bagian "Problem Produksi" di halaman `/dashboard` akan menampilkan status *Offline* dengan pesan data tidak tersedia (sudah ada fallback di kodenya), tidak bikin error, cuma datanya tidak muncul.
+
+Tanpa kedua variabel di atas, bagian "Kaizen Order Sheet" di halaman `/dashboard` akan menampilkan status *Offline* dengan pesan data tidak tersedia (sudah ada fallback di kodenya), tidak bikin error, cuma datanya tidak muncul.
 
 ### Langkah 4: Verifikasi setelah deploy
 

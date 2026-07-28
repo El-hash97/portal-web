@@ -5,6 +5,8 @@ import { HenkatenKpiBar } from '@/components/HenkatenKpiBar';
 import { HenkatenByLineChart } from '@/components/HenkatenByLineChart';
 import { ProblemProduksiKpiBar } from '@/components/ProblemProduksiKpiBar';
 import { ProblemProduksiChart } from '@/components/ProblemProduksiChart';
+import { KaizenKpiBar } from '@/components/KaizenKpiBar';
+import { KaizenStatusChart } from '@/components/KaizenStatusChart';
 
 export default function DashboardPage() {
   return (
@@ -32,6 +34,14 @@ export default function DashboardPage() {
       >
         <ProblemProduksiKpiBar />
         <ProblemProduksiChart />
+      </DashboardAppSection>
+
+      <DashboardAppSection
+        name="Kaizen Order Sheet"
+        blurb="Data diambil langsung dari aplikasi Kaizen Order Sheet — pencatatan kaizen dan status penyelesaiannya."
+      >
+        <KaizenKpiBar />
+        <KaizenStatusChart />
       </DashboardAppSection>
     </main>
   );
