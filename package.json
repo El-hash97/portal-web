@@ -13,7 +13,9 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@insforge/sdk": "^1.5.0",
     "@neondatabase/serverless": "^1.1.0",
+    "@supabase/supabase-js": "^2.105.3",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.40.0",
@@ -22,6 +24,7 @@
     "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "recharts": "^3.10.1",
     "tailwind-merge": "^3.6.0",
     "ws": "^8.21.0"
   },

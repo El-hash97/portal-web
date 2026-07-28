@@ -1,0 +1,17 @@
+C:\Users\El\Documents\casting-web-design-v2\AGENTS.md
+C:\Users\El\Documents\casting-web-design-v2\CLAUDE.md
+C:\Users\El\Documents\casting-web-design-v2\DEPLOY.md
+C:\Users\El\Documents\casting-web-design-v2\README.md
+C:\Users\El\Documents\casting-web-design-v2\PRD-Casting-Tools-Hub.pdf
+C:\Users\El\Documents\casting-web-design-v2\public\file.svg
+C:\Users\El\Documents\casting-web-design-v2\public\globe.svg
+C:\Users\El\Documents\casting-web-design-v2\public\icons\bnf-form.png
+C:\Users\El\Documents\casting-web-design-v2\public\icons\e-henkaten.png
+C:\Users\El\Documents\casting-web-design-v2\public\icons\kaizen-order.png
+C:\Users\El\Documents\casting-web-design-v2\public\icons\problem-produksi.png
+C:\Users\El\Documents\casting-web-design-v2\public\icons\report-5w.png
+C:\Users\El\Documents\casting-web-design-v2\public\icons\voice-member.png
+C:\Users\El\Documents\casting-web-design-v2\public\logo.png
+C:\Users\El\Documents\casting-web-design-v2\public\next.svg
+C:\Users\El\Documents\casting-web-design-v2\public\vercel.svg
+C:\Users\El\Documents\casting-web-design-v2\public\window.svg

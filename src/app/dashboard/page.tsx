@@ -1,7 +1,12 @@
 'use client';
 
+import { DashboardAppSection } from '@/components/DashboardAppSection';
 import { HenkatenKpiBar } from '@/components/HenkatenKpiBar';
 import { HenkatenByLineChart } from '@/components/HenkatenByLineChart';
+import { ProblemProduksiKpiBar } from '@/components/ProblemProduksiKpiBar';
+import { ProblemProduksiChart } from '@/components/ProblemProduksiChart';
+import { KaizenKpiBar } from '@/components/KaizenKpiBar';
+import { KaizenStatusChart } from '@/components/KaizenStatusChart';
 
 export default function DashboardPage() {
   return (
@@ -11,12 +16,33 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="text-[12.5px] mt-1" style={{ color: 'rgba(217,226,255,0.4)' }}>
-          Ringkasan data live dari aplikasi e-Henkaten.
+          Ringkasan data live dari tiap aplikasi.
         </p>
       </div>
 
-      <HenkatenKpiBar />
-      <HenkatenByLineChart />
+      <DashboardAppSection
+        name="Henkaten"
+        blurb="Data diambil langsung dari aplikasi e-Henkaten — Change Point Management."
+      >
+        <HenkatenKpiBar />
+        <HenkatenByLineChart />
+      </DashboardAppSection>
+
+      <DashboardAppSection
+        name="Problem Produksi"
+        blurb="Data diambil langsung dari aplikasi Problem Produksi — monitoring problem yang menghambat produksi."
+      >
+        <ProblemProduksiKpiBar />
+        <ProblemProduksiChart />
+      </DashboardAppSection>
+
+      <DashboardAppSection
+        name="Kaizen Order Sheet"
+        blurb="Data diambil langsung dari aplikasi Kaizen Order Sheet — pencatatan kaizen dan status penyelesaiannya."
+      >
+        <KaizenKpiBar />
+        <KaizenStatusChart />
+      </DashboardAppSection>
     </main>
   );
 }

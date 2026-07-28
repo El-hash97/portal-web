@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono, Inter } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '@/context/AppContext';
 import { RatingsProvider } from '@/context/RatingsContext';
@@ -25,6 +25,12 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
 });
 
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
+});
+
 export const metadata: Metadata = {
   title: 'Casting Tools Hub — TMMIN Casting Division',
   description: 'Portal akses terpusat aplikasi internal Casting Division, EPSD Sunter 2.',
@@ -32,7 +38,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${plusJakarta.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang="id" className={`${plusJakarta.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.variable}`}>
       <body className="min-h-screen flex flex-col lg:flex-row antialiased">
         <AppProvider>
           <RatingsProvider>

@@ -1,32 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ClipboardList,
-  AlertOctagon,
-  AlertTriangle,
-  CheckCircle2,
-} from "lucide-react";
+import { ClipboardList, Clock, CheckCircle2 } from "lucide-react";
+import { CARD_BORDER, TEXT_PRIMARY, TEXT_MUTED } from "@/lib/chartTheme";
 
-interface HenkatenKpi {
+interface KaizenKpi {
   total: number;
-  high: number;
-  medium: number;
-  low: number;
+  onProgress: number;
+  finish: number;
 }
 
-const CARD_BORDER = "#2f3952";
-const TEXT_PRIMARY = "#f5f7ff";
-const TEXT_MUTED = "rgba(217,226,255,0.55)";
-
-export function HenkatenKpiBar() {
-  const [kpi, setKpi] = useState<HenkatenKpi | null>(null);
+export function KaizenKpiBar() {
+  const [kpi, setKpi] = useState<KaizenKpi | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    fetch("/api/henkaten-kpi")
+    fetch("/api/kaizen/kpi")
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: HenkatenKpi) => setKpi(d))
+      .then((d: KaizenKpi) => setKpi(d))
       .catch(() => setFailed(true));
   }, []);
 
@@ -36,32 +27,21 @@ export function HenkatenKpiBar() {
     {
       icon: <ClipboardList size={17} />,
       value: kpi?.total,
-      label: "Total",
-      sub: "Henkaten",
+      label: "Total Kaizen",
       iconBg: "rgba(217,226,255,0.16)",
       iconColor: "#d9e2ff",
     },
     {
-      icon: <AlertOctagon size={17} />,
-      value: kpi?.high,
-      label: "High Risk",
-      sub: null,
-      iconBg: "#EB0A1E",
-      iconColor: "#ffffff",
-    },
-    {
-      icon: <AlertTriangle size={17} />,
-      value: kpi?.medium,
-      label: "Medium Risk",
-      sub: null,
-      iconBg: "#F59E0B",
+      icon: <Clock size={17} />,
+      value: kpi?.onProgress,
+      label: "On Progress",
+      iconBg: "#64748B",
       iconColor: "#ffffff",
     },
     {
       icon: <CheckCircle2 size={17} />,
-      value: kpi?.low,
-      label: "Low Risk",
-      sub: null,
+      value: kpi?.finish,
+      label: "Finish",
       iconBg: "#10B981",
       iconColor: "#ffffff",
     },
@@ -86,14 +66,14 @@ export function HenkatenKpiBar() {
           className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-widest"
           style={{ color: TEXT_MUTED }}
         >
-          e-Henkaten · {failed ? "Offline" : "Live"}
+          Kaizen Order Sheet · {failed ? "Offline" : "Live"}
         </span>
       </div>
 
       {failed ? (
         <div className="w-full sm:w-auto flex-1 flex items-center justify-center py-3 sm:py-0">
           <span className="text-[13px]" style={{ color: TEXT_MUTED }}>
-            Data e-Henkaten tidak tersedia.
+            Data Kaizen Order Sheet tidak tersedia.
           </span>
         </div>
       ) : (
@@ -134,12 +114,6 @@ export function HenkatenKpiBar() {
                   style={{ color: TEXT_MUTED }}
                 >
                   {it.label}
-                  {it.sub && (
-                    <>
-                      <br />
-                      {it.sub}
-                    </>
-                  )}
                 </div>
               </div>
             </div>
