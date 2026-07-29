@@ -35,7 +35,7 @@ export function KaizenKpiBar() {
       icon: <Clock size={17} />,
       value: kpi?.onProgress,
       label: "On Progress",
-      iconBg: "#64748B",
+      iconBg: "#F59E0B",
       iconColor: "#ffffff",
     },
     {
