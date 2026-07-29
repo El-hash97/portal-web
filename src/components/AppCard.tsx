@@ -66,7 +66,7 @@ export function AppCard({ app, adminMode = false, delay = 0, onEdit, onDelete }:
       }}
     >
       {/* Background Pattern */}
-      <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#004b8e_100%)]" />
+      <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_10%,#010528_40%,#004b8e_100%)]" />
 
       {/* Top accent bar */}
       <div
