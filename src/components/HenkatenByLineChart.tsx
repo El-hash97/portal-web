@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { BarChart3 } from "lucide-react";
 import {
   ResponsiveContainer,
-  BarChart,
+  ComposedChart,
   Bar,
   Cell,
+  Line,
   LabelList,
   XAxis,
   YAxis,
@@ -26,10 +27,62 @@ import {
 interface LineTotal {
   line_name: string;
   total: number;
+  high: number;
+  medium: number;
+  low: number;
 }
 
 const CHART_H = 280;
 const SKELETON_RATIOS = [0.6, 0.9, 0.4, 0.75, 0.55];
+
+/** Same three colors already used for these risk levels in HenkatenKpiBar. */
+const RISK_COLOR = {
+  high: "#EB0A1E",
+  medium: "#F59E0B",
+  low: "#10B981",
+} as const;
+
+/**
+ * Two of `lineColor()`'s per-line colors (Mould-RCS red, Core Making amber)
+ * are the exact same hex as the High/Medium risk Line series now overlaid
+ * on these bars, so a same-color dot disappears into its own bar. Darkening
+ * only the BAR fill — not `lineColor()` itself, which ProblemProduksiChart
+ * also relies on for its own (unrelated) per-line coloring — keeps every
+ * line's color assignment intact everywhere else while giving the overlaid
+ * risk lines contrast against whichever bar they happen to cross.
+ */
+const BAR_DARKEN_FACTOR = 0.72;
+
+function darken(hex: string, factor: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.round(((n >> 16) & 0xff) * factor);
+  const g = Math.round(((n >> 8) & 0xff) * factor);
+  const b = Math.round((n & 0xff) * factor);
+  return `#${[r, g, b].map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function RiskLegend() {
+  const items = [
+    { label: "High", color: RISK_COLOR.high },
+    { label: "Medium", color: RISK_COLOR.medium },
+    { label: "Low", color: RISK_COLOR.low },
+  ];
+  return (
+    <div className="flex items-center gap-4 pl-1 sm:pl-2 mb-2">
+      {items.map((item) => (
+        <div key={item.label} className="flex items-center gap-1.5">
+          <span
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ background: item.color }}
+          />
+          <span className="text-[10px]" style={{ color: TEXT_MUTED }}>
+            {item.label} Risk
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function ChartTooltip({
   active,
@@ -43,14 +96,29 @@ function ChartTooltip({
   return (
     <div
       className="font-data rounded-lg px-3 py-2"
-      style={{ background: "#0a152e", border: `1px solid ${CARD_BORDER}` }}
+      style={{ background: "#0a152e", border: `1px solid ${CARD_BORDER}`, minWidth: 140 }}
     >
       <div className="text-[11px] font-medium" style={{ color: TEXT_MUTED }}>
         {d.line_name}
       </div>
-      <div className="text-[13px] font-bold" style={{ color: TEXT_PRIMARY }}>
+      <div className="text-[13px] font-bold mb-1" style={{ color: TEXT_PRIMARY }}>
         {d.total} Henkaten
       </div>
+      {[
+        { label: "High", value: d.high, color: RISK_COLOR.high },
+        { label: "Medium", value: d.medium, color: RISK_COLOR.medium },
+        { label: "Low", value: d.low, color: RISK_COLOR.low },
+      ]
+        .filter((r) => r.value > 0)
+        .map((r) => (
+          <div key={r.label} className="flex items-center gap-1.5 text-[11px]">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: r.color }} />
+            <span style={{ color: TEXT_MUTED }}>{r.label}</span>
+            <span className="ml-auto font-bold" style={{ color: TEXT_PRIMARY }}>
+              {r.value}
+            </span>
+          </div>
+        ))}
     </div>
   );
 }
@@ -86,6 +154,8 @@ export function HenkatenByLineChart() {
         </span>
       </div>
 
+      <RiskLegend />
+
       {failed ? (
         <div className="flex items-center justify-center" style={{ height: CHART_H }}>
           <span className="text-[13px]" style={{ color: TEXT_MUTED }}>
@@ -119,7 +189,7 @@ export function HenkatenByLineChart() {
       ) : (
         <div style={{ height: CHART_H }} role="img" aria-label={summary}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 24, right: 12, left: 0, bottom: 4 }}>
+            <ComposedChart data={data} margin={{ top: 24, right: 12, left: 0, bottom: 4 }}>
               <CartesianGrid stroke={GRID_LINE} strokeDasharray="3 3" vertical={false} />
               <XAxis
                 dataKey="line_name"
@@ -137,7 +207,7 @@ export function HenkatenByLineChart() {
               <Tooltip cursor={{ fill: "rgba(217,226,255,0.06)" }} content={<ChartTooltip />} />
               <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={56}>
                 {data.map((d) => (
-                  <Cell key={d.line_name} fill={lineColor(d.line_name)} />
+                  <Cell key={d.line_name} fill={darken(lineColor(d.line_name), BAR_DARKEN_FACTOR)} />
                 ))}
                 <LabelList
                   dataKey="total"
@@ -145,7 +215,41 @@ export function HenkatenByLineChart() {
                   style={{ fill: TEXT_PRIMARY, fontSize: 12, fontWeight: 700, fontFamily: "var(--font-data)" }}
                 />
               </Bar>
-            </BarChart>
+              {/*
+                Real data series, not floating labels: each Line plots its
+                risk count on the SAME Y-axis scale the bars use, so a dot's
+                vertical position is the actual value read against the axis
+                ticks — and same-color dots across categories are connected,
+                like a standard combo bar+line chart.
+              */}
+              <Line
+                type="linear"
+                dataKey="high"
+                stroke={RISK_COLOR.high}
+                strokeWidth={2}
+                dot={{ r: 3, fill: RISK_COLOR.high, strokeWidth: 0 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+              <Line
+                type="linear"
+                dataKey="medium"
+                stroke={RISK_COLOR.medium}
+                strokeWidth={2}
+                dot={{ r: 3, fill: RISK_COLOR.medium, strokeWidth: 0 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+              <Line
+                type="linear"
+                dataKey="low"
+                stroke={RISK_COLOR.low}
+                strokeWidth={2}
+                dot={{ r: 3, fill: RISK_COLOR.low, strokeWidth: 0 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       )}
