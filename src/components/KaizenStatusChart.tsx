@@ -23,14 +23,28 @@ import {
   tickStyle,
 } from "@/lib/chartTheme";
 
-const STATUSES = ["On Progress", "Tunggu Material", "Fabrikasi", "Others", "Finish"] as const;
+/**
+ * Two separate stacks per month, not one 5-way stack: the four "not yet
+ * finished" statuses grouped into one horizontal bar, and Finish as its own
+ * bar below it. Recharts positions same-category stacks by declaration
+ * order — verified against node_modules/recharts/lib/state/selectors/
+ * combiners/combineAllBarPositions.js: each stackId gets position.offset =
+ * (size + gap) * i for its index i among the declared stacks, and
+ * ChartUtils.js's getCateCoordinateOfBar adds that offset directly to the
+ * category tick's Y coordinate. Y increases downward in SVG, so declaring
+ * the "op" stack's bars before the "finish" stack's bar (as done in the JSX
+ * below) reliably renders Finish below On Progress, not just by convention.
+ */
+const OP_STATUSES = ["On Progress", "Tunggu Material", "Fabrikasi", "Others"] as const;
+const FINISH_STATUS = "Finish" as const;
+const STATUSES = [...OP_STATUSES, FINISH_STATUS] as const;
 type Status = (typeof STATUSES)[number];
 
 const STATUS_COLOR: Record<Status, string> = {
   "On Progress": "#F59E0B",
   "Tunggu Material": "#EAB308",
   Fabrikasi: "#3B82F6",
-  Others: "#8B5CF6",
+  Others: "#6B7280",
   Finish: "#10B981",
 };
 
@@ -49,8 +63,11 @@ interface ByMonthResponse {
   data: MonthRow[];
 }
 
-const ROW_H = 44;
-const MIN_CHART_H = 160;
+// Each month now holds two stacked sub-bars (On Progress group above,
+// Finish below) instead of one, so the per-month row needs more height
+// than the earlier single-bar layout did.
+const ROW_H = 76;
+const MIN_CHART_H = 200;
 const SKELETON_RATIOS = [0.5, 0.85, 0.65];
 
 const labelStyle = {
@@ -69,23 +86,32 @@ const hideZero = (value: RenderableText): RenderableText =>
  * Recharts source citation): a zero-height bar rect is dropped entirely, and
  * any LabelList attached to it disappears along with it. A label fixed to
  * one pre-chosen status would vanish whenever that status is zero for a
- * given month. Every bar in the stack carries the label machinery, but only
- * the bar for that row's topmost surviving (non-zero) status actually emits
- * the row's total — found by scanning STATUSES from the end backward, since
- * Recharts stacks bars bottom-to-top (here: start-to-end) in declaration
- * order and STATUSES is declared in that same order for every Bar.
+ * given month. Every bar in the "op" stack carries the label machinery, but
+ * only the bar for that row's topmost surviving (non-zero) OP_STATUSES
+ * status actually emits the stack's total — found by scanning OP_STATUSES
+ * from the end backward, since Recharts stacks bars start-to-end in
+ * declaration order and OP_STATUSES is declared in that same order for
+ * every Bar in the "op" stack.
+ *
+ * The "finish" stack is a single bar, so it needs no scan: its own value
+ * is its own total, and if it's zero the bar (and its label) is simply
+ * absent, which is correct.
  */
-function topContributor(row: MonthRow): Status | undefined {
-  for (let i = STATUSES.length - 1; i >= 0; i--) {
-    const status = STATUSES[i];
+function opTotal(row: MonthRow): number {
+  return OP_STATUSES.reduce((sum, status) => sum + Number(row[status]), 0);
+}
+
+function topOpContributor(row: MonthRow): (typeof OP_STATUSES)[number] | undefined {
+  for (let i = OP_STATUSES.length - 1; i >= 0; i--) {
+    const status = OP_STATUSES[i];
     if (Number(row[status]) > 0) return status;
   }
   return undefined;
 }
 
-function totalLabelValue(row: MonthRow, status: Status): RenderableText {
-  if (topContributor(row) !== status) return "";
-  return row.total;
+function opLabelValue(row: MonthRow, status: (typeof OP_STATUSES)[number]): RenderableText {
+  if (topOpContributor(row) !== status) return "";
+  return opTotal(row);
 }
 
 function ChartTooltip({
@@ -224,23 +250,38 @@ export function KaizenStatusChart() {
                 }}
               />
 
-              {STATUSES.map((status) => (
+              {OP_STATUSES.map((status) => (
                 <Bar
                   key={status}
                   dataKey={status}
-                  stackId="status"
+                  stackId="op"
                   name={status}
                   fill={STATUS_COLOR[status]}
-                  maxBarSize={26}
+                  maxBarSize={20}
                 >
                   <LabelList
                     position="right"
                     formatter={hideZero}
                     style={labelStyle}
-                    valueAccessor={(entry) => totalLabelValue(entry.payload as MonthRow, status)}
+                    valueAccessor={(entry) => opLabelValue(entry.payload as MonthRow, status)}
                   />
                 </Bar>
               ))}
+
+              <Bar
+                dataKey={FINISH_STATUS}
+                stackId="finish"
+                name={FINISH_STATUS}
+                fill={STATUS_COLOR[FINISH_STATUS]}
+                maxBarSize={20}
+              >
+                <LabelList
+                  position="right"
+                  formatter={hideZero}
+                  style={labelStyle}
+                  dataKey={FINISH_STATUS}
+                />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -6,7 +6,12 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const rows = await henkatenSql`
-      SELECT line_name, COUNT(*)::int AS total
+      SELECT
+        line_name,
+        COUNT(*)::int                                     AS total,
+        COUNT(*) FILTER (WHERE risk_level = 'High')::int   AS high,
+        COUNT(*) FILTER (WHERE risk_level = 'Medium')::int AS medium,
+        COUNT(*) FILTER (WHERE risk_level = 'Low')::int    AS low
       FROM henkaten_records
       GROUP BY line_name
       ORDER BY total DESC

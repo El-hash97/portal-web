@@ -39,7 +39,7 @@ function KpiCard({
       style={{ border: '1px solid rgba(255,255,255,0.08)' }}
     >
       {/* Background Pattern */}
-      <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#004b8e_100%)]" />
+      <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_10%,#010528_40%,#004b8e_100%)]" />
 
       <div className="flex items-center gap-1.5 mb-0.5">
         <span style={{ color: accent }}>{icon}</span>

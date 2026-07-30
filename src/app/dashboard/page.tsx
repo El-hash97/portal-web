@@ -7,6 +7,8 @@ import { ProblemProduksiKpiBar } from '@/components/ProblemProduksiKpiBar';
 import { ProblemProduksiChart } from '@/components/ProblemProduksiChart';
 import { KaizenKpiBar } from '@/components/KaizenKpiBar';
 import { KaizenStatusChart } from '@/components/KaizenStatusChart';
+import { VoiceMemberPodium } from '@/components/VoiceMemberPodium';
+import { VoiceMemberTable } from '@/components/VoiceMemberTable';
 
 export default function DashboardPage() {
   return (
@@ -42,6 +44,14 @@ export default function DashboardPage() {
       >
         <KaizenKpiBar />
         <KaizenStatusChart />
+      </DashboardAppSection>
+
+      <DashboardAppSection
+        name="Voice Member"
+        blurb="Data diambil langsung dari aplikasi Voice Member — peringkat pengirim aspirasi terbanyak."
+      >
+        <VoiceMemberPodium />
+        <VoiceMemberTable />
       </DashboardAppSection>
     </main>
   );
