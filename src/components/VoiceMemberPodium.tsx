@@ -12,10 +12,10 @@ interface Sender {
   profile_photo: string | null;
 }
 
-const RANK_COLOR: Record<1 | 2 | 3, string> = {
-  1: "#F59E0B",
-  2: TEXT_MUTED,
-  3: "#F97316",
+const RANK_STYLE: Record<1 | 2 | 3, { text: string; bg: string; border: string }> = {
+  1: { text: "#F59E0B", bg: "#F59E0B1f", border: "#F59E0B40" },
+  2: { text: TEXT_MUTED, bg: "rgba(217,226,255,0.12)", border: "rgba(217,226,255,0.25)" },
+  3: { text: "#F97316", bg: "#F973161f", border: "#F9731640" },
 };
 
 const RANK_HEIGHT: Record<1 | 2 | 3, number> = {
@@ -87,12 +87,12 @@ export function VoiceMemberPodium() {
                 className="w-full rounded-t-lg flex items-start justify-center pt-2"
                 style={{
                   height: RANK_HEIGHT[rank],
-                  background: `${RANK_COLOR[rank]}1f`,
-                  border: `1px solid ${RANK_COLOR[rank]}40`,
+                  background: RANK_STYLE[rank].bg,
+                  border: `1px solid ${RANK_STYLE[rank].border}`,
                   minWidth: 72,
                 }}
               >
-                <span className="text-[20px] font-bold" style={{ color: RANK_COLOR[rank] }}>
+                <span className="text-[20px] font-bold" style={{ color: RANK_STYLE[rank].text }}>
                   {s.rank}
                 </span>
               </div>

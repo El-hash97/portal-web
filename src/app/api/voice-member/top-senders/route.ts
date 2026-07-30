@@ -13,7 +13,7 @@ export async function GET() {
       FROM voice_members vm
       LEFT JOIN member_accounts ma ON ma.nama = vm.member_name
       GROUP BY vm.member_name, ma.profile_photo
-      ORDER BY total DESC
+      ORDER BY total DESC, vm.member_name ASC
       LIMIT 10
     `;
 

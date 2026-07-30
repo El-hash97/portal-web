@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 export function VoiceMemberAvatar({
   name,
   photo,
@@ -9,12 +11,17 @@ export function VoiceMemberAvatar({
   photo: string | null;
   size: number;
 }) {
-  if (photo) {
+  const [broken, setBroken] = useState(false);
+
+  if (photo && !broken) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={photo}
         alt={name}
+        referrerPolicy="no-referrer"
+        loading="lazy"
+        onError={() => setBroken(true)}
         className="rounded-full object-cover shrink-0"
         style={{ width: size, height: size }}
       />

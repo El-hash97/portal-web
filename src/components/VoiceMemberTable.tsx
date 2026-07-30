@@ -37,15 +37,25 @@ export function VoiceMemberTable() {
       style={{ border: `1px solid ${CARD_BORDER}` }}
     >
       <div className="flex items-center gap-2 pl-1 sm:pl-2 mb-3">
+        <span
+          className="w-1.5 h-1.5 rounded-full"
+          style={{
+            background: failed ? "#EB0A1E" : "#10B981",
+            boxShadow: failed
+              ? "0 0 0 3px rgba(235,10,30,0.18)"
+              : "0 0 0 3px rgba(16,185,129,0.18)",
+          }}
+        />
         <ListOrdered size={15} style={{ color: TEXT_MUTED }} />
         <span
           className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-widest"
           style={{ color: TEXT_MUTED }}
         >
-          {hasPodium ? "Peringkat Selanjutnya" : "Pengirim Voice Member"}
+          {hasPodium ? "Peringkat Selanjutnya" : "Pengirim Voice Member"} · {failed ? "Offline" : "Live"}
         </span>
       </div>
 
+      <div aria-live="polite">
       {failed ? (
         <div className="flex items-center justify-center py-10">
           <span className="text-[13px]" style={{ color: TEXT_MUTED }}>
@@ -113,6 +123,7 @@ export function VoiceMemberTable() {
           </table>
         </div>
       )}
+      </div>
     </div>
   );
 }
