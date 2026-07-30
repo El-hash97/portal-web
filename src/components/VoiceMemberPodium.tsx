@@ -14,8 +14,8 @@ interface Sender {
 
 const RANK_COLOR: Record<1 | 2 | 3, string> = {
   1: "#F59E0B",
-  2: "#C0C7D6",
-  3: "#C97A44",
+  2: TEXT_MUTED,
+  3: "#F97316",
 };
 
 const RANK_HEIGHT: Record<1 | 2 | 3, number> = {
