@@ -87,7 +87,7 @@ export function HenkatenKpiBar() {
           className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-widest"
           style={{ color: TEXT_MUTED }}
         >
-          e-Henkaten · {failed ? "Offline" : "Live"}
+          e-Henkaten{failed ? " · Offline" : ""}
         </span>
       </div>
 

@@ -67,7 +67,7 @@ export function KaizenKpiBar() {
           className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-widest"
           style={{ color: TEXT_MUTED }}
         >
-          Kaizen Order Sheet · {failed ? "Offline" : "Live"}
+          Kaizen Order Sheet{failed ? " · Offline" : ""}
         </span>
       </div>
 

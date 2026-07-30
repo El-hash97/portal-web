@@ -67,7 +67,7 @@ export function ProblemProduksiKpiBar() {
           className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-widest"
           style={{ color: TEXT_MUTED }}
         >
-          Problem Produksi · {failed ? "Offline" : "Live"}
+          Problem Produksi{failed ? " · Offline" : ""}
         </span>
       </div>
 
