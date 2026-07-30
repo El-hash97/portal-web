@@ -2,8 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-/** Counts up from 0 to `value` once, then holds — used by every dashboard KPI card. */
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+/** Counts up from 0 to `value` once the card is scrolled into view, then holds. */
 export function AnimatedNumber({ value, duration = 1.2 }: { value: number; duration?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -16,6 +21,7 @@ export function AnimatedNumber({ value, duration = 1.2 }: { value: number; durat
       n: value,
       duration,
       ease: "power2.out",
+      scrollTrigger: { trigger: el, start: "top 85%", once: true },
       onUpdate: () => {
         el.textContent = Math.round(counter.n).toString();
       },

@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Trophy } from "lucide-react";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 import { CARD_BORDER, TEXT_PRIMARY, TEXT_MUTED } from "@/lib/chartTheme";
 import { VoiceMemberAvatar } from "@/components/VoiceMemberAvatar";
 
@@ -53,13 +58,19 @@ export function VoiceMemberPodium() {
     const byRank = new Map<number, HTMLDivElement>();
     bars.forEach((el) => byRank.set(Number(el.dataset.podiumBar), el));
 
-    const tl = gsap.timeline();
+    const tl = gsap.timeline({
+      scrollTrigger: { trigger: container, start: "top 85%", once: true },
+    });
     ([1, 2, 3] as const).forEach((rank) => {
       const bar = byRank.get(rank);
       if (!bar) return;
       const numeral = bar.querySelector<HTMLSpanElement>("[data-podium-numeral]");
-      gsap.set(bar, { height: 0 });
-      tl.to(bar, { height: RANK_HEIGHT[rank], duration: 0.5, ease: "power2.out" });
+      // scaleY (not height) avoids padding/border clamping the box to a
+      // visible sliver at "0" — height can't fully collapse below its own
+      // padding-top + borders, but a transform scales the whole box to 0
+      // regardless of box-model minimums.
+      gsap.set(bar, { transformOrigin: "bottom", scaleY: 0 });
+      tl.to(bar, { scaleY: 1, duration: 0.5, ease: "power2.out" });
       if (numeral) {
         gsap.set(numeral, { opacity: 0 });
         tl.to(numeral, { opacity: 1, duration: 0.25, ease: "power1.out" }, "-=0.2");
