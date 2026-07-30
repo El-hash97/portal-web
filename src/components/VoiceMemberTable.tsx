@@ -51,7 +51,7 @@ export function VoiceMemberTable() {
           className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-widest"
           style={{ color: TEXT_MUTED }}
         >
-          {hasPodium ? "Peringkat Selanjutnya" : "Pengirim Voice Member"} · {failed ? "Offline" : "Live"}
+          {hasPodium ? "Peringkat Selanjutnya" : "Pengirim Voice Member"}{failed ? " · Offline" : ""}
         </span>
       </div>
 

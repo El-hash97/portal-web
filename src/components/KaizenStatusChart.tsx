@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BarChart3 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -22,6 +22,7 @@ import {
   GRID_LINE,
   tickStyle,
 } from "@/lib/chartTheme";
+import { animateHorizontalBars } from "@/lib/chartAnimate";
 
 /**
  * Two separate stacks per month, not one 5-way stack: the four "not yet
@@ -158,6 +159,7 @@ function ChartTooltip({
 export function KaizenStatusChart() {
   const [resp, setResp] = useState<ByMonthResponse | null>(null);
   const [failed, setFailed] = useState(false);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/kaizen/by-month")
@@ -165,6 +167,13 @@ export function KaizenStatusChart() {
       .then((d: ByMonthResponse) => setResp(d))
       .catch(() => setFailed(true));
   }, []);
+
+  useEffect(() => {
+    if (!resp || !chartRef.current) return;
+    const container = chartRef.current;
+    const frame = requestAnimationFrame(() => animateHorizontalBars(container));
+    return () => cancelAnimationFrame(frame);
+  }, [resp]);
 
   const rows = resp?.data ?? [];
   const hasData = rows.length > 0;
@@ -216,7 +225,7 @@ export function KaizenStatusChart() {
           </span>
         </div>
       ) : (
-        <div style={{ height: chartHeight }} role="img" aria-label={summary}>
+        <div ref={chartRef} style={{ height: chartHeight }} role="img" aria-label={summary}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={rows}
@@ -258,6 +267,7 @@ export function KaizenStatusChart() {
                   name={status}
                   fill={STATUS_COLOR[status]}
                   maxBarSize={20}
+                  isAnimationActive={false}
                 >
                   <LabelList
                     position="right"
@@ -274,6 +284,7 @@ export function KaizenStatusChart() {
                 name={FINISH_STATUS}
                 fill={STATUS_COLOR[FINISH_STATUS]}
                 maxBarSize={20}
+                isAnimationActive={false}
               >
                 <LabelList
                   position="right"
