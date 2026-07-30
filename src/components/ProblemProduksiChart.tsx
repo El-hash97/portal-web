@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BarChart3 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -23,6 +23,7 @@ import {
   tickStyle,
   lineColor,
 } from "@/lib/chartTheme";
+import { animateVerticalBars } from "@/lib/chartAnimate";
 
 interface MonthRow {
   month: string;
@@ -194,6 +195,7 @@ function ChartTooltip({
 export function ProblemProduksiChart() {
   const [resp, setResp] = useState<ByMonthResponse | null>(null);
   const [failed, setFailed] = useState(false);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/problem-produksi/by-month")
@@ -201,6 +203,13 @@ export function ProblemProduksiChart() {
       .then((d: ByMonthResponse) => setResp(d))
       .catch(() => setFailed(true));
   }, []);
+
+  useEffect(() => {
+    if (!resp || !chartRef.current) return;
+    const container = chartRef.current;
+    const frame = requestAnimationFrame(() => animateVerticalBars(container));
+    return () => cancelAnimationFrame(frame);
+  }, [resp]);
 
   const lines = resp?.lines ?? [];
   const rows = resp?.data ?? [];
@@ -266,7 +275,7 @@ export function ProblemProduksiChart() {
         </div>
       ) : (
         <>
-          <div style={{ height: CHART_H }} role="img" aria-label={summary}>
+          <div ref={chartRef} style={{ height: CHART_H }} role="img" aria-label={summary}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={rows} margin={{ top: 24, right: 12, left: 0, bottom: 4 }}>
                 <CartesianGrid stroke={GRID_LINE} strokeDasharray="3 3" vertical={false} />
@@ -308,6 +317,7 @@ export function ProblemProduksiChart() {
                       ? { background: opStackBackground, minPointSize: opAnchorMinPointSize }
                       : {})}
                     maxBarSize={26}
+                    isAnimationActive={false}
                   >
                     <LabelList
                       position="top"
@@ -331,6 +341,7 @@ export function ProblemProduksiChart() {
                       ? { background: finStackBackground, minPointSize: finAnchorMinPointSize }
                       : {})}
                     maxBarSize={26}
+                    isAnimationActive={false}
                   >
                     <LabelList
                       position="top"

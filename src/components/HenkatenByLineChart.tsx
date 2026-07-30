@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BarChart3 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -23,6 +23,7 @@ import {
   tickStyle,
   lineColor,
 } from "@/lib/chartTheme";
+import { animateVerticalBars, animateLines } from "@/lib/chartAnimate";
 
 interface LineTotal {
   line_name: string;
@@ -126,6 +127,7 @@ function ChartTooltip({
 export function HenkatenByLineChart() {
   const [data, setData] = useState<LineTotal[] | null>(null);
   const [failed, setFailed] = useState(false);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/henkaten-kpi/by-line")
@@ -133,6 +135,16 @@ export function HenkatenByLineChart() {
       .then((d: LineTotal[]) => setData(d))
       .catch(() => setFailed(true));
   }, []);
+
+  useEffect(() => {
+    if (!data || !data.length || !chartRef.current) return;
+    const container = chartRef.current;
+    const frame = requestAnimationFrame(() => {
+      animateVerticalBars(container);
+      animateLines(container);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [data]);
 
   const summary =
     data && data.length
@@ -187,7 +199,7 @@ export function HenkatenByLineChart() {
           </span>
         </div>
       ) : (
-        <div style={{ height: CHART_H }} role="img" aria-label={summary}>
+        <div ref={chartRef} style={{ height: CHART_H }} role="img" aria-label={summary}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data} margin={{ top: 24, right: 12, left: 0, bottom: 4 }}>
               <CartesianGrid stroke={GRID_LINE} strokeDasharray="3 3" vertical={false} />
@@ -205,7 +217,7 @@ export function HenkatenByLineChart() {
                 tick={tickStyle}
               />
               <Tooltip cursor={{ fill: "rgba(217,226,255,0.06)" }} content={<ChartTooltip />} />
-              <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={56}>
+              <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={56} isAnimationActive={false}>
                 {data.map((d) => (
                   <Cell key={d.line_name} fill={darken(lineColor(d.line_name), BAR_DARKEN_FACTOR)} />
                 ))}

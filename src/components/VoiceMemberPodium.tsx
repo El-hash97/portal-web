@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
 import { Trophy } from "lucide-react";
 import { CARD_BORDER, TEXT_PRIMARY, TEXT_MUTED } from "@/lib/chartTheme";
 import { VoiceMemberAvatar } from "@/components/VoiceMemberAvatar";
@@ -34,6 +35,7 @@ const RANK_VISUAL_ORDER: Record<1 | 2 | 3, number> = {
 export function VoiceMemberPodium() {
   const [data, setData] = useState<Sender[] | null>(null);
   const [failed, setFailed] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/voice-member/top-senders")
@@ -41,6 +43,33 @@ export function VoiceMemberPodium() {
       .then((d: Sender[]) => setData(d))
       .catch(() => setFailed(true));
   }, []);
+
+  // Each rank's bar grows from 0 to its target height in strict 1 -> 2 -> 3
+  // order (not the visual left-to-right order the flex `order` above uses).
+  useEffect(() => {
+    if (!data || data.length < 3 || !containerRef.current) return;
+    const container = containerRef.current;
+    const bars = container.querySelectorAll<HTMLDivElement>("[data-podium-bar]");
+    const byRank = new Map<number, HTMLDivElement>();
+    bars.forEach((el) => byRank.set(Number(el.dataset.podiumBar), el));
+
+    const tl = gsap.timeline();
+    ([1, 2, 3] as const).forEach((rank) => {
+      const bar = byRank.get(rank);
+      if (!bar) return;
+      const numeral = bar.querySelector<HTMLSpanElement>("[data-podium-numeral]");
+      gsap.set(bar, { height: 0 });
+      tl.to(bar, { height: RANK_HEIGHT[rank], duration: 0.5, ease: "power2.out" });
+      if (numeral) {
+        gsap.set(numeral, { opacity: 0 });
+        tl.to(numeral, { opacity: 1, duration: 0.25, ease: "power1.out" }, "-=0.2");
+      }
+    });
+
+    return () => {
+      tl.kill();
+    };
+  }, [data]);
 
   // The table component owns the loading/failed/empty states for this
   // section; the podium simply doesn't render until there's a confirmed
@@ -64,7 +93,7 @@ export function VoiceMemberPodium() {
         </span>
       </div>
 
-      <div className="flex items-end justify-center gap-4 sm:gap-8 px-2">
+      <div ref={containerRef} className="flex items-end justify-center gap-4 sm:gap-8 px-2">
         {top3.map((s) => {
           const rank = s.rank as 1 | 2 | 3;
           return (
@@ -84,7 +113,8 @@ export function VoiceMemberPodium() {
                 {s.total} Voice Member
               </span>
               <div
-                className="w-full rounded-t-lg flex items-start justify-center pt-2"
+                data-podium-bar={rank}
+                className="w-full rounded-t-lg flex items-start justify-center pt-2 overflow-hidden"
                 style={{
                   height: RANK_HEIGHT[rank],
                   background: RANK_STYLE[rank].bg,
@@ -92,7 +122,11 @@ export function VoiceMemberPodium() {
                   minWidth: 72,
                 }}
               >
-                <span className="text-[20px] font-bold" style={{ color: RANK_STYLE[rank].text }}>
+                <span
+                  data-podium-numeral
+                  className="text-[20px] font-bold"
+                  style={{ color: RANK_STYLE[rank].text }}
+                >
                   {s.rank}
                 </span>
               </div>

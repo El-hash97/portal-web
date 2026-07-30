@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ClipboardList, Clock, CheckCircle2 } from "lucide-react";
 import { CARD_BORDER, TEXT_PRIMARY, TEXT_MUTED } from "@/lib/chartTheme";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 
 interface KaizenKpi {
   total: number;
@@ -106,7 +107,7 @@ export function KaizenKpiBar() {
                     className="text-[20px] sm:text-[26px] font-bold leading-none"
                     style={{ color: TEXT_PRIMARY }}
                   >
-                    {it.value}
+                    <AnimatedNumber value={it.value ?? 0} />
                   </div>
                 )}
                 <div

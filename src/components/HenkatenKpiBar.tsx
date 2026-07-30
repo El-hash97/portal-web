@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from "lucide-react";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 
 interface HenkatenKpi {
   total: number;
@@ -126,7 +127,7 @@ export function HenkatenKpiBar() {
                     className="text-[20px] sm:text-[26px] font-bold leading-none"
                     style={{ color: TEXT_PRIMARY }}
                   >
-                    {it.value}
+                    <AnimatedNumber value={it.value ?? 0} />
                   </div>
                 )}
                 <div
