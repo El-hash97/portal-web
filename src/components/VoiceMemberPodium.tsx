@@ -13,9 +13,9 @@ interface Sender {
 }
 
 const RANK_STYLE: Record<1 | 2 | 3, { text: string; bg: string; border: string }> = {
-  1: { text: "#F59E0B", bg: "#F59E0B1f", border: "#F59E0B40" },
-  2: { text: TEXT_MUTED, bg: "rgba(217,226,255,0.12)", border: "rgba(217,226,255,0.25)" },
-  3: { text: "#F97316", bg: "#F973161f", border: "#F9731640" },
+  1: { text: "#3D2B00", bg: "#FFD700", border: "#B8860B" },
+  2: { text: "#2B2B2B", bg: "#C0C0C0", border: "#9CA3AF" },
+  3: { text: "#FFFFFF", bg: "#CD7F32", border: "#8B5A2B" },
 };
 
 const RANK_HEIGHT: Record<1 | 2 | 3, number> = {
@@ -75,7 +75,7 @@ export function VoiceMemberPodium() {
             >
               <VoiceMemberAvatar name={s.member_name} photo={s.profile_photo} size={rank === 1 ? 56 : 44} />
               <span
-                className="text-[12px] sm:text-[13px] font-bold text-center max-w-[100px] truncate"
+                className="text-[10px] sm:text-[11px] font-bold text-center leading-tight max-w-[110px]"
                 style={{ color: TEXT_PRIMARY }}
               >
                 {s.member_name}
