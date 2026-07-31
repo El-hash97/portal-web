@@ -7,7 +7,8 @@ import { ICON_MAP } from '@/lib/constants';
 import { useAppStore } from '@/context/AppContext';
 import { StarRating } from '@/components/StarRating';
 import { useRatingsStore } from '@/context/RatingsContext';
-import { AppShowcaseVisual } from '@/components/AppShowcaseVisual';
+import { AppShowcaseGallery } from '@/components/AppShowcaseGallery';
+import { APP_ASSET_IMAGES, appSlug } from '@/lib/appAssets';
 
 export function AppShowcaseRow({ app, reversed }: { app: App; reversed: boolean }) {
   const { getCategoryStyle } = useAppStore();
@@ -17,6 +18,7 @@ export function AppShowcaseRow({ app, reversed }: { app: App; reversed: boolean 
   const Icon = ICON_MAP[app.icon] ?? ICON_MAP.box;
   const inMaintenance = app.maintenance ?? false;
   const hasLink = !!app.link && app.link !== '#';
+  const galleryImages = APP_ASSET_IMAGES[appSlug(app.nama)];
 
   const [copied, setCopied] = useState(false);
   async function copyShareLink() {
@@ -105,14 +107,21 @@ export function AppShowcaseRow({ app, reversed }: { app: App; reversed: boolean 
 
       {/* Visual side */}
       <div className="w-full md:w-7/12">
-        <AppShowcaseVisual
-          category={app.kategori}
-          color={style.color}
-          bg={style.bg}
-          Icon={Icon}
-          logo={app.logo}
-          appName={app.nama}
-        />
+        {galleryImages?.length ? (
+          <AppShowcaseGallery images={galleryImages} alt={app.nama} />
+        ) : (
+          <div
+            className="w-full aspect-[4/3] sm:aspect-[16/11] rounded-3xl flex items-center justify-center"
+            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center"
+              style={{ background: style.bg, color: style.color }}
+            >
+              <Icon size={30} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
