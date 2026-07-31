@@ -32,18 +32,22 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
     const password = action === 'approve' || action === 'reject' ? extra.password : getAdminPassword();
     if (!password) return 'Sesi admin tidak valid, silakan login ulang.';
 
-    const res = await fetch(`/api/open-request/${request.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, password, ...extra }),
-    });
+    try {
+      const res = await fetch(`/api/open-request/${request.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, password, ...extra }),
+      });
 
-    if (res.ok) {
-      onChanged();
-      return null;
+      if (res.ok) {
+        onChanged();
+        return null;
+      }
+      const body = await res.json().catch(() => ({}));
+      return body.error || 'Gagal memproses aksi.';
+    } catch {
+      return 'Gagal memproses aksi. Periksa koneksi Anda.';
     }
-    const body = await res.json().catch(() => ({}));
-    return body.error || 'Gagal memproses aksi.';
   }
 
   async function handleModalConfirm(approver: string, password: string, reason: string): Promise<string | null> {
