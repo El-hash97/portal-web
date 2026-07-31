@@ -103,7 +103,7 @@ export function OpenRequestTutorial() {
               Sebelum
             </span>
             <TutorialImage
-              src="/tutorial/open-request-before.jpg"
+              src="/tutorial/open-request-before.png"
               alt="Tabel Problem Produksi sebelum kolom PIC Name ditambahkan"
             />
           </div>
@@ -121,7 +121,7 @@ export function OpenRequestTutorial() {
               Sesudah
             </span>
             <TutorialImage
-              src="/tutorial/open-request-after.jpg"
+              src="/tutorial/open-request-after.png"
               alt="Tabel Problem Produksi sesudah kolom PIC Name ditambahkan"
             />
           </div>
