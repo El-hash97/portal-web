@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  Home, LayoutDashboard, Grid3x3, Database, FileBarChart,
+  Home, LayoutDashboard, Grid3x3, MessageSquarePlus, FileBarChart,
   Bell, KanbanSquare, LogOut, Menu, X,
 } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
@@ -43,7 +43,7 @@ export function Sidebar() {
     { label: 'Home',         icon: <Home size={18} />,           href: '/' },
     { label: 'Dashboard',    icon: <LayoutDashboard size={18} />, href: '/dashboard' },
     { label: 'Applications', icon: <Grid3x3 size={18} />,        href: '/applications' },
-    { label: 'Data Center',  icon: <Database size={18} /> },
+    { label: 'Open Request', icon: <MessageSquarePlus size={18} />, href: '/open-request' },
     { label: 'Reports',      icon: <FileBarChart size={18} />,   href: '/reports' },
     { label: 'Notification', icon: <Bell size={18} /> },
     { label: 'Story Board',  icon: <KanbanSquare size={18} /> },
