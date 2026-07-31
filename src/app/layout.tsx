@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono, Inter } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '@/context/AppContext';
@@ -42,7 +43,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col lg:flex-row antialiased">
         <AppProvider>
           <RatingsProvider>
-            <Sidebar />
+            <Suspense fallback={null}>
+              <Sidebar />
+            </Suspense>
             <div className="flex-1 flex flex-col min-w-0">
               <Navbar />
               <div className="flex-1 flex flex-col">

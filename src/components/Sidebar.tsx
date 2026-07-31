@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   Home, LayoutDashboard, Grid3x3, MessageSquarePlus, FileBarChart,
-  Bell, KanbanSquare, LogOut, Menu, X,
+  Bell, KanbanSquare, LogOut, Menu, X, AppWindow, MessageSquare,
 } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 
@@ -33,9 +33,16 @@ function GearIcon({ size = 18 }: { size?: number }) {
   );
 }
 
+interface AdminNavItem {
+  label: string;
+  icon: React.ReactNode;
+  tab: string;
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isAdmin, logout } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -47,6 +54,11 @@ export function Sidebar() {
     { label: 'Reports',      icon: <FileBarChart size={18} />,   href: '/reports' },
     { label: 'Notification', icon: <Bell size={18} /> },
     { label: 'Story Board',  icon: <KanbanSquare size={18} /> },
+  ];
+
+  const adminNavItems: AdminNavItem[] = [
+    { label: 'Kelola Aplikasi', icon: <AppWindow size={18} />, tab: 'apps' },
+    { label: 'Komentar',        icon: <MessageSquare size={18} />, tab: 'komentar' },
   ];
 
   function handleLogout() {
@@ -105,6 +117,37 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Admin-only menu items */}
+        {isAdmin && (
+          <>
+            <div className="mx-4 my-2 h-px" style={{ background: '#1f2942' }} />
+            <div className="px-4 pb-1">
+              <span className="font-mono-label text-[9px] tracking-widest uppercase" style={{ color: 'rgba(217,226,255,0.25)' }}>
+                Admin
+              </span>
+            </div>
+            {adminNavItems.map(item => {
+              const currentTab = searchParams.get('tab') ?? 'apps';
+              const active = pathname === '/admin' && currentTab === item.tab;
+              return (
+                <Link
+                  key={item.tab}
+                  href={`/admin?tab=${item.tab}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-150"
+                  style={active
+                    ? { background: '#EB0A1E', color: '#fff', borderLeft: '4px solid #ffb4aa', fontWeight: 700 }
+                    : { color: 'rgba(217,226,255,0.55)' }
+                  }
+                >
+                  {item.icon}
+                  <span className="font-mono-label text-[11px] tracking-wide uppercase">{item.label}</span>
+                </Link>
+              );
+            })}
+          </>
+        )}
       </nav>
 
       {/* Operator / session */}
@@ -127,7 +170,7 @@ export function Sidebar() {
         ) : (
           <>
             <span className="font-mono-label text-[10px] uppercase tracking-wide px-2" style={{ color: 'rgba(217,226,255,0.3)' }}>
-              Guest
+              User
             </span>
             <Link
               href="/admin"

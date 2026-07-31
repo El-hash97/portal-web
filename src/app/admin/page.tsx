@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useAppStore } from '@/context/AppContext';
 import { LoginForm } from '@/components/admin/LoginForm';
 import { AdminPanel } from '@/components/admin/AdminPanel';
@@ -17,7 +18,10 @@ export default function AdminPage() {
         animationDuration={3}
       />
       <div className="relative z-10">
-        {isAdmin ? <AdminPanel /> : <LoginForm onSuccess={() => {}} />}
+        {isAdmin
+          ? <Suspense fallback={null}><AdminPanel /></Suspense>
+          : <LoginForm onSuccess={() => {}} />
+        }
       </div>
     </div>
   );
