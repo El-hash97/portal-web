@@ -20,12 +20,14 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
   const [filter, setFilter] = useState<RequestStatus | 'semua'>('semua');
 
   const load = useCallback(() => {
+    setFailed(false);
     fetch('/api/open-request')
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then((d: FeatureRequest[]) => setRequests(d))
       .catch(() => setFailed(true));
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load, refreshKey]);
 
   const visible = requests
