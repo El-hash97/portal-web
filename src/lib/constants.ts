@@ -44,6 +44,18 @@ export const ICON_OPTIONS: { value: string; label: string }[] = [
 
 export const CATEGORY_OPTIONS = ['Monitoring', 'Input Harian', 'Laporan', 'Kaizen'];
 
+/* ── Open Request: fixed line list ──────────────────────── */
+export const REQUEST_LINES = [
+  'Core Making',
+  'Die Press',
+  'Finishing',
+  'Mel-Pour-Analys',
+  'Mould-RCS',
+  'Maintenance',
+  'Die Maintenance',
+  'Engineering',
+] as const;
+
 /* ── Default apps (first load) ──────────────────────────── */
 export const DEFAULT_APPS: App[] = [
   {

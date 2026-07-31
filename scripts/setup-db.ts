@@ -65,6 +65,25 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS idx_feedback_status     ON feedback(status)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at DESC)`;
 
+  // Feature request table (Open Request)
+  await sql`
+    CREATE TABLE IF NOT EXISTS feature_requests (
+      id            SERIAL PRIMARY KEY,
+      requester     TEXT NOT NULL,
+      line_name     TEXT NOT NULL,
+      app_id        INTEGER REFERENCES apps(id) ON DELETE SET NULL,
+      request_text  TEXT NOT NULL,
+      status        TEXT NOT NULL DEFAULT 'menunggu',
+      approver      TEXT,
+      reject_reason TEXT,
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      decided_at    TIMESTAMPTZ,
+      finished_at   TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_feature_requests_status     ON feature_requests(status)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_feature_requests_created_at ON feature_requests(created_at DESC)`;
+
   console.log('Tables "apps" and "app_clicks" ready.');
   await sql.end();
 }
