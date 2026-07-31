@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { RequestCard } from '@/components/RequestCard';
 import type { FeatureRequest, RequestStatus } from '@/lib/types';
-import { gsap, Flip } from '@/lib/gsapPlugins';
+import { Flip } from '@/lib/gsapPlugins';
 
 const FILTERS: { key: RequestStatus | 'semua'; label: string }[] = [
   { key: 'semua', label: 'Semua' },
@@ -20,7 +20,6 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
   const [filter, setFilter] = useState<RequestStatus | 'semua'>('semua');
   const gridRef = useRef<HTMLDivElement>(null);
   const flipStateRef = useRef<Flip.FlipState | null>(null);
-  const hasRevealedRef = useRef(false);
 
   const load = useCallback(() => {
     fetch('/api/open-request')
@@ -41,6 +40,13 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
     setFilter(key);
   }
 
+  // Cards are always rendered fully visible by default — no entrance
+  // animation gates their visibility. This Flip reflow is purely additive:
+  // when the filtered set changes, remaining cards smoothly resettle into
+  // their new grid position instead of jumping. Cards entering/leaving the
+  // filtered view just appear/disappear immediately (React's own default),
+  // which is a safe fallback if the reflow tween itself doesn't run for any
+  // reason — there is no state here where a card can end up invisible.
   useLayoutEffect(() => {
     const state = flipStateRef.current;
     if (!state) return;
@@ -50,28 +56,8 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
       ease: 'power2.inOut',
       absolute: true,
       stagger: 0.03,
-      onEnter: elements => gsap.fromTo(elements, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, stagger: 0.04, ease: 'power2.out' }),
-      onLeave: elements => gsap.to(elements, { opacity: 0, scale: 0.9, duration: 0.25, ease: 'power2.in' }),
     });
   }, [filter, requests]);
-
-  // First successful load: cards fade + rise in with a stagger. Guarded to
-  // run once — later reloads (e.g. after approving a request) refresh the
-  // same cards in place and shouldn't replay an "entrance."
-  useEffect(() => {
-    if (!requests || hasRevealedRef.current || !gridRef.current) return;
-    hasRevealedRef.current = true;
-    const cards = gridRef.current.querySelectorAll('.or-request-card');
-    if (!cards.length) return;
-    gsap.from(cards, {
-      opacity: 0,
-      y: 24,
-      duration: 0.5,
-      ease: 'power2.out',
-      stagger: 0.08,
-      scrollTrigger: { trigger: gridRef.current, start: 'top 90%', once: true },
-    });
-  }, [requests]);
 
   const visible = requests
     ? filter === 'semua' ? requests : requests.filter(r => r.status === filter)

@@ -45,8 +45,8 @@ function TutorialImage({ src, alt }: { src: string; alt: string }) {
 
 export function OpenRequestTutorial() {
   const railRef = useRef<HTMLDivElement>(null);
-  const railLineHRef = useRef<SVGLineElement>(null);
-  const railLineVRef = useRef<SVGLineElement>(null);
+  const glowLineHRef = useRef<SVGLineElement>(null);
+  const glowLineVRef = useRef<SVGLineElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const exampleRef = useRef<HTMLDivElement>(null);
   const beforeRef = useRef<HTMLDivElement>(null);
@@ -55,45 +55,46 @@ export function OpenRequestTutorial() {
 
   useEffect(() => {
     const rail = railRef.current;
-    const lineH = railLineHRef.current;
-    const lineV = railLineVRef.current;
+    const glowH = glowLineHRef.current;
+    const glowV = glowLineVRef.current;
     const nodes = nodeRefs.current.filter((n): n is HTMLDivElement => n !== null);
-    if (!rail || !lineH || !lineV || nodes.length !== STEPS.length) return;
+    if (!rail || !glowH || !glowV || nodes.length !== STEPS.length) return;
 
     const ctx = gsap.context(() => {
-      gsap.set([lineH, lineV], { drawSVG: '0%' });
-      gsap.set(nodes, { scale: 0, opacity: 0, transformOrigin: 'center' });
+      // The connecting rail itself (the base gradient line) is always fully
+      // visible by default — it must never depend on an animation completing
+      // to be seen. A separate, purely decorative glow line is layered on top
+      // and "draws" itself once on scroll into view (DrawSVGPlugin); if that
+      // glow never plays for any reason, the base rail underneath is
+      // untouched and still fully there.
+      gsap.set([glowH, glowV], { drawSVG: '0%' });
+      // Nodes start at their normal, fully visible size — the entrance is a
+      // brief overshoot bounce (scale 1 -> up -> settle), never a hide/reveal,
+      // so a node is never invisible even if this animation doesn't run.
+      gsap.set(nodes, { scale: 1, opacity: 1, transformOrigin: 'center' });
 
-      // The rail "draws" itself in sync with scroll (DrawSVGPlugin), and
-      // each step's node pops in exactly when the drawing line reaches it —
-      // scrubbed so the whole sequence tracks scroll position directly,
-      // not a one-shot timed animation.
-      const drawTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: rail,
-          start: 'top 70%',
-          end: 'bottom 55%',
-          scrub: 0.4,
-        },
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: rail, start: 'top 75%', once: true },
       });
-      drawTl.to([lineH, lineV], { drawSVG: '100%', ease: 'none', duration: STEPS.length - 1 }, 0);
+      tl.to([glowH, glowV], { drawSVG: '100%', duration: 1.1, ease: 'power1.inOut' }, 0);
       nodes.forEach((node, i) => {
-        drawTl.to(node, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(2.2)' }, i * 0.92);
+        tl.fromTo(node, { scale: 0.85 }, { scale: 1, duration: 0.5, ease: 'back.out(2.4)' }, i * 0.15);
       });
 
-      // Contoh Nyata: before/after converge from opposite sides toward the
-      // arrow, reinforcing the transformation the case study is making.
+      // Contoh Nyata: before/after settle in from opposite sides toward the
+      // arrow. They stay fully opaque throughout — only position animates —
+      // so the case study images are never hidden, only ever offset briefly.
       if (beforeRef.current && afterRef.current && arrowRef.current && exampleRef.current) {
-        gsap.set(beforeRef.current, { opacity: 0, x: -48 });
-        gsap.set(afterRef.current, { opacity: 0, x: 48 });
-        gsap.set(arrowRef.current, { opacity: 0, scale: 0.6 });
+        gsap.set(beforeRef.current, { x: -32 });
+        gsap.set(afterRef.current, { x: 32 });
+        gsap.set(arrowRef.current, { scale: 0.7 });
 
         gsap.timeline({
-          scrollTrigger: { trigger: exampleRef.current, start: 'top 80%', once: true },
+          scrollTrigger: { trigger: exampleRef.current, start: 'top 85%', once: true },
         })
-          .to(beforeRef.current, { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' })
-          .to(afterRef.current, { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' }, '<')
-          .to(arrowRef.current, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(2)' }, '-=0.25');
+          .to(beforeRef.current, { x: 0, duration: 0.6, ease: 'power3.out' })
+          .to(afterRef.current, { x: 0, duration: 0.6, ease: 'power3.out' }, '<')
+          .to(arrowRef.current, { scale: 1, duration: 0.4, ease: 'back.out(2)' }, '-=0.2');
       }
     });
 
@@ -105,25 +106,36 @@ export function OpenRequestTutorial() {
       {/* Step rail — mirrors the request lifecycle's own status colors, so the
           tutorial teaches the exact visual language the list below already uses. */}
       <div ref={railRef} className="relative mb-12 sm:mb-14">
+        {/* Base rail: always fully visible, no animation dependency. */}
+        <div
+          className="hidden sm:block absolute left-0 right-0 top-6 h-px opacity-70"
+          style={{ background: `linear-gradient(90deg, ${STEPS.map(s => s.color).join(', ')})` }}
+        />
+        <div
+          className="sm:hidden absolute top-3 bottom-3 left-6 w-px opacity-70"
+          style={{ background: `linear-gradient(180deg, ${STEPS.map(s => s.color).join(', ')})` }}
+        />
+
+        {/* Decorative glow overlay: draws in once on scroll, purely additive. */}
         <svg className="hidden sm:block absolute left-0 right-0 top-6 w-full" height="4" viewBox="0 0 100 4" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
           <defs>
-            <linearGradient id="or-rail-h" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="or-glow-h" x1="0%" y1="0%" x2="100%" y2="0%">
               {STEPS.map((s, i) => (
                 <stop key={s.title} offset={`${(i / (STEPS.length - 1)) * 100}%`} stopColor={s.color} />
               ))}
             </linearGradient>
           </defs>
-          <line ref={railLineHRef} x1="0" y1="2" x2="100" y2="2" stroke="url(#or-rail-h)" strokeWidth="2" opacity="0.75" />
+          <line ref={glowLineHRef} x1="0" y1="2" x2="100" y2="2" stroke="url(#or-glow-h)" strokeWidth="3" opacity="0.9" style={{ filter: 'blur(1.5px)' }} />
         </svg>
         <svg className="sm:hidden absolute top-3 bottom-3 left-6 h-full" width="4" viewBox="0 0 4 100" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
           <defs>
-            <linearGradient id="or-rail-v" x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id="or-glow-v" x1="0%" y1="0%" x2="0%" y2="100%">
               {STEPS.map((s, i) => (
                 <stop key={s.title} offset={`${(i / (STEPS.length - 1)) * 100}%`} stopColor={s.color} />
               ))}
             </linearGradient>
           </defs>
-          <line ref={railLineVRef} x1="2" y1="0" x2="2" y2="100" stroke="url(#or-rail-v)" strokeWidth="2" opacity="0.75" />
+          <line ref={glowLineVRef} x1="2" y1="0" x2="2" y2="100" stroke="url(#or-glow-v)" strokeWidth="3" opacity="0.9" style={{ filter: 'blur(1.5px)' }} />
         </svg>
 
         <div className="relative flex flex-col sm:flex-row gap-7 sm:gap-4">
