@@ -2,7 +2,7 @@
 
 import { Box } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
-import { AppCard } from '@/components/AppCard';
+import { AppShowcaseRow } from '@/components/AppShowcaseRow';
 
 export default function ApplicationsPage() {
   const { apps } = useAppStore();
@@ -10,7 +10,7 @@ export default function ApplicationsPage() {
 
   return (
     <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 py-8 sm:py-10">
-      <div className="mb-8">
+      <div className="mb-8 sm:mb-12">
         <h1 className="font-display text-[22px] sm:text-[26px] font-bold" style={{ color: '#d9e2ff' }}>
           Applications
         </h1>
@@ -26,9 +26,15 @@ export default function ApplicationsPage() {
           <p className="text-[13px]" style={{ color: 'rgba(217,226,255,0.35)' }}>Admin belum mengaktifkan aplikasi apapun.</p>
         </div>
       ) : (
-        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-14 sm:gap-20">
           {activeApps.map((app, i) => (
-            <AppCard key={app.id} app={app} delay={i * 60} />
+            <div
+              key={app.id}
+              className={i > 0 ? 'pt-14 sm:pt-20' : ''}
+              style={i > 0 ? { borderTop: '1px solid rgba(255,255,255,0.06)' } : undefined}
+            >
+              <AppShowcaseRow app={app} reversed={i % 2 === 1} />
+            </div>
           ))}
         </div>
       )}
