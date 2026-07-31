@@ -41,7 +41,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback((user: string, pass: string) => {
     if (user === ADMIN_CRED.user && pass === ADMIN_CRED.pass) {
-      startAdminSession();
+      startAdminSession(pass);
       setIsAdmin(true);
       return true;
     }
