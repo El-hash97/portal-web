@@ -27,6 +27,7 @@ export interface FeatureRequest {
   app_id: number | null;
   app_nama: string | null;
   request_text: string;
+  photo_data: string | null;
   status: RequestStatus;
   approver: string | null;
   reject_reason: string | null;

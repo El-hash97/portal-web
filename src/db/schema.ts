@@ -48,6 +48,7 @@ export const featureRequests = pgTable('feature_requests', {
   lineName:     text('line_name').notNull(),
   appId:        integer('app_id').references(() => apps.id, { onDelete: 'set null' }),
   requestText:  text('request_text').notNull(),
+  photoData:    text('photo_data'),
   status:       text('status').notNull().default('menunggu'),
   approver:     text('approver'),
   rejectReason: text('reject_reason'),

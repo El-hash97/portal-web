@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { Send, CheckCircle } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Send, CheckCircle, ImagePlus, X } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { REQUEST_LINES } from '@/lib/constants';
+
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024; // 2MB, before base64 encoding
 
 const fieldStyle = {
   background: 'rgba(255,255,255,0.05)',
@@ -18,16 +20,48 @@ function blurHandlers(e: React.FocusEvent<HTMLElement>) {
   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
 }
 
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
 export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   const { apps } = useAppStore();
   const activeApps = apps.filter(a => a.aktif);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [requester, setRequester] = useState('');
   const [lineName, setLineName] = useState('');
   const [appId, setAppId] = useState('');
   const [requestText, setRequestText] = useState('');
+  const [photoData, setPhotoData] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState('');
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [error, setError] = useState('');
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file later
+    if (!file) return;
+    setPhotoError('');
+    if (!file.type.startsWith('image/')) {
+      setPhotoError('File harus berupa gambar.');
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      setPhotoError('Ukuran foto maksimal 2MB.');
+      return;
+    }
+    try {
+      setPhotoData(await readAsDataUrl(file));
+    } catch {
+      setPhotoError('Gagal membaca file foto.');
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,6 +77,7 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
           line_name: lineName,
           app_id: appId ? Number(appId) : null,
           request_text: requestText.trim(),
+          photo_data: photoData,
         }),
       });
       if (res.ok) {
@@ -51,6 +86,7 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
         setLineName('');
         setAppId('');
         setRequestText('');
+        setPhotoData(null);
         onSubmitted();
         setTimeout(() => setState('idle'), 4000);
       } else {
@@ -65,7 +101,7 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   }
 
   const canSubmit = Boolean(
-    requester.trim() && lineName && appId && requestText.trim().length >= 10,
+    requester.trim() && lineName && appId && requestText.trim(),
   );
 
   return (
@@ -171,7 +207,7 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
               <textarea
                 value={requestText}
                 onChange={e => setRequestText(e.target.value)}
-                placeholder="Jelaskan fitur yang Anda butuhkan, minimal 10 karakter…"
+                placeholder="Jelaskan fitur yang Anda butuhkan…"
                 rows={4}
                 required
                 className="font-data w-full px-3.5 py-2.5 rounded-xl text-[13px] resize-none outline-none transition-colors"
@@ -179,6 +215,55 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
                 onFocus={focusHandlers}
                 onBlur={blurHandlers}
               />
+            </div>
+
+            <div>
+              <label
+                className="font-data block text-[11px] font-semibold uppercase tracking-wider mb-2"
+                style={{ color: 'rgba(217,226,255,0.4)' }}
+              >
+                Foto <span style={{ color: 'rgba(217,226,255,0.35)' }}>(opsional)</span>
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+              {photoData ? (
+                <div className="relative inline-block">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoData}
+                    alt="Pratinjau foto request"
+                    className="h-28 w-28 rounded-xl object-cover"
+                    style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPhotoData(null)}
+                    aria-label="Hapus foto"
+                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center transition-colors hover:bg-red-500/20 focus-visible:outline focus-visible:outline-2"
+                    style={{ background: '#0a152e', border: '1px solid rgba(255,255,255,0.15)', color: '#ff6b6b', outlineColor: '#EB0A1E' }}
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="font-data w-full flex items-center justify-center gap-2 px-3.5 py-4 rounded-xl text-[12.5px] font-semibold transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.18)', color: 'rgba(217,226,255,0.55)', outlineColor: 'rgba(235,10,30,0.6)' }}
+                >
+                  <ImagePlus size={16} />
+                  Klik untuk unggah foto (maks. 2MB)
+                </button>
+              )}
+              {photoError && (
+                <p className="font-data text-[11.5px] mt-1.5" style={{ color: '#ff6b6b' }} role="alert">{photoError}</p>
+              )}
             </div>
 
             {state === 'error' && (

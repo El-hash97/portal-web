@@ -73,6 +73,7 @@ async function main() {
       line_name     TEXT NOT NULL,
       app_id        INTEGER REFERENCES apps(id) ON DELETE SET NULL,
       request_text  TEXT NOT NULL,
+      photo_data    TEXT,
       status        TEXT NOT NULL DEFAULT 'menunggu',
       approver      TEXT,
       reject_reason TEXT,
@@ -81,6 +82,10 @@ async function main() {
       finished_at   TIMESTAMPTZ
     )
   `;
+  // CREATE TABLE IF NOT EXISTS only runs its body when the table is absent —
+  // it does NOT add columns to a table that already exists. ADD COLUMN IF
+  // NOT EXISTS is what actually reaches an already-created feature_requests.
+  await sql`ALTER TABLE feature_requests ADD COLUMN IF NOT EXISTS photo_data TEXT`;
   await sql`CREATE INDEX IF NOT EXISTS idx_feature_requests_status     ON feature_requests(status)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_feature_requests_created_at ON feature_requests(created_at DESC)`;
 

@@ -16,29 +16,32 @@ const RAIL_GRADIENT_VERTICAL = `linear-gradient(180deg, ${STEPS.map(s => s.color
 function TutorialImage({ src, alt }: { src: string; alt: string }) {
   const [broken, setBroken] = useState(false);
 
-  if (broken) {
-    return (
-      <div
-        className="w-full aspect-video rounded-xl flex items-center justify-center"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.14)' }}
-      >
+  // A fixed-height frame keeps both states the same size regardless of the
+  // source image's own resolution — these are tall phone-screenshot captures
+  // (e.g. 720x1600), which at w-full/h-auto would blow up to fill the page.
+  return (
+    <div
+      className="w-full h-56 sm:h-64 rounded-xl flex items-center justify-center overflow-hidden"
+      style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: broken ? '1px dashed rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.1)',
+      }}
+    >
+      {broken ? (
         <div className="text-center px-4">
           <ImageOff size={22} className="mx-auto mb-2" style={{ color: 'rgba(217,226,255,0.25)' }} />
           <p className="font-data text-[11px]" style={{ color: 'rgba(217,226,255,0.3)' }}>Gambar belum tersedia</p>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
-      onError={() => setBroken(true)}
-      className="w-full h-auto rounded-xl"
-      style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-    />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          onError={() => setBroken(true)}
+          className="h-full w-auto max-w-full object-contain"
+        />
+      )}
+    </div>
   );
 }
 

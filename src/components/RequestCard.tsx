@@ -115,15 +115,36 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
       </div>
 
       <div>
-        <h3 className="font-display text-[15px] font-bold leading-tight mb-1.5" style={{ color: '#eef2ff' }}>
-          {request.app_nama ?? '— Aplikasi dihapus —'}
-        </h3>
-        <p
-          className={`font-data text-[13px] leading-relaxed ${expanded ? '' : 'line-clamp-3'}`}
-          style={{ color: 'rgba(217,226,255,0.65)' }}
-        >
-          {requestText}
-        </p>
+        <div className="flex items-start gap-3">
+          {request.photo_data && (
+            <a
+              href={request.photo_data}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-lg overflow-hidden transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2"
+              style={{ outlineColor: '#EB0A1E' }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={request.photo_data}
+                alt={`Foto lampiran request ${request.app_nama ?? ''}`}
+                className="w-14 h-14 object-cover"
+                style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+              />
+            </a>
+          )}
+          <div className="min-w-0 flex-1">
+            <h3 className="font-display text-[15px] font-bold leading-tight mb-1.5" style={{ color: '#eef2ff' }}>
+              {request.app_nama ?? '— Aplikasi dihapus —'}
+            </h3>
+            <p
+              className={`font-data text-[13px] leading-relaxed ${expanded ? '' : 'line-clamp-3'}`}
+              style={{ color: 'rgba(217,226,255,0.65)' }}
+            >
+              {requestText}
+            </p>
+          </div>
+        </div>
         {isLong && (
           <button
             type="button"
