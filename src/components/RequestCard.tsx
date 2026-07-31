@@ -44,6 +44,7 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
         return null;
       }
       const body = await res.json().catch(() => ({}));
+      if (res.status === 409) onChanged();
       return body.error || 'Gagal memproses aksi.';
     } catch {
       return 'Gagal memproses aksi. Periksa koneksi Anda.';
