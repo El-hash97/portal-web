@@ -5,6 +5,19 @@ import { Send, CheckCircle } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { REQUEST_LINES } from '@/lib/constants';
 
+const fieldStyle = {
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.1)',
+  color: '#eef2ff',
+};
+
+function focusHandlers(e: React.FocusEvent<HTMLElement>) {
+  e.currentTarget.style.borderColor = 'rgba(235,10,30,0.6)';
+}
+function blurHandlers(e: React.FocusEvent<HTMLElement>) {
+  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+}
+
 export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   const { apps } = useAppStore();
   const activeApps = apps.filter(a => a.aktif);
@@ -58,13 +71,13 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-10 lg:px-12 mt-10">
       <div
-        className="rounded-2xl p-6"
+        className="rounded-2xl p-6 sm:p-7"
         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
       >
-        <h2 className="text-[16px] font-bold mb-1" style={{ color: '#d9e2ff' }}>
+        <h2 className="font-display text-[18px] font-bold mb-1.5" style={{ color: '#eef2ff' }}>
           Ajukan Request
         </h2>
-        <p className="text-[12.5px] mb-5" style={{ color: 'rgba(217,226,255,0.45)' }}>
+        <p className="font-data text-[12.5px] mb-6" style={{ color: 'rgba(217,226,255,0.45)' }}>
           Ceritakan fitur apa yang Anda butuhkan — Section akan meninjau sebelum dikerjakan developer.
         </p>
 
@@ -72,8 +85,8 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
           <div className="flex items-center gap-3 py-4">
             <CheckCircle size={20} style={{ color: '#10B981' }} />
             <div>
-              <p className="text-[14px] font-bold" style={{ color: '#d9e2ff' }}>Request terkirim!</p>
-              <p className="text-[12.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
+              <p className="font-display text-[14.5px] font-bold" style={{ color: '#eef2ff' }}>Request terkirim!</p>
+              <p className="font-data text-[12.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
                 Menunggu persetujuan Section.
               </p>
             </div>
@@ -82,10 +95,10 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
           <form onSubmit={submit} className="flex flex-col gap-4">
             <div>
               <label
-                className="block text-[11px] font-bold uppercase tracking-wide mb-2"
+                className="font-data block text-[11px] font-semibold uppercase tracking-wider mb-2"
                 style={{ color: 'rgba(217,226,255,0.4)' }}
               >
-                Nama Pemohon <span style={{ color: '#EB0A1E' }}>*</span>
+                Nama Pemohon <span style={{ color: '#ff6b6b' }}>*</span>
               </label>
               <input
                 type="text"
@@ -93,25 +106,29 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
                 onChange={e => setRequester(e.target.value)}
                 placeholder="Nama Anda"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#d9e2ff' }}
+                className="font-data w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none transition-colors"
+                style={fieldStyle}
+                onFocus={focusHandlers}
+                onBlur={blurHandlers}
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
-                  className="block text-[11px] font-bold uppercase tracking-wide mb-2"
+                  className="font-data block text-[11px] font-semibold uppercase tracking-wider mb-2"
                   style={{ color: 'rgba(217,226,255,0.4)' }}
                 >
-                  Line <span style={{ color: '#EB0A1E' }}>*</span>
+                  Line <span style={{ color: '#ff6b6b' }}>*</span>
                 </label>
                 <select
                   value={lineName}
                   onChange={e => setLineName(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none appearance-none"
-                  style={{ background: '#0a296c', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)' }}
+                  className="font-data w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none appearance-none transition-colors"
+                  style={{ background: '#0a296c', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.9)' }}
+                  onFocus={focusHandlers}
+                  onBlur={blurHandlers}
                 >
                   <option value="" style={{ background: '#111' }}>— Pilih Line —</option>
                   {REQUEST_LINES.map(line => (
@@ -122,17 +139,19 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
 
               <div>
                 <label
-                  className="block text-[11px] font-bold uppercase tracking-wide mb-2"
+                  className="font-data block text-[11px] font-semibold uppercase tracking-wider mb-2"
                   style={{ color: 'rgba(217,226,255,0.4)' }}
                 >
-                  Aplikasi <span style={{ color: '#EB0A1E' }}>*</span>
+                  Aplikasi <span style={{ color: '#ff6b6b' }}>*</span>
                 </label>
                 <select
                   value={appId}
                   onChange={e => setAppId(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none appearance-none"
-                  style={{ background: '#0a296c', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)' }}
+                  className="font-data w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none appearance-none transition-colors"
+                  style={{ background: '#0a296c', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.9)' }}
+                  onFocus={focusHandlers}
+                  onBlur={blurHandlers}
                 >
                   <option value="" style={{ background: '#111' }}>— Pilih Aplikasi —</option>
                   {activeApps.map(a => (
@@ -144,10 +163,10 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
 
             <div>
               <label
-                className="block text-[11px] font-bold uppercase tracking-wide mb-2"
+                className="font-data block text-[11px] font-semibold uppercase tracking-wider mb-2"
                 style={{ color: 'rgba(217,226,255,0.4)' }}
               >
-                Detail Request <span style={{ color: '#EB0A1E' }}>*</span>
+                Detail Request <span style={{ color: '#ff6b6b' }}>*</span>
               </label>
               <textarea
                 value={requestText}
@@ -155,20 +174,22 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
                 placeholder="Jelaskan fitur yang Anda butuhkan, minimal 10 karakter…"
                 rows={4}
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl text-[13px] resize-none outline-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#d9e2ff' }}
+                className="font-data w-full px-3.5 py-2.5 rounded-xl text-[13px] resize-none outline-none transition-colors"
+                style={fieldStyle}
+                onFocus={focusHandlers}
+                onBlur={blurHandlers}
               />
             </div>
 
             {state === 'error' && (
-              <p className="text-[12px]" style={{ color: '#EB0A1E' }}>{error}</p>
+              <p className="font-data text-[12px]" style={{ color: '#ff6b6b' }} role="alert">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={!canSubmit || state === 'sending'}
-              className="self-end inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white transition-opacity disabled:opacity-40"
-              style={{ background: '#EB0A1E' }}
+              className="font-data self-end inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline focus-visible:outline-2"
+              style={{ background: '#EB0A1E', outlineColor: '#EB0A1E' }}
             >
               <Send size={13} />
               {state === 'sending' ? 'Mengirim…' : 'Kirim Request'}

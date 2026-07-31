@@ -1,28 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 
 interface PasswordModalProps {
   title: string;
+  confirmLabel: string;
+  confirmColor: string;
   requireReason?: boolean;
   onCancel: () => void;
-  onConfirm: (approver: string, password: string, reason: string) => Promise<string | null>;
+  onConfirm: (password: string, reason: string) => Promise<string | null>;
 }
 
-export function PasswordModal({ title, requireReason, onCancel, onConfirm }: PasswordModalProps) {
-  const [approver, setApprover] = useState('');
+export function PasswordModal({
+  title,
+  confirmLabel,
+  confirmColor,
+  requireReason,
+  onCancel,
+  onConfirm,
+}: PasswordModalProps) {
   const [password, setPassword] = useState('');
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    passwordRef.current?.focus();
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onCancel();
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onCancel]);
 
   async function handleConfirm(e: React.FormEvent) {
     e.preventDefault();
     if (busy) return;
     setBusy(true);
     setError('');
-    const result = await onConfirm(approver.trim(), password, reason.trim());
+    const result = await onConfirm(password, reason.trim());
     if (result) {
       setError(result);
       setPassword('');
@@ -34,39 +52,42 @@ export function PasswordModal({ title, requireReason, onCancel, onConfirm }: Pas
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(0,0,0,0.6)' }}
+      style={{ background: 'rgba(4,8,20,0.72)', backdropFilter: 'blur(2px)' }}
+      onClick={onCancel}
     >
-      <div className="w-full max-w-sm rounded-2xl p-6" style={{ background: '#0a152e', border: '1px solid #2f3952' }}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[15px] font-bold" style={{ color: '#d9e2ff' }}>{title}</h3>
-          <button type="button" onClick={onCancel} aria-label="Tutup" style={{ color: 'rgba(217,226,255,0.5)' }}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="password-modal-title"
+        onClick={e => e.stopPropagation()}
+        className="w-full max-w-sm rounded-2xl p-6"
+        style={{
+          background: '#0a152e',
+          border: '1px solid #26314f',
+          boxShadow: '0 24px 64px -16px rgba(0,0,0,0.55)',
+        }}
+      >
+        <div className="flex items-start justify-between mb-5">
+          <h3 id="password-modal-title" className="font-display text-[17px] font-bold leading-tight" style={{ color: '#eef2ff' }}>
+            {title}
+          </h3>
+          <button
+            type="button"
+            onClick={onCancel}
+            aria-label="Tutup"
+            className="shrink-0 -mt-1 -mr-1 p-1.5 rounded-lg transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2"
+            style={{ color: 'rgba(217,226,255,0.5)', outlineColor: '#EB0A1E' }}
+          >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleConfirm} className="flex flex-col gap-3">
-          <div>
-            <label
-              className="block text-[11px] font-bold uppercase tracking-wide mb-1.5"
-              style={{ color: 'rgba(217,226,255,0.4)' }}
-            >
-              Nama Anda
-            </label>
-            <input
-              type="text"
-              value={approver}
-              onChange={e => setApprover(e.target.value)}
-              required
-              className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#d9e2ff' }}
-            />
-          </div>
-
+        <form onSubmit={handleConfirm} className="flex flex-col gap-4">
           {requireReason && (
             <div>
               <label
-                className="block text-[11px] font-bold uppercase tracking-wide mb-1.5"
-                style={{ color: 'rgba(217,226,255,0.4)' }}
+                className="font-data block text-[11px] font-semibold uppercase tracking-wider mb-1.5"
+                style={{ color: 'rgba(217,226,255,0.45)' }}
               >
                 Alasan Penolakan
               </label>
@@ -75,47 +96,56 @@ export function PasswordModal({ title, requireReason, onCancel, onConfirm }: Pas
                 onChange={e => setReason(e.target.value)}
                 rows={2}
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl text-[13px] resize-none outline-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#d9e2ff' }}
+                className="font-data w-full px-3.5 py-2.5 rounded-xl text-[13px] resize-none outline-none transition-colors"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#eef2ff' }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(235,10,30,0.6)'; }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
               />
             </div>
           )}
 
           <div>
             <label
-              className="block text-[11px] font-bold uppercase tracking-wide mb-1.5"
-              style={{ color: 'rgba(217,226,255,0.4)' }}
+              className="font-data block text-[11px] font-semibold uppercase tracking-wider mb-1.5"
+              style={{ color: 'rgba(217,226,255,0.45)' }}
             >
               Password Section
             </label>
             <input
+              ref={passwordRef}
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#d9e2ff' }}
+              className="font-data w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none transition-colors"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#eef2ff' }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'rgba(235,10,30,0.6)'; }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
             />
           </div>
 
-          {error && <p className="text-[12px]" style={{ color: '#EB0A1E' }}>{error}</p>}
+          {error && (
+            <p className="font-data text-[12px]" style={{ color: '#ff6b6b' }} role="alert">
+              {error}
+            </p>
+          )}
 
-          <div className="flex justify-end gap-2 mt-2">
+          <div className="flex justify-end gap-2 mt-1">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 rounded-xl text-[13px] font-semibold"
-              style={{ color: 'rgba(217,226,255,0.6)' }}
+              className="font-data px-4 py-2 rounded-xl text-[13px] font-semibold transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2"
+              style={{ color: 'rgba(217,226,255,0.6)', outlineColor: 'rgba(217,226,255,0.4)' }}
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-xl text-[13px] font-bold text-white disabled:opacity-40"
-              style={{ background: '#EB0A1E' }}
+              className="font-data px-4 py-2 rounded-xl text-[13px] font-bold text-white transition-opacity disabled:opacity-40 focus-visible:outline focus-visible:outline-2"
+              style={{ background: confirmColor, outlineColor: confirmColor }}
             >
-              {busy ? 'Memproses…' : 'Konfirmasi'}
+              {busy ? 'Memproses…' : confirmLabel}
             </button>
           </div>
         </form>

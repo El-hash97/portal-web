@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Check, X as XIcon } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { getAdminPassword } from '@/lib/storage';
 import { PasswordModal } from '@/components/PasswordModal';
@@ -12,6 +13,14 @@ const STATUS_COLOR: Record<RequestStatus, string> = {
   dikerjakan: '#8B5CF6',
   selesai: '#10B981',
   ditolak: '#EB0A1E',
+};
+
+const STATUS_LABEL: Record<RequestStatus, string> = {
+  menunggu: 'Menunggu',
+  disetujui: 'Disetujui',
+  dikerjakan: 'Dikerjakan',
+  selesai: 'Selesai',
+  ditolak: 'Ditolak',
 };
 
 function formatDate(iso: string): string {
@@ -51,10 +60,10 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
     }
   }
 
-  async function handleModalConfirm(approver: string, password: string, reason: string): Promise<string | null> {
+  async function handleModalConfirm(password: string, reason: string): Promise<string | null> {
     const action = modal;
     if (!action) return null;
-    const extra: Record<string, string> = { password, approver };
+    const extra: Record<string, string> = { password };
     if (action === 'reject') extra.reject_reason = reason;
     const error = await runAction(action, extra);
     if (!error) setModal(null);
@@ -71,33 +80,46 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
 
   const requestText = request.request_text;
   const isLong = requestText.length > 160;
+  const statusColor = STATUS_COLOR[request.status];
 
   return (
     <div
-      className="rounded-2xl p-5 flex flex-col gap-3"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+      className="group relative rounded-2xl p-5 flex flex-col gap-3.5 transition-all duration-200"
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.07)',
+      }}
     >
+      {/* Status rail — a thin accent tied to the card's own state, not a generic border-left habit */}
+      <div
+        className="absolute inset-x-0 top-0 h-[2px] rounded-t-2xl"
+        style={{ background: `linear-gradient(90deg, ${statusColor}, transparent)` }}
+      />
+
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full" style={{ background: STATUS_COLOR[request.status] }} />
+        <div
+          className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full"
+          style={{ background: `${statusColor}1a` }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: statusColor }} />
           <span
-            className="text-[10.5px] font-bold tracking-widest uppercase"
-            style={{ color: STATUS_COLOR[request.status] }}
+            className="font-data text-[10.5px] font-bold tracking-wide uppercase"
+            style={{ color: statusColor }}
           >
-            {request.status}
+            {STATUS_LABEL[request.status]}
           </span>
         </div>
-        <span className="text-[11px]" style={{ color: 'rgba(217,226,255,0.4)' }}>
+        <span className="font-data text-[11px]" style={{ color: 'rgba(217,226,255,0.4)' }}>
           {formatDate(request.created_at)}
         </span>
       </div>
 
       <div>
-        <h3 className="text-[14px] font-bold mb-1" style={{ color: '#d9e2ff' }}>
+        <h3 className="font-display text-[15px] font-bold leading-tight mb-1.5" style={{ color: '#eef2ff' }}>
           {request.app_nama ?? '— Aplikasi dihapus —'}
         </h3>
         <p
-          className={`text-[13px] leading-relaxed ${expanded ? '' : 'line-clamp-3'}`}
+          className={`font-data text-[13px] leading-relaxed ${expanded ? '' : 'line-clamp-3'}`}
           style={{ color: 'rgba(217,226,255,0.65)' }}
         >
           {requestText}
@@ -106,59 +128,65 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
           <button
             type="button"
             onClick={() => setExpanded(e => !e)}
-            className="text-[11.5px] font-semibold mt-1"
-            style={{ color: '#EB0A1E' }}
+            className="font-data text-[11.5px] font-semibold mt-1 transition-opacity hover:opacity-80"
+            style={{ color: '#ff6b6b' }}
           >
             {expanded ? 'Sembunyikan' : 'Selengkapnya'}
           </button>
         )}
       </div>
 
-      {request.status === 'disetujui' && request.approver && (
-        <p className="text-[11.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
+      {request.status === 'disetujui' && (
+        <p className="font-data text-[11.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
           Disetujui oleh {request.approver}
         </p>
       )}
       {request.status === 'ditolak' && (
-        <p className="text-[11.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
-          Ditolak oleh {request.approver} — {request.reject_reason}
+        <p className="font-data text-[11.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
+          Ditolak — {request.reject_reason}
         </p>
       )}
       {request.status === 'selesai' && (
-        <p className="text-[11.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
+        <p className="font-data text-[11.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
           Disetujui oleh {request.approver}
           {request.finished_at && ` · Selesai ${formatDate(request.finished_at)}`}
         </p>
       )}
 
-      {actionError && <p className="text-[11.5px]" style={{ color: '#EB0A1E' }}>{actionError}</p>}
+      {actionError && (
+        <p className="font-data text-[11.5px]" style={{ color: '#ff6b6b' }} role="alert">
+          {actionError}
+        </p>
+      )}
 
       <div
-        className="flex items-center justify-between mt-1 pt-3"
+        className="flex items-center justify-between gap-3 mt-1 pt-3.5"
         style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
       >
-        <span className="text-[11.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
+        <span className="font-data text-[11.5px] truncate" style={{ color: 'rgba(217,226,255,0.45)' }}>
           {request.requester} · {request.line_name}
         </span>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {request.status === 'menunggu' && (
             <>
               <button
                 type="button"
-                onClick={() => setModal('approve')}
-                className="px-3 py-1.5 rounded-lg text-[11.5px] font-bold text-white"
-                style={{ background: '#3B82F6' }}
+                onClick={() => setModal('reject')}
+                className="font-data inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2"
+                style={{ color: 'rgba(217,226,255,0.55)', outlineColor: 'rgba(217,226,255,0.4)' }}
               >
-                Setujui
+                <XIcon size={13} />
+                Tolak
               </button>
               <button
                 type="button"
-                onClick={() => setModal('reject')}
-                className="px-3 py-1.5 rounded-lg text-[11.5px] font-bold text-white"
-                style={{ background: '#EB0A1E' }}
+                onClick={() => setModal('approve')}
+                className="font-data inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11.5px] font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2"
+                style={{ background: STATUS_COLOR.disetujui, outlineColor: STATUS_COLOR.disetujui }}
               >
-                Tolak
+                <Check size={13} />
+                Setujui
               </button>
             </>
           )}
@@ -167,8 +195,8 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
               type="button"
               onClick={() => handleDirectAction('start')}
               disabled={busy}
-              className="px-3 py-1.5 rounded-lg text-[11.5px] font-bold text-white disabled:opacity-40"
-              style={{ background: '#8B5CF6' }}
+              className="font-data px-3 py-1.5 rounded-lg text-[11.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline focus-visible:outline-2"
+              style={{ background: STATUS_COLOR.dikerjakan, outlineColor: STATUS_COLOR.dikerjakan }}
             >
               Mulai Kerjakan
             </button>
@@ -178,8 +206,8 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
               type="button"
               onClick={() => handleDirectAction('finish')}
               disabled={busy}
-              className="px-3 py-1.5 rounded-lg text-[11.5px] font-bold text-white disabled:opacity-40"
-              style={{ background: '#10B981' }}
+              className="font-data px-3 py-1.5 rounded-lg text-[11.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline focus-visible:outline-2"
+              style={{ background: STATUS_COLOR.selesai, outlineColor: STATUS_COLOR.selesai }}
             >
               Tandai Selesai
             </button>
@@ -190,6 +218,8 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
       {modal && (
         <PasswordModal
           title={modal === 'approve' ? 'Setujui Request' : 'Tolak Request'}
+          confirmLabel={modal === 'approve' ? 'Setujui' : 'Tolak'}
+          confirmColor={modal === 'approve' ? STATUS_COLOR.disetujui : STATUS_COLOR.ditolak}
           requireReason={modal === 'reject'}
           onCancel={() => setModal(null)}
           onConfirm={handleModalConfirm}

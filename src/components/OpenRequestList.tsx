@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { ListFilter } from 'lucide-react';
 import { RequestCard } from '@/components/RequestCard';
 import type { FeatureRequest, RequestStatus } from '@/lib/types';
 
@@ -33,16 +32,10 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
     : null;
 
   return (
-    <section className="max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 mt-10 mb-10">
-      <div className="flex items-center gap-2 mb-4">
-        <ListFilter size={15} style={{ color: 'rgba(217,226,255,0.5)' }} />
-        <span
-          className="text-[11px] font-bold uppercase tracking-widest"
-          style={{ color: 'rgba(217,226,255,0.5)' }}
-        >
-          Daftar Request
-        </span>
-      </div>
+    <section className="max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 mt-12 mb-10">
+      <h2 className="font-display text-[18px] font-bold mb-4" style={{ color: '#eef2ff' }}>
+        Daftar Request
+      </h2>
 
       <div className="flex flex-wrap gap-2 mb-5">
         {FILTERS.map(f => {
@@ -57,20 +50,21 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
               key={f.key}
               type="button"
               onClick={() => setFilter(f.key)}
-              className="px-3 py-1.5 rounded-full text-[11.5px] font-semibold transition-colors"
+              aria-pressed={active}
+              className="font-data px-3 py-1.5 rounded-full text-[11.5px] font-semibold transition-colors focus-visible:outline focus-visible:outline-2"
               style={active
-                ? { background: '#EB0A1E', color: '#fff' }
-                : { background: 'rgba(255,255,255,0.05)', color: 'rgba(217,226,255,0.6)' }
+                ? { background: '#EB0A1E', color: '#fff', outlineColor: '#EB0A1E' }
+                : { background: 'rgba(255,255,255,0.05)', color: 'rgba(217,226,255,0.6)', outlineColor: 'rgba(217,226,255,0.4)' }
               }
             >
-              {f.label} ({count})
+              {f.label} <span style={{ opacity: 0.7 }}>({count})</span>
             </button>
           );
         })}
       </div>
 
       {failed ? (
-        <p className="text-[13px] text-center py-10" style={{ color: 'rgba(217,226,255,0.4)' }}>
+        <p className="font-data text-[13px] text-center py-10" style={{ color: 'rgba(217,226,255,0.4)' }}>
           Daftar request tidak tersedia.
         </p>
       ) : !requests ? (
@@ -80,8 +74,8 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
           ))}
         </div>
       ) : visible && visible.length === 0 ? (
-        <p className="text-[13px] text-center py-10" style={{ color: 'rgba(217,226,255,0.4)' }}>
-          Belum ada request.
+        <p className="font-data text-[13px] text-center py-10" style={{ color: 'rgba(217,226,255,0.4)' }}>
+          {filter === 'semua' ? 'Belum ada request.' : `Belum ada request dengan status "${FILTERS.find(f => f.key === filter)?.label}".`}
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

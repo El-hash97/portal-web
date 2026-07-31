@@ -48,12 +48,11 @@ export async function PATCH(
       return NextResponse.json({ error: 'Password salah' }, { status: 401 });
     }
 
-    const approver = typeof body.approver === 'string' ? body.approver.trim() : '';
+    // No individual approver identity is collected — the shared Section
+    // password is the only accountability signal this workflow asks for.
+    const approver = 'Section';
     const rejectReason = typeof body.reject_reason === 'string' ? body.reject_reason.trim() : '';
 
-    if (isSectionAction && !approver) {
-      return NextResponse.json({ error: 'Nama approver wajib diisi' }, { status: 400 });
-    }
     if (action === 'reject' && !rejectReason) {
       return NextResponse.json({ error: 'Alasan penolakan wajib diisi' }, { status: 400 });
     }

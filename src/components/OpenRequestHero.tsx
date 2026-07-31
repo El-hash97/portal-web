@@ -26,7 +26,7 @@ export function OpenRequestHero() {
         >
           Fitur Kurang? Tinggal Minta.
         </p>
-        <p className="text-[12px] sm:text-[13px] max-w-xl mx-auto leading-relaxed px-2" style={{ color: 'rgba(217,226,255,0.5)' }}>
+        <p className="font-data text-[12px] sm:text-[13px] max-w-xl mx-auto leading-relaxed px-2" style={{ color: 'rgba(217,226,255,0.5)' }}>
           Setiap masukan dari line bisa jadi fitur berikutnya. <br className="hidden sm:block" />
           Ajukan, disetujui Section, dikerjakan developer.
         </p>
