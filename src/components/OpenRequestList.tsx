@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { RequestCard } from '@/components/RequestCard';
 import type { FeatureRequest, RequestStatus } from '@/lib/types';
+import { gsap, Flip } from '@/lib/gsapPlugins';
 
 const FILTERS: { key: RequestStatus | 'semua'; label: string }[] = [
   { key: 'semua', label: 'Semua' },
@@ -17,6 +18,9 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
   const [requests, setRequests] = useState<FeatureRequest[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [filter, setFilter] = useState<RequestStatus | 'semua'>('semua');
+  const gridRef = useRef<HTMLDivElement>(null);
+  const flipStateRef = useRef<Flip.FlipState | null>(null);
+  const hasRevealedRef = useRef(false);
 
   const load = useCallback(() => {
     fetch('/api/open-request')
@@ -26,6 +30,48 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
   }, []);
 
   useEffect(() => { load(); }, [load, refreshKey]);
+
+  // Capture the current card layout before switching filters, so the
+  // remaining cards can smoothly slide into their new grid position instead
+  // of just popping into place once React removes/adds siblings.
+  function selectFilter(key: RequestStatus | 'semua') {
+    if (gridRef.current) {
+      flipStateRef.current = Flip.getState(gridRef.current.querySelectorAll('.or-request-card'));
+    }
+    setFilter(key);
+  }
+
+  useLayoutEffect(() => {
+    const state = flipStateRef.current;
+    if (!state) return;
+    flipStateRef.current = null;
+    Flip.from(state, {
+      duration: 0.5,
+      ease: 'power2.inOut',
+      absolute: true,
+      stagger: 0.03,
+      onEnter: elements => gsap.fromTo(elements, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, stagger: 0.04, ease: 'power2.out' }),
+      onLeave: elements => gsap.to(elements, { opacity: 0, scale: 0.9, duration: 0.25, ease: 'power2.in' }),
+    });
+  }, [filter, requests]);
+
+  // First successful load: cards fade + rise in with a stagger. Guarded to
+  // run once — later reloads (e.g. after approving a request) refresh the
+  // same cards in place and shouldn't replay an "entrance."
+  useEffect(() => {
+    if (!requests || hasRevealedRef.current || !gridRef.current) return;
+    hasRevealedRef.current = true;
+    const cards = gridRef.current.querySelectorAll('.or-request-card');
+    if (!cards.length) return;
+    gsap.from(cards, {
+      opacity: 0,
+      y: 24,
+      duration: 0.5,
+      ease: 'power2.out',
+      stagger: 0.08,
+      scrollTrigger: { trigger: gridRef.current, start: 'top 90%', once: true },
+    });
+  }, [requests]);
 
   const visible = requests
     ? filter === 'semua' ? requests : requests.filter(r => r.status === filter)
@@ -49,7 +95,7 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
             <button
               key={f.key}
               type="button"
-              onClick={() => setFilter(f.key)}
+              onClick={() => selectFilter(f.key)}
               aria-pressed={active}
               className="font-data px-3 py-1.5 rounded-full text-[11.5px] font-semibold transition-colors focus-visible:outline focus-visible:outline-2"
               style={active
@@ -78,7 +124,7 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
           {filter === 'semua' ? 'Belum ada request.' : `Belum ada request dengan status "${FILTERS.find(f => f.key === filter)?.label}".`}
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {visible!.map(r => (
             <RequestCard key={r.id} request={r} onChanged={load} />
           ))}

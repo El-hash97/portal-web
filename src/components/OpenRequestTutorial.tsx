@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ClipboardEdit, ShieldCheck, Wrench, PartyPopper, ImageOff, ArrowRight, ArrowDown } from 'lucide-react';
+import { gsap } from '@/lib/gsapPlugins';
 
 const STEPS = [
   { icon: ClipboardEdit, title: 'Isi Request', text: 'Tulis nama, line, aplikasi, dan fitur yang dibutuhkan.', color: '#F59E0B' },
@@ -9,9 +10,6 @@ const STEPS = [
   { icon: Wrench, title: 'Developer Mengerjakan', text: 'Request yang disetujui masuk antrean pengerjaan.', color: '#8B5CF6' },
   { icon: PartyPopper, title: 'Selesai', text: 'Fitur tayang, status berubah jadi Selesai.', color: '#10B981' },
 ];
-
-const RAIL_GRADIENT = `linear-gradient(90deg, ${STEPS.map(s => s.color).join(', ')})`;
-const RAIL_GRADIENT_VERTICAL = `linear-gradient(180deg, ${STEPS.map(s => s.color).join(', ')})`;
 
 function TutorialImage({ src, alt }: { src: string; alt: string }) {
   const [broken, setBroken] = useState(false);
@@ -46,26 +44,95 @@ function TutorialImage({ src, alt }: { src: string; alt: string }) {
 }
 
 export function OpenRequestTutorial() {
+  const railRef = useRef<HTMLDivElement>(null);
+  const railLineHRef = useRef<SVGLineElement>(null);
+  const railLineVRef = useRef<SVGLineElement>(null);
+  const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const exampleRef = useRef<HTMLDivElement>(null);
+  const beforeRef = useRef<HTMLDivElement>(null);
+  const afterRef = useRef<HTMLDivElement>(null);
+  const arrowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const rail = railRef.current;
+    const lineH = railLineHRef.current;
+    const lineV = railLineVRef.current;
+    const nodes = nodeRefs.current.filter((n): n is HTMLDivElement => n !== null);
+    if (!rail || !lineH || !lineV || nodes.length !== STEPS.length) return;
+
+    const ctx = gsap.context(() => {
+      gsap.set([lineH, lineV], { drawSVG: '0%' });
+      gsap.set(nodes, { scale: 0, opacity: 0, transformOrigin: 'center' });
+
+      // The rail "draws" itself in sync with scroll (DrawSVGPlugin), and
+      // each step's node pops in exactly when the drawing line reaches it —
+      // scrubbed so the whole sequence tracks scroll position directly,
+      // not a one-shot timed animation.
+      const drawTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: rail,
+          start: 'top 70%',
+          end: 'bottom 55%',
+          scrub: 0.4,
+        },
+      });
+      drawTl.to([lineH, lineV], { drawSVG: '100%', ease: 'none', duration: STEPS.length - 1 }, 0);
+      nodes.forEach((node, i) => {
+        drawTl.to(node, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(2.2)' }, i * 0.92);
+      });
+
+      // Contoh Nyata: before/after converge from opposite sides toward the
+      // arrow, reinforcing the transformation the case study is making.
+      if (beforeRef.current && afterRef.current && arrowRef.current && exampleRef.current) {
+        gsap.set(beforeRef.current, { opacity: 0, x: -48 });
+        gsap.set(afterRef.current, { opacity: 0, x: 48 });
+        gsap.set(arrowRef.current, { opacity: 0, scale: 0.6 });
+
+        gsap.timeline({
+          scrollTrigger: { trigger: exampleRef.current, start: 'top 80%', once: true },
+        })
+          .to(beforeRef.current, { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' })
+          .to(afterRef.current, { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' }, '<')
+          .to(arrowRef.current, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(2)' }, '-=0.25');
+      }
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 mt-2">
       {/* Step rail — mirrors the request lifecycle's own status colors, so the
           tutorial teaches the exact visual language the list below already uses. */}
-      <div className="relative mb-12 sm:mb-14">
-        <div
-          className="hidden sm:block absolute left-0 right-0 top-6 h-px opacity-70"
-          style={{ background: RAIL_GRADIENT }}
-        />
-        <div
-          className="sm:hidden absolute top-3 bottom-3 left-6 w-px opacity-70"
-          style={{ background: RAIL_GRADIENT_VERTICAL }}
-        />
+      <div ref={railRef} className="relative mb-12 sm:mb-14">
+        <svg className="hidden sm:block absolute left-0 right-0 top-6 w-full" height="4" viewBox="0 0 100 4" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+          <defs>
+            <linearGradient id="or-rail-h" x1="0%" y1="0%" x2="100%" y2="0%">
+              {STEPS.map((s, i) => (
+                <stop key={s.title} offset={`${(i / (STEPS.length - 1)) * 100}%`} stopColor={s.color} />
+              ))}
+            </linearGradient>
+          </defs>
+          <line ref={railLineHRef} x1="0" y1="2" x2="100" y2="2" stroke="url(#or-rail-h)" strokeWidth="2" opacity="0.75" />
+        </svg>
+        <svg className="sm:hidden absolute top-3 bottom-3 left-6 h-full" width="4" viewBox="0 0 4 100" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+          <defs>
+            <linearGradient id="or-rail-v" x1="0%" y1="0%" x2="0%" y2="100%">
+              {STEPS.map((s, i) => (
+                <stop key={s.title} offset={`${(i / (STEPS.length - 1)) * 100}%`} stopColor={s.color} />
+              ))}
+            </linearGradient>
+          </defs>
+          <line ref={railLineVRef} x1="2" y1="0" x2="2" y2="100" stroke="url(#or-rail-v)" strokeWidth="2" opacity="0.75" />
+        </svg>
 
         <div className="relative flex flex-col sm:flex-row gap-7 sm:gap-4">
-          {STEPS.map(step => {
+          {STEPS.map((step, i) => {
             const Icon = step.icon;
             return (
               <div key={step.title} className="relative flex sm:flex-col items-start sm:items-center gap-4 sm:gap-3.5 sm:flex-1 sm:text-center">
                 <div
+                  ref={el => { nodeRefs.current[i] = el; }}
                   className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center shrink-0"
                   style={{ background: '#0a0f1f', border: `2px solid ${step.color}` }}
                 >
@@ -87,6 +154,7 @@ export function OpenRequestTutorial() {
 
       {/* Contoh Nyata — the feature's real persuasion device: a genuine before/after case. */}
       <div
+        ref={exampleRef}
         className="rounded-2xl p-5 sm:p-6"
         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
       >
@@ -95,7 +163,7 @@ export function OpenRequestTutorial() {
         </h3>
 
         <div className="flex flex-col sm:flex-row items-stretch gap-4 sm:gap-3 mb-4">
-          <div className="flex-1">
+          <div ref={beforeRef} className="flex-1">
             <span
               className="font-data inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2"
               style={{ background: 'rgba(235,10,30,0.16)', color: '#ff6b6b' }}
@@ -108,12 +176,12 @@ export function OpenRequestTutorial() {
             />
           </div>
 
-          <div className="flex items-center justify-center shrink-0 self-center sm:self-auto" style={{ color: 'rgba(217,226,255,0.3)' }}>
+          <div ref={arrowRef} className="flex items-center justify-center shrink-0 self-center sm:self-auto" style={{ color: 'rgba(217,226,255,0.3)' }}>
             <ArrowRight size={20} className="hidden sm:block" />
             <ArrowDown size={20} className="sm:hidden" />
           </div>
 
-          <div className="flex-1">
+          <div ref={afterRef} className="flex-1">
             <span
               className="font-data inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2"
               style={{ background: 'rgba(16,185,129,0.16)', color: '#34d399' }}

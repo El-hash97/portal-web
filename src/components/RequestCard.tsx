@@ -84,7 +84,8 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
 
   return (
     <div
-      className="group relative rounded-2xl p-5 flex flex-col gap-3.5 transition-all duration-200"
+      data-flip-id={`request-${request.id}`}
+      className="or-request-card group relative rounded-2xl p-5 flex flex-col gap-3.5 transition-all duration-200"
       style={{
         background: 'rgba(255,255,255,0.02)',
         border: '1px solid rgba(255,255,255,0.07)',

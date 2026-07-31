@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Send, CheckCircle, ImagePlus, X } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { REQUEST_LINES } from '@/lib/constants';
+import { gsap } from '@/lib/gsapPlugins';
 
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024; // 2MB, before base64 encoding
 
@@ -33,6 +34,23 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   const { apps } = useAppStore();
   const activeApps = apps.filter(a => a.aktif);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    const tween = gsap.from(card, {
+      opacity: 0,
+      y: 28,
+      duration: 0.7,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: card, start: 'top 85%', once: true },
+    });
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+    };
+  }, []);
 
   const [requester, setRequester] = useState('');
   const [lineName, setLineName] = useState('');
@@ -107,6 +125,7 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-10 lg:px-12 mt-10">
       <div
+        ref={cardRef}
         className="rounded-2xl p-6 sm:p-7"
         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
       >
