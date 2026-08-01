@@ -7,6 +7,7 @@ import { RatingsProvider } from '@/context/RatingsContext';
 import { Sidebar } from '@/components/Sidebar';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { GradientBarsBackground } from '@/components/ui/gradient-bars-background';
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -40,21 +41,29 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className={`${plusJakarta.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.variable}`}>
-      <body className="min-h-screen flex flex-col lg:flex-row antialiased">
-        <AppProvider>
-          <RatingsProvider>
-            <Suspense fallback={null}>
-              <Sidebar />
-            </Suspense>
-            <div className="flex-1 flex flex-col min-w-0">
-              <Navbar />
-              <div className="flex-1 flex flex-col">
-                {children}
+      <body className="min-h-screen flex flex-col lg:flex-row antialiased relative">
+        <GradientBarsBackground
+          numBars={15}
+          gradientFrom="rgb(12, 1, 60)"
+          gradientTo="transparent"
+          backgroundColor="#01010a"
+          animationDuration={3}
+        >
+          <AppProvider>
+            <RatingsProvider>
+              <Suspense fallback={null}>
+                <Sidebar />
+              </Suspense>
+              <div className="flex-1 flex flex-col min-w-0 z-10 relative">
+                <Navbar />
+                <div className="flex-1 flex flex-col">
+                  {children}
+                </div>
+                <Footer />
               </div>
-              <Footer />
-            </div>
-          </RatingsProvider>
-        </AppProvider>
+            </RatingsProvider>
+          </AppProvider>
+        </GradientBarsBackground>
       </body>
     </html>
   );

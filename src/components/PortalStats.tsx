@@ -26,13 +26,35 @@ function smooth(pts: [number, number][]): string {
 }
 
 /* ── KPI Card ───────────────────────────────────────────── */
+function AnimatedNumber({ value }: { value: number | string }) {
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (typeof value !== 'number') return;
+    let startTime: number;
+    const duration = 1500;
+
+    const animate = (time: number) => {
+      if (!startTime) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.floor(ease * value));
+      if (progress < 1) requestAnimationFrame(animate);
+      else setDisplay(value);
+    };
+    const req = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(req);
+  }, [value]);
+
+  return <>{typeof value === 'number' ? display.toLocaleString('id-ID') : value}</>;
+}
+
 function KpiCard({
   icon, label, value, sub, accent, truncate = false,
 }: {
   icon: React.ReactNode; label: string; value: string | number;
   sub: string; accent: string; truncate?: boolean;
 }) {
-  const display = typeof value === 'number' ? value.toLocaleString('id-ID') : value;
   return (
     <div
       className="relative overflow-hidden rounded-xl px-4 py-3.5 flex flex-col gap-1"
@@ -50,9 +72,9 @@ function KpiCard({
       <div
         className={`text-[22px] font-black leading-none tracking-tight ${truncate ? 'truncate' : ''}`}
         style={{ color: 'rgba(255,255,255,0.92)' }}
-        title={truncate ? String(display) : undefined}
+        title={truncate ? String(value) : undefined}
       >
-        {display}
+        <AnimatedNumber value={value} />
       </div>
       <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{sub}</div>
     </div>
@@ -116,6 +138,11 @@ function LineChart({ data, loading }: { data: DayCount[]; loading: boolean }) {
           <stop offset="0%"   stopColor="#EB0A1E" stopOpacity="0.22" />
           <stop offset="100%" stopColor="#EB0A1E" stopOpacity="0"    />
         </linearGradient>
+        <clipPath id="animate-clip">
+          <rect x={0} y={0} width={CW} height={CH}>
+            <animate attributeName="width" from="0" to={CW} dur="1.5s" fill="freeze" keyTimes="0;1" calcMode="spline" keySplines="0.25 0.1 0.25 1" />
+          </rect>
+        </clipPath>
       </defs>
 
       {/* Grid */}
@@ -127,16 +154,18 @@ function LineChart({ data, loading }: { data: DayCount[]; loading: boolean }) {
       ))}
 
       {/* Area + Line */}
-      {areaPath && <path d={areaPath} fill="url(#pg-fill)" />}
-      {linePath && (
-        <path d={linePath} fill="none" stroke="#EB0A1E" strokeWidth="1.5"
-          strokeLinecap="round" strokeLinejoin="round" />
-      )}
+      <g clipPath="url(#animate-clip)">
+        {areaPath && <path d={areaPath} fill="url(#pg-fill)" />}
+        {linePath && (
+          <path d={linePath} fill="none" stroke="#EB0A1E" strokeWidth="1.5"
+            strokeLinecap="round" strokeLinejoin="round" />
+        )}
 
-      {/* Regular dots (skip hovered) */}
-      {pts.map(([x, y], i) => hIdx !== i && (
-        <circle key={i} cx={x} cy={y} r="2.5" fill="#EB0A1E" opacity={data[i].clicks > 0 ? 1 : 0.3} />
-      ))}
+        {/* Regular dots (skip hovered) */}
+        {pts.map(([x, y], i) => hIdx !== i && (
+          <circle key={i} cx={x} cy={y} r="2.5" fill="#EB0A1E" opacity={data[i].clicks > 0 ? 1 : 0.3} />
+        ))}
+      </g>
 
       {/* X-axis labels */}
       {data.map((d, i) => {
@@ -184,6 +213,12 @@ function BarChart({ analytics, apps }: { analytics: AnalyticRow[]; apps: App[] }
     .filter(r => r.app)
     .slice(0, 8);
 
+  const [animatedProgress, setAnimatedProgress] = useState(false);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setAnimatedProgress(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
   if (!ranked.length) {
     return (
       <div className="flex flex-col items-center justify-center h-full py-8">
@@ -216,15 +251,15 @@ function BarChart({ analytics, apps }: { analytics: AnalyticRow[]; apps: App[] }
           </span>
           <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
             <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{ width: `${Math.round((r.clicks_total / max) * 100)}%`, background: barColor(i) }}
+              className="h-full rounded-full transition-all duration-[1500ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+              style={{ width: animatedProgress ? `${Math.round((r.clicks_total / max) * 100)}%` : '0%', background: barColor(i) }}
             />
           </div>
           <span
             className="text-[11px] font-bold shrink-0 text-right"
             style={{ color: 'rgba(255,255,255,0.85)', width: 36 }}
           >
-            {r.clicks_total.toLocaleString('id-ID')}
+            <AnimatedNumber value={r.clicks_total} />
           </span>
         </div>
       ))}

@@ -1,9 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageSquare, Send, CheckCircle } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { getDeviceId } from '@/lib/device';
+
+function TypingPlaceholder({ baseText }: { baseText: string }) {
+  const [text, setText] = useState('');
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (index < baseText.length) {
+      const timeout = setTimeout(() => {
+        setText(prev => prev + baseText[index]);
+        setIndex(index + 1);
+      }, 50 + Math.random() * 50);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => {
+        setText('');
+        setIndex(0);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [index, baseText]);
+
+  return text;
+}
 
 export function FeedbackForm() {
   const { apps } = useAppStore();
@@ -93,21 +116,28 @@ export function FeedbackForm() {
               <label className="block text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
                 Pesan <span style={{ color: '#EB0A1E' }}>*</span>
               </label>
-              <textarea
-                value={pesan}
-                onChange={e => setPesan(e.target.value)}
-                placeholder="Tulis saran, laporan bug, atau feedback lainnya…"
-                rows={4}
-                required
-                className="w-full px-3.5 py-2.5 rounded-xl text-[13px] resize-none outline-none"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(255,255,255,0.85)',
-                }}
-                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(235,10,30,0.5)'; }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-              />
+              <div className="relative">
+                <textarea
+                  value={pesan}
+                  onChange={e => setPesan(e.target.value)}
+                  placeholder=""
+                  rows={4}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl text-[13px] resize-none outline-none relative z-10 bg-transparent"
+                  style={{
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: 'rgba(255,255,255,0.85)',
+                  }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'rgba(235,10,30,0.5)'; }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                />
+                {!pesan && (
+                  <div className="absolute top-2.5 left-3.5 pointer-events-none text-[13px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                    <TypingPlaceholder baseText="Tulis saran, laporan bug, atau feedback lainnya…" />
+                  </div>
+                )}
+                <div className="absolute inset-0 rounded-xl -z-10" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              </div>
             </div>
 
             {state === 'error' && (
