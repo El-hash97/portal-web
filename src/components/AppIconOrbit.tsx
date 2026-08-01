@@ -83,12 +83,6 @@ export function AppIconOrbit({ apps }: { apps: App[] }) {
 
   return (
     <div ref={wrapperRef} className="relative shrink-0 mx-auto sm:mx-0" style={{ width, height }}>
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{ background: 'radial-gradient(ellipse, rgba(235,10,30,0.10) 0%, transparent 70%)' }}
-      />
-      <div className="absolute inset-0 rounded-full" style={{ border: '1px dashed rgba(255,255,255,0.08)' }} />
-
       {apps.map((app, i) => (
         <div
           key={app.id}
