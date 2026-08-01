@@ -401,7 +401,7 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
                   <img
                     src={photoData}
                     alt="Pratinjau foto request"
-                    className="h-28 w-28 rounded-xl object-cover"
+                    className="h-36 w-36 rounded-xl object-cover"
                     style={{ border: '1px solid rgba(255,255,255,0.1)' }}
                   />
                   <button
@@ -418,10 +418,10 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="font-data w-full flex items-center justify-center gap-2 px-3.5 py-4 rounded-xl text-[12.5px] font-semibold transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2"
+                  className="font-data w-full h-36 flex flex-col items-center justify-center gap-2.5 px-3.5 rounded-xl text-[12.5px] font-semibold transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.18)', color: 'rgba(217,226,255,0.55)', outlineColor: 'rgba(235,10,30,0.6)' }}
                 >
-                  <ImagePlus size={16} />
+                  <ImagePlus size={26} />
                   Klik untuk unggah foto (maks. 2MB)
                 </button>
               )}
