@@ -11,6 +11,32 @@ const STEPS = [
   { icon: PartyPopper, title: 'Selesai', text: 'Fitur tayang, status berubah jadi Selesai.', color: '#10B981' },
 ];
 
+// Row height and horizontal amplitude (in the SVG's own 0-100-wide coordinate
+// space) for the zigzag flow — step i alternates between AMP% and
+// (100 - AMP)% from the left, moving straight down the page.
+const ROW_HEIGHT = 170;
+const AMP = 25;
+const RAIL_HEIGHT = STEPS.length * ROW_HEIGHT;
+
+const NODE_POINTS = STEPS.map((_, i) => ({
+  x: i % 2 === 0 ? AMP : 100 - AMP,
+  y: i * ROW_HEIGHT + 58,
+}));
+
+/** A smooth S-curve through each point, using vertical-only control points. */
+function zigzagPath(points: { x: number; y: number }[]): string {
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i];
+    const p1 = points[i + 1];
+    const midY = (p0.y + p1.y) / 2;
+    d += ` C ${p0.x} ${midY}, ${p1.x} ${midY}, ${p1.x} ${p1.y}`;
+  }
+  return d;
+}
+
+const PATH_D = zigzagPath(NODE_POINTS);
+
 function TutorialImage({ src, alt }: { src: string; alt: string }) {
   const [broken, setBroken] = useState(false);
 
@@ -45,41 +71,56 @@ function TutorialImage({ src, alt }: { src: string; alt: string }) {
 
 export function OpenRequestTutorial() {
   const railRef = useRef<HTMLDivElement>(null);
-  const glowLineHRef = useRef<SVGLineElement>(null);
-  const glowLineVRef = useRef<SVGLineElement>(null);
+  const glowPathRef = useRef<SVGPathElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const textRefs = useRef<(HTMLDivElement | null)[]>([]);
   const exampleRef = useRef<HTMLDivElement>(null);
   const beforeRef = useRef<HTMLDivElement>(null);
   const afterRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<HTMLDivElement>(null);
 
+  // Both reveals here are driven by a native IntersectionObserver rather than
+  // GSAP ScrollTrigger: ScrollTrigger only auto-refreshes on window
+  // resize/load, neither of which fires on a Next.js client-side route
+  // change, so it can go stale and never fire when navigating here in-app.
+  // IntersectionObserver re-evaluates against the live DOM on every mount,
+  // and the GSAP timelines themselves (paused, played on intersect) still
+  // do the actual sequencing.
   useEffect(() => {
     const rail = railRef.current;
-    const glowH = glowLineHRef.current;
-    const glowV = glowLineVRef.current;
+    const glowPath = glowPathRef.current;
     const nodes = nodeRefs.current.filter((n): n is HTMLDivElement => n !== null);
-    if (!rail || !glowH || !glowV || nodes.length !== STEPS.length) return;
+    const texts = textRefs.current.filter((n): n is HTMLDivElement => n !== null);
+    if (!rail || !glowPath || nodes.length !== STEPS.length || texts.length !== STEPS.length) return;
 
     const ctx = gsap.context(() => {
-      // The connecting rail itself (the base gradient line) is always fully
-      // visible by default — it must never depend on an animation completing
-      // to be seen. A separate, purely decorative glow line is layered on top
-      // and "draws" itself once on scroll into view (DrawSVGPlugin); if that
-      // glow never plays for any reason, the base rail underneath is
-      // untouched and still fully there.
-      gsap.set([glowH, glowV], { drawSVG: '0%' });
-      // Nodes start at their normal, fully visible size — the entrance is a
-      // brief overshoot bounce (scale 1 -> up -> settle), never a hide/reveal,
-      // so a node is never invisible even if this animation doesn't run.
-      gsap.set(nodes, { scale: 1, opacity: 1, transformOrigin: 'center' });
+      // Base path underneath is always fully visible by default — it must
+      // never depend on an animation completing to be seen. Nodes and text
+      // default to fully visible in the JSX itself; only once this effect
+      // runs do they get hidden in preparation for their own reveal.
+      gsap.set(glowPath, { drawSVG: '0%' });
+      gsap.set(nodes, { scale: 0.6, opacity: 0, transformOrigin: 'center' });
+      gsap.set(texts, { opacity: 0, y: 14 });
 
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: rail, start: 'top 75%', once: true },
+      const railTl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } });
+      STEPS.forEach((_, i) => {
+        const label = `step${i}`;
+        railTl.addLabel(label, i === 0 ? 0 : '+=0.05');
+        railTl.to(glowPath, { drawSVG: `${((i + 1) / STEPS.length) * 100}%`, duration: 0.55, ease: 'power1.inOut' }, label);
+        railTl.to(nodes[i], { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(2.2)' }, `${label}+=0.15`);
+        railTl.to(texts[i], { opacity: 1, y: 0, duration: 0.4 }, '<0.05');
       });
-      tl.to([glowH, glowV], { drawSVG: '100%', duration: 1.1, ease: 'power1.inOut' }, 0);
-      nodes.forEach((node, i) => {
-        tl.fromTo(node, { scale: 0.85 }, { scale: 1, duration: 0.5, ease: 'back.out(2.4)' }, i * 0.15);
-      });
+
+      const railObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            railTl.play();
+            railObserver.disconnect();
+          }
+        },
+        { rootMargin: '0px 0px -15% 0px' },
+      );
+      railObserver.observe(rail);
 
       // Contoh Nyata: before/after settle in from opposite sides toward the
       // arrow. They stay fully opaque throughout — only position animates —
@@ -89,12 +130,21 @@ export function OpenRequestTutorial() {
         gsap.set(afterRef.current, { x: 32 });
         gsap.set(arrowRef.current, { scale: 0.7 });
 
-        gsap.timeline({
-          scrollTrigger: { trigger: exampleRef.current, start: 'top 85%', once: true },
-        })
+        const exampleTl = gsap.timeline({ paused: true })
           .to(beforeRef.current, { x: 0, duration: 0.6, ease: 'power3.out' })
           .to(afterRef.current, { x: 0, duration: 0.6, ease: 'power3.out' }, '<')
           .to(arrowRef.current, { scale: 1, duration: 0.4, ease: 'back.out(2)' }, '-=0.2');
+
+        const exampleObserver = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              exampleTl.play();
+              exampleObserver.disconnect();
+            }
+          },
+          { rootMargin: '0px 0px -15% 0px' },
+        );
+        exampleObserver.observe(exampleRef.current);
       }
     });
 
@@ -103,65 +153,66 @@ export function OpenRequestTutorial() {
 
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 mt-2">
-      {/* Step rail — mirrors the request lifecycle's own status colors, so the
-          tutorial teaches the exact visual language the list below already uses. */}
-      <div ref={railRef} className="relative mb-12 sm:mb-14">
-        {/* Base rail: always fully visible, no animation dependency. */}
-        <div
-          className="hidden sm:block absolute left-0 right-0 top-6 h-px opacity-70"
-          style={{ background: `linear-gradient(90deg, ${STEPS.map(s => s.color).join(', ')})` }}
-        />
-        <div
-          className="sm:hidden absolute top-3 bottom-3 left-6 w-px opacity-70"
-          style={{ background: `linear-gradient(180deg, ${STEPS.map(s => s.color).join(', ')})` }}
-        />
-
-        {/* Decorative glow overlay: draws in once on scroll, purely additive. */}
-        <svg className="hidden sm:block absolute left-0 right-0 top-6 w-full" height="4" viewBox="0 0 100 4" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+      {/* Step rail — a vertical zigzag flow: each step alternates left/right,
+          connected by a smooth S-curve that mirrors the request lifecycle's
+          own status colors. */}
+      <div ref={railRef} className="relative mb-12 sm:mb-14" style={{ height: RAIL_HEIGHT }}>
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox={`0 0 100 ${RAIL_HEIGHT}`}
+          preserveAspectRatio="none"
+          style={{ overflow: 'visible' }}
+        >
           <defs>
-            <linearGradient id="or-glow-h" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="or-rail-grad" x1="0%" y1="0%" x2="0%" y2="100%">
               {STEPS.map((s, i) => (
                 <stop key={s.title} offset={`${(i / (STEPS.length - 1)) * 100}%`} stopColor={s.color} />
               ))}
             </linearGradient>
           </defs>
-          <line ref={glowLineHRef} x1="0" y1="2" x2="100" y2="2" stroke="url(#or-glow-h)" strokeWidth="3" opacity="0.9" style={{ filter: 'blur(1.5px)' }} />
-        </svg>
-        <svg className="sm:hidden absolute top-3 bottom-3 left-6 h-full" width="4" viewBox="0 0 4 100" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-          <defs>
-            <linearGradient id="or-glow-v" x1="0%" y1="0%" x2="0%" y2="100%">
-              {STEPS.map((s, i) => (
-                <stop key={s.title} offset={`${(i / (STEPS.length - 1)) * 100}%`} stopColor={s.color} />
-              ))}
-            </linearGradient>
-          </defs>
-          <line ref={glowLineVRef} x1="2" y1="0" x2="2" y2="100" stroke="url(#or-glow-v)" strokeWidth="3" opacity="0.9" style={{ filter: 'blur(1.5px)' }} />
+          {/* Base path: always fully visible, no animation dependency. */}
+          <path d={PATH_D} fill="none" stroke="url(#or-rail-grad)" strokeWidth="1.5" opacity="0.4" vectorEffect="non-scaling-stroke" />
+          {/* Decorative glow overlay: draws in step-by-step, purely additive. */}
+          <path
+            ref={glowPathRef}
+            d={PATH_D}
+            fill="none"
+            stroke="url(#or-rail-grad)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            opacity="0.9"
+            vectorEffect="non-scaling-stroke"
+            style={{ filter: 'blur(1.5px)' }}
+          />
         </svg>
 
-        <div className="relative flex flex-col sm:flex-row gap-7 sm:gap-4">
-          {STEPS.map((step, i) => {
-            const Icon = step.icon;
-            return (
-              <div key={step.title} className="relative flex sm:flex-col items-start sm:items-center gap-4 sm:gap-3.5 sm:flex-1 sm:text-center">
-                <div
-                  ref={el => { nodeRefs.current[i] = el; }}
-                  className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: '#0a0f1f', border: `2px solid ${step.color}` }}
-                >
-                  <Icon size={19} style={{ color: step.color }} />
-                </div>
-                <div className="pt-1 sm:pt-0 sm:max-w-[15rem]">
-                  <h3 className="font-display text-[14.5px] font-bold leading-tight mb-1" style={{ color: '#eef2ff' }}>
-                    {step.title}
-                  </h3>
-                  <p className="font-data text-[12px] leading-relaxed" style={{ color: 'rgba(217,226,255,0.55)' }}>
-                    {step.text}
-                  </p>
-                </div>
+        {STEPS.map((step, i) => {
+          const Icon = step.icon;
+          const point = NODE_POINTS[i];
+          return (
+            <div
+              key={step.title}
+              className="absolute flex flex-col items-center text-center"
+              style={{ left: `${point.x}%`, top: point.y, transform: 'translate(-50%, -50%)', width: 190 }}
+            >
+              <div
+                ref={el => { nodeRefs.current[i] = el; }}
+                className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center shrink-0 mb-3"
+                style={{ background: '#0a0f1f', border: `2px solid ${step.color}` }}
+              >
+                <Icon size={19} style={{ color: step.color }} />
               </div>
-            );
-          })}
-        </div>
+              <div ref={el => { textRefs.current[i] = el; }}>
+                <h3 className="font-display text-[14.5px] font-bold leading-tight mb-1" style={{ color: '#eef2ff' }}>
+                  {step.title}
+                </h3>
+                <p className="font-data text-[12px] leading-relaxed" style={{ color: 'rgba(217,226,255,0.55)' }}>
+                  {step.text}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Contoh Nyata — the feature's real persuasion device: a genuine before/after case. */}
