@@ -129,10 +129,10 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   );
 
   return (
-    <section className="max-w-2xl mx-auto px-4 sm:px-10 lg:px-12 mt-10">
+    <section className="max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 mt-10">
       <div
         ref={cardRef}
-        className="rounded-2xl p-6 sm:p-7 transition-all duration-700 ease-out"
+        className="rounded-2xl p-6 sm:p-10 flex flex-col md:flex-row gap-8 md:gap-14 transition-all duration-700 ease-out"
         style={{
           background: 'rgba(255,255,255,0.02)',
           border: '1px solid rgba(255,255,255,0.07)',
@@ -140,13 +140,16 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
           transform: visible ? 'translateY(0)' : 'translateY(28px)',
         }}
       >
-        <h2 className="font-display text-[18px] font-bold mb-1.5" style={{ color: '#eef2ff' }}>
-          Ajukan Request
-        </h2>
-        <p className="font-data text-[12.5px] mb-6" style={{ color: 'rgba(217,226,255,0.45)' }}>
-          Ceritakan fitur apa yang Anda butuhkan — Section akan meninjau sebelum dikerjakan developer.
-        </p>
+        <div className="w-full md:w-2/5 shrink-0">
+          <h2 className="font-display text-[18px] font-bold mb-1.5" style={{ color: '#eef2ff' }}>
+            Ajukan Request
+          </h2>
+          <p className="font-data text-[12.5px]" style={{ color: 'rgba(217,226,255,0.45)' }}>
+            Ceritakan fitur apa yang Anda butuhkan — Section akan meninjau sebelum dikerjakan developer.
+          </p>
+        </div>
 
+        <div className="w-full md:w-3/5">
         {state === 'sent' ? (
           <div className="flex items-center gap-3 py-4">
             <CheckCircle size={20} style={{ color: '#10B981' }} />
@@ -311,6 +314,7 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
             </button>
           </form>
         )}
+        </div>
       </div>
     </section>
   );
