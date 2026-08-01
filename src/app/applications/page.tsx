@@ -4,6 +4,7 @@ import { Box } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { PageHero } from '@/components/PageHero';
 import { AppShowcaseRow } from '@/components/AppShowcaseRow';
+import { ScrollEntrance } from '@/components/ScrollEntrance';
 
 export default function ApplicationsPage() {
   const { apps } = useAppStore();
@@ -31,7 +32,9 @@ export default function ApplicationsPage() {
                 className={i > 0 ? 'pt-14 sm:pt-20' : ''}
                 style={i > 0 ? { borderTop: '1px solid rgba(255,255,255,0.06)' } : undefined}
               >
-                <AppShowcaseRow app={app} reversed={i % 2 === 1} />
+                <ScrollEntrance index={i} distance={64}>
+                  <AppShowcaseRow app={app} reversed={i % 2 === 1} />
+                </ScrollEntrance>
               </div>
             ))}
           </div>
