@@ -14,6 +14,50 @@ const FILTERS: { key: RequestStatus | 'semua'; label: string }[] = [
   { key: 'ditolak', label: 'Ditolak' },
 ];
 
+/**
+ * Slides a card in from the left (even index) or right (odd index) as it
+ * scrolls into view, revealed sequentially since each instance observes its
+ * own position independently. Only `transform` ever animates here — never
+ * opacity — so a card that never gets to observe/reveal (e.g. an unusual
+ * IntersectionObserver failure) is still fully readable, just offset
+ * sideways, never invisible. This wraps RequestCard rather than touching it,
+ * so the Flip reflow logic below (which targets `.or-request-card` directly)
+ * is unaffected by this separate transform.
+ */
+function CardEntrance({ index, children }: { index: number; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setEntered(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '0px 0px -10% 0px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const fromX = index % 2 === 0 ? -48 : 48;
+  return (
+    <div
+      ref={ref}
+      style={{
+        transform: entered ? 'translateX(0)' : `translateX(${fromX}px)`,
+        transition: 'transform 0.6s cubic-bezier(0.22,0.61,0.36,1)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
   const [requests, setRequests] = useState<FeatureRequest[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -111,8 +155,10 @@ export function OpenRequestList({ refreshKey }: { refreshKey: number }) {
         </p>
       ) : (
         <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {visible!.map(r => (
-            <RequestCard key={r.id} request={r} onChanged={load} />
+          {visible!.map((r, i) => (
+            <CardEntrance key={r.id} index={i}>
+              <RequestCard request={r} onChanged={load} />
+            </CardEntrance>
           ))}
         </div>
       )}
