@@ -57,6 +57,8 @@ Di Netlify dashboard → **Site configuration → Environment variables**, pasti
 - `KAIZEN_SUPABASE_URL` — **baru**, wajib ditambahkan manual. URL project Supabase milik aplikasi Kaizen Order Sheet (format `https://<ref>.supabase.co`)
 - `KAIZEN_SUPABASE_ANON_KEY` — **baru**, wajib ditambahkan manual. Anon key Supabase milik aplikasi Kaizen Order Sheet — key publik yang dibatasi oleh RLS, tapi tetap hanya dibaca di server (tanpa prefix `NEXT_PUBLIC_`) mengikuti konvensi variabel lain di file ini
 - `VOICE_MEMBER_SUPABASE` — **baru**, wajib ditambahkan manual. Connection string Postgres (transaction pooler) milik aplikasi Voice Member
+- `SECTION_PASSWORD` — **baru**, wajib ditambahkan manual. Password yang dipakai Section untuk menyetujui/menolak request di halaman `/open-request`. Hanya dibaca di server (tanpa prefix `NEXT_PUBLIC_`), tidak pernah dikirim ke browser.
+- `DEVELOPER_PASSWORD` — **baru**, wajib ditambahkan manual. Password yang dipakai untuk menandai request "Dikerjakan"/"Selesai" di halaman `/open-request` — otomatis terisi dari sesi login admin yang sudah ada, developer tidak perlu mengetik ulang. **Penting:** nilai `DEVELOPER_PASSWORD` harus persis sama dengan `ADMIN_CRED.pass` di `src/lib/constants.ts` — mekanisme "tidak perlu mengetik ulang" bekerja dengan mengirim ulang password yang sama dipakai saat login admin, jadi kalau kedua nilai ini berbeda, tombol "Mulai Kerjakan"/"Tandai Selesai" akan selalu gagal dengan error 401 meskipun sudah login sebagai admin. Karena nilainya harus sama dengan `ADMIN_CRED.pass` yang sudah ada di client bundle (dibaca lewat `AppContext.tsx`), `DEVELOPER_PASSWORD` pada praktiknya bukan rahasia — siapa pun yang bisa membuka DevTools browser bisa membacanya. Ini tidak mengurangi keamanan langkah approval Section (`SECTION_PASSWORD` tetap hanya ada di server), hanya berarti jangan pernah pakai nilai `DEVELOPER_PASSWORD` yang sama di tempat lain sebagai kredensial yang benar-benar rahasia.
 
 Tanpa `E_HENKATEN` di Netlify, bagian "e-Henkaten · Live" di home page akan otomatis hilang dari tampilan (sudah ada fallback `failed → return null` di kodenya), tidak bikin error, cuma datanya tidak muncul. Halaman `/dashboard` (KPI bar + chart per line) juga bergantung pada env var yang sama — tanpanya, kedua bagian jatuh ke fallback masing-masing (bukan blank), tapi datanya tidak akan pernah muncul.
 
@@ -66,6 +68,8 @@ Tanpa kedua variabel di atas, bagian "Kaizen Order Sheet" di halaman `/dashboard
 
 Tanpa variabel di atas, bagian "Voice Member" di halaman `/dashboard` akan menampilkan status tidak tersedia (sudah ada fallback di kodenya), tidak bikin error, cuma datanya tidak muncul.
 
+Tanpa `SECTION_PASSWORD`/`DEVELOPER_PASSWORD`, tombol approval di halaman `/open-request` akan selalu gagal dengan pesan "Fitur approval belum dikonfigurasi" (fallback HTTP 503 di API), tidak bikin error di halaman, cuma approval tidak akan pernah berhasil sampai variabelnya ditambahkan. Pengiriman request oleh user tetap berfungsi normal tanpa kedua variabel ini.
+
 ### Langkah 4: Verifikasi setelah deploy
 
 - [ ] Home: hero, grid 6 aplikasi, bar "e-Henkaten · Live" muncul dengan angka benar (33/4/24/5)
@@ -74,6 +78,7 @@ Tanpa variabel di atas, bagian "Voice Member" di halaman `/dashboard` akan menam
 - [ ] `/admin` — login masih berfungsi (`admin` / password sesuai `ADMIN_CRED`)
 - [ ] `/dashboard` — link Dashboard di sidebar berfungsi, KPI bar & chart per line tampil dengan data asli
 - [ ] Tampilan mobile — sidebar drawer & navbar responsif
+- [ ] `/open-request` — sidebar "Open Request" berfungsi, form bisa submit, kartu request muncul dengan status benar
 
 ---
 

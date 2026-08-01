@@ -21,10 +21,19 @@ export function isAdminLoggedIn(): boolean {
   return sessionStorage.getItem(SESSION_KEY) === '1';
 }
 
-export function startAdminSession(): void {
+const ADMIN_PW_KEY = `${SESSION_KEY}_pw`;
+
+export function startAdminSession(pass: string): void {
   sessionStorage.setItem(SESSION_KEY, '1');
+  sessionStorage.setItem(ADMIN_PW_KEY, pass);
 }
 
 export function clearAdminSession(): void {
   sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(ADMIN_PW_KEY);
+}
+
+export function getAdminPassword(): string | null {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem(ADMIN_PW_KEY);
 }

@@ -41,3 +41,20 @@ export const feedbackItems = pgTable('feedback', {
 
 export type AppRating     = typeof appRatings.$inferSelect;
 export type FeedbackItem  = typeof feedbackItems.$inferSelect;
+
+export const featureRequests = pgTable('feature_requests', {
+  id:           serial('id').primaryKey(),
+  requester:    text('requester').notNull(),
+  lineName:     text('line_name').notNull(),
+  appId:        integer('app_id').references(() => apps.id, { onDelete: 'set null' }),
+  requestText:  text('request_text').notNull(),
+  photoData:    text('photo_data'),
+  status:       text('status').notNull().default('menunggu'),
+  approver:     text('approver'),
+  rejectReason: text('reject_reason'),
+  createdAt:    timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  decidedAt:    timestamp('decided_at', { withTimezone: true }),
+  finishedAt:   timestamp('finished_at', { withTimezone: true }),
+});
+
+export type FeatureRequestRecord = typeof featureRequests.$inferSelect;
