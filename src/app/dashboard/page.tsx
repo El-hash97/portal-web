@@ -1,5 +1,6 @@
 'use client';
 
+import { PageHero } from '@/components/PageHero';
 import { DashboardAppSection } from '@/components/DashboardAppSection';
 import { HenkatenKpiBar } from '@/components/HenkatenKpiBar';
 import { HenkatenByLineChart } from '@/components/HenkatenByLineChart';
@@ -12,16 +13,9 @@ import { VoiceMemberTable } from '@/components/VoiceMemberTable';
 
 export default function DashboardPage() {
   return (
-    <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 py-8 sm:py-10">
-      <div className="mb-8">
-        <h1 className="font-display text-[22px] sm:text-[26px] font-bold" style={{ color: '#d9e2ff' }}>
-          Dashboard
-        </h1>
-        <p className="text-[12.5px] mt-1" style={{ color: 'rgba(217,226,255,0.4)' }}>
-          Ringkasan data live dari tiap aplikasi.
-        </p>
-      </div>
-
+    <>
+      <PageHero titleAccent="Dashboard" description="Ringkasan data live dari tiap aplikasi." />
+      <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 pb-8 sm:pb-10">
       <DashboardAppSection
         name="Henkaten"
         blurb="Data diambil langsung dari aplikasi e-Henkaten — Change Point Management."
@@ -53,6 +47,7 @@ export default function DashboardPage() {
         <VoiceMemberPodium />
         <VoiceMemberTable />
       </DashboardAppSection>
-    </main>
+      </main>
+    </>
   );
 }
