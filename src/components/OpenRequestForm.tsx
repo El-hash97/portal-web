@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Send, CheckCircle, ImagePlus, X } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { REQUEST_LINES } from '@/lib/constants';
-import { gsap } from '@/lib/gsapPlugins';
 
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024; // 2MB, before base64 encoding
 
@@ -35,21 +34,28 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   const activeApps = apps.filter(a => a.aktif);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
 
+  // A native IntersectionObserver (not GSAP ScrollTrigger) drives this reveal:
+  // ScrollTrigger only auto-refreshes on window resize/load, neither of which
+  // fires on a Next.js client-side route change, so it can go stale and never
+  // fire when navigating here in-app (works on a hard refresh, not on SPA
+  // nav). IntersectionObserver re-evaluates against the live DOM on every
+  // mount, so it can't go stale that way.
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
-    const tween = gsap.from(card, {
-      opacity: 0,
-      y: 28,
-      duration: 0.7,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: card, start: 'top 85%', once: true },
-    });
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '0px 0px -15% 0px' },
+    );
+    observer.observe(card);
+    return () => observer.disconnect();
   }, []);
 
   const [requester, setRequester] = useState('');
@@ -126,8 +132,13 @@ export function OpenRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
     <section className="max-w-2xl mx-auto px-4 sm:px-10 lg:px-12 mt-10">
       <div
         ref={cardRef}
-        className="rounded-2xl p-6 sm:p-7"
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+        className="rounded-2xl p-6 sm:p-7 transition-all duration-700 ease-out"
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.07)',
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(28px)',
+        }}
       >
         <h2 className="font-display text-[18px] font-bold mb-1.5" style={{ color: '#eef2ff' }}>
           Ajukan Request
