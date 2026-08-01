@@ -8,7 +8,7 @@ export const APP_ASSET_IMAGES: Record<string, string[]> = {
   'e-henkaten': [
     '/asset/e-henkaten/screencapture-e-henkaten-netlify-app-2026-07-31-23_11_47.png',
     '/asset/e-henkaten/screencapture-e-henkaten-netlify-app-2026-07-31-23_12_15.png',
-    '/asset/e-henkaten/screencapture-recap-report-vercel-app-api-reports-cms5f0q7j000004l43rbuaxyn-download-2026-08-01-10_55_46.png',
+    '/asset/e-henkaten/screencapture-e-henkaten-netlify-app-2026-08-01-11_04_03.png',
   ],
   'form-bnf': [
     '/asset/form-bnf/screencapture-bnf-form-netlify-app-2026-07-31-23_14_25.png',
