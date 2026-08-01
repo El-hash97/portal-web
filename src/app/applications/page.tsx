@@ -4,7 +4,6 @@ import { Box } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { PageHero } from '@/components/PageHero';
 import { AppShowcaseRow } from '@/components/AppShowcaseRow';
-import { AppIconOrbit } from '@/components/AppIconOrbit';
 
 export default function ApplicationsPage() {
   const { apps } = useAppStore();
@@ -16,9 +15,6 @@ export default function ApplicationsPage() {
         titleAccent="Applications"
         description="Seluruh aplikasi digital Casting Division beserta deskripsi lengkapnya."
       />
-      <div className="flex justify-center -mt-4 mb-8 sm:mb-12">
-        <AppIconOrbit apps={activeApps} />
-      </div>
 
       <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 pb-8 sm:pb-10">
         {activeApps.length === 0 ? (
