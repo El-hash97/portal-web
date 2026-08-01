@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import type { App } from '@/lib/types';
 import { ICON_MAP } from '@/lib/constants';
+import { GradientBars } from '@/components/ui/gradient-bars-background';
 
 interface PortalAppCardProps {
   app: App;
@@ -31,7 +32,14 @@ export function PortalAppCard({ app, index }: PortalAppCardProps) {
   const number = String(index + 1).padStart(2, '0');
 
   const body = (
-    <div className="snake-border-content p-6 h-full flex flex-col items-center justify-center text-center transition-transform duration-300 group-hover:scale-[1.02]">
+    <div className="snake-border-content relative overflow-hidden p-6 h-full flex flex-col items-center justify-center text-center transition-transform duration-300 group-hover:scale-[1.02]">
+      <GradientBars
+        numBars={7}
+        gradientFrom="rgb(12, 1, 60)"
+        gradientTo="transparent"
+        animationDuration={2 + index * 0.15}
+        className="opacity-45 transition-opacity duration-300 group-hover:opacity-70"
+      />
       <span
         className="absolute top-3.5 left-4 text-white rounded-full w-6 h-6 flex items-center justify-center font-display text-[10px] font-bold z-10"
         style={{ background: inMaintenance ? '#F59E0B' : '#EB0A1E' }}
@@ -48,23 +56,25 @@ export function PortalAppCard({ app, index }: PortalAppCardProps) {
         </span>
       )}
 
-      <Icon size={34} className="mb-3.5" style={{ color: 'rgba(217,226,255,0.9)' }} />
+      <div className="relative z-10 flex flex-col items-center">
+        <Icon size={34} className="mb-3.5" style={{ color: 'rgba(217,226,255,0.9)' }} />
 
-      <h3 className="font-mono-label text-[13px] font-bold uppercase tracking-wide mb-1.5" style={{ color: 'rgba(217,226,255,0.95)' }}>
-        {app.nama}
-      </h3>
-      <p className="text-[11.5px] leading-snug mb-4" style={{ color: 'rgba(217,226,255,0.42)' }}>
-        {blurb}
-      </p>
+        <h3 className="font-mono-label text-[13px] font-bold uppercase tracking-wide mb-1.5" style={{ color: 'rgba(217,226,255,0.95)' }}>
+          {app.nama}
+        </h3>
+        <p className="text-[11.5px] leading-snug mb-4" style={{ color: 'rgba(217,226,255,0.42)' }}>
+          {blurb}
+        </p>
 
-      <div
-        className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide transition-all duration-200 group-hover:gap-2"
-        style={{ color: inMaintenance ? '#F59E0B' : hasLink ? 'rgba(217,226,255,0.5)' : 'rgba(217,226,255,0.25)' }}
-      >
-        {inMaintenance ? 'Maintenance' : hasLink ? 'Open' : 'Link Belum Diisi'}
-        {!inMaintenance && hasLink && (
-          <ArrowUpRight size={12} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        )}
+        <div
+          className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide transition-all duration-200 group-hover:gap-2"
+          style={{ color: inMaintenance ? '#F59E0B' : hasLink ? 'rgba(217,226,255,0.5)' : 'rgba(217,226,255,0.25)' }}
+        >
+          {inMaintenance ? 'Maintenance' : hasLink ? 'Open' : 'Link Belum Diisi'}
+          {!inMaintenance && hasLink && (
+            <ArrowUpRight size={12} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          )}
+        </div>
       </div>
     </div>
   );

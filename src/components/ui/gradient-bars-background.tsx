@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface GradientBarsProps {
   numBars?: number;
@@ -10,10 +10,10 @@ interface GradientBarsProps {
 
 const GradientBars: React.FC<GradientBarsProps> = ({
   numBars = 15,
-  gradientFrom = 'rgb(255, 60, 0)',
-  gradientTo = 'transparent',
+  gradientFrom = "rgb(255, 60, 0)",
+  gradientTo = "transparent",
   animationDuration = 2,
-  className = '',
+  className = "",
 }) => {
   const calculateHeight = (index: number, total: number) => {
     const position = index / (total - 1);
@@ -40,9 +40,10 @@ const GradientBars: React.FC<GradientBarsProps> = ({
         <div
           className="flex h-full"
           style={{
-            width: '100%',
-            transform: 'translateZ(0)',
-            backfaceVisibility: 'hidden',
+            width: "100%",
+            transform: "translateZ(0)",
+            backfaceVisibility: "hidden",
+            WebkitFontSmoothing: "antialiased",
           }}
         >
           {Array.from({ length: numBars }).map((_, index) => {
@@ -53,18 +54,17 @@ const GradientBars: React.FC<GradientBarsProps> = ({
                 style={{
                   flex: `1 0 calc(100% / ${numBars})`,
                   maxWidth: `calc(100% / ${numBars})`,
-                  height: '100%',
+                  height: "100%",
                   background: `linear-gradient(to top, ${gradientFrom}, ${gradientTo})`,
                   transform: `scaleY(${height / 100})`,
-                  transformOrigin: 'bottom',
-                  transition: 'transform 0.5s ease-in-out',
+                  transformOrigin: "bottom",
+                  transition: "transform 0.5s ease-in-out",
                   animation: `pulseBar ${animationDuration}s ease-in-out infinite alternate`,
                   animationDelay: `${index * 0.1}s`,
-                  outline: '1px solid rgba(0, 0, 0, 0)',
-                  boxSizing: 'border-box',
-                  // @ts-ignore
-                  '--initial-scale': height / 100,
-                }}
+                  outline: "1px solid rgba(0, 0, 0, 0)",
+                  boxSizing: "border-box",
+                  "--initial-scale": height / 100,
+                } as React.CSSProperties & { "--initial-scale": number }}
               />
             );
           })}
@@ -83,34 +83,36 @@ interface ComponentProps {
   children?: React.ReactNode;
 }
 
-function Component({
+export default function Component({
   numBars = 7,
-  gradientFrom = 'rgb(255, 60, 0)',
-  gradientTo = 'transparent',
+  gradientFrom = "rgb(12, 1, 60)",
+  gradientTo = "transparent",
   animationDuration = 2,
-  backgroundColor = 'rgb(10, 10, 10)',
+  backgroundColor = "#01010a",
   children,
 }: ComponentProps) {
   return (
-    <section
-      className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden"
-      style={{ backgroundColor }}
-    >
-      <GradientBars
-        numBars={numBars}
-        gradientFrom={gradientFrom}
-        gradientTo={gradientTo}
-        animationDuration={animationDuration}
-      />
+    <>
+      <section
+        aria-hidden="true"
+        className="fixed inset-0 z-0 w-full h-full overflow-hidden pointer-events-none"
+        style={{ backgroundColor }}
+      >
+        <GradientBars
+          numBars={numBars}
+          gradientFrom={gradientFrom}
+          gradientTo={gradientTo}
+          animationDuration={animationDuration}
+        />
+      </section>
 
       {children && (
-        <div className="relative z-10 w-full h-full flex items-center justify-center px-4">
+        <div className="relative z-10 w-full min-h-screen flex flex-col lg:flex-row">
           {children}
         </div>
       )}
-    </section>
+    </>
   );
 }
 
-export { GradientBars, Component };
-export default Component;
+export { Component as GradientBarsBackground, GradientBars };
