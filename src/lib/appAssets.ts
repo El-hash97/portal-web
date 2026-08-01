@@ -8,10 +8,12 @@ export const APP_ASSET_IMAGES: Record<string, string[]> = {
   'e-henkaten': [
     '/asset/e-henkaten/screencapture-e-henkaten-netlify-app-2026-07-31-23_11_47.png',
     '/asset/e-henkaten/screencapture-e-henkaten-netlify-app-2026-07-31-23_12_15.png',
+    '/asset/e-henkaten/screencapture-recap-report-vercel-app-api-reports-cms5f0q7j000004l43rbuaxyn-download-2026-08-01-10_55_46.png',
   ],
   'form-bnf': [
     '/asset/form-bnf/screencapture-bnf-form-netlify-app-2026-07-31-23_14_25.png',
     '/asset/form-bnf/screencapture-bnf-form-netlify-app-preview-2026-07-31-23_15_26.png',
+    '/asset/form-bnf/Screenshot%202026-08-01%20110021.png',
   ],
   'kaizen-order-sheet': [
     '/asset/kaizen-order-sheet/screencapture-kaizen-order-sheet-netlify-app-2026-07-31-23_16_06.png',
@@ -26,6 +28,7 @@ export const APP_ASSET_IMAGES: Record<string, string[]> = {
   'rekap-laporan-5w': [
     '/asset/rekap-laporan-5w/screencapture-recap-report-vercel-app-2026-07-31-23_19_55.png',
     '/asset/rekap-laporan-5w/screencapture-recap-report-vercel-app-rekap-2026-07-31-23_21_47.png',
+    '/asset/rekap-laporan-5w/screencapture-recap-report-vercel-app-api-reports-cms5f0q7j000004l43rbuaxyn-download-2026-08-01-10_55_46.png',
   ],
   'voice-member': [
     '/asset/voice-member/screencapture-voice-member-app-netlify-app-login-2026-07-31-23_17_36.png',
