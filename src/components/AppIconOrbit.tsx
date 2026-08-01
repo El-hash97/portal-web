@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import type { App } from '@/lib/types';
 import { ICON_MAP } from '@/lib/constants';
 import { useAppStore } from '@/context/AppContext';
-import { gsap } from '@/lib/gsapPlugins';
 
 const RADIUS_X = 140;
 const RADIUS_Y = 52;
@@ -50,26 +48,15 @@ function OrbitIconChip({ app }: { app: App }) {
  * then squash it": squashing a rotated child with a counter-scale only
  * cancels correctly at 0°/180° (verified — every other angle rendered
  * visibly distorted), so the path itself needs to be the ellipse.
+ *
+ * The entrance fade is a plain CSS mount animation rather than a GSAP
+ * ScrollTrigger: ScrollTrigger only auto-refreshes on window resize/load,
+ * neither of which fires on a Next.js client-side route transition, so the
+ * trigger could go stale and never fire when navigating here in-app
+ * (works on a hard refresh, not on SPA nav) — same reasoning that already
+ * keeps the orbit's own motion on plain CSS instead of GSAP.
  */
 export function AppIconOrbit({ apps }: { apps: App[] }) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-    const tween = gsap.from(wrapper, {
-      opacity: 0,
-      scale: 0.85,
-      duration: 0.8,
-      ease: 'back.out(1.5)',
-      scrollTrigger: { trigger: wrapper, start: 'top 90%', once: true },
-    });
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-    };
-  }, []);
-
   if (apps.length === 0) return null;
 
   const width = RADIUS_X * 2 + ICON_SIZE;
@@ -82,7 +69,10 @@ export function AppIconOrbit({ apps }: { apps: App[] }) {
     `A ${RADIUS_X} ${RADIUS_Y} 0 1 1 ${cx + RADIUS_X} ${cy}`;
 
   return (
-    <div ref={wrapperRef} className="relative shrink-0 mx-auto sm:mx-0" style={{ width, height }}>
+    <div
+      className="relative shrink-0 mx-auto sm:mx-0"
+      style={{ width, height, animation: 'orbit-enter 0.8s cubic-bezier(0.34,1.56,0.64,1) both' }}
+    >
       {apps.map((app, i) => (
         <div
           key={app.id}
