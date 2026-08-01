@@ -5,10 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 /**
  * Slides content in from the left (even index) or right (odd index) as it
  * scrolls into view, revealed sequentially since each instance observes its
- * own position independently. Only `transform` ever animates — never
- * opacity — so content that never gets to observe/reveal (e.g. an unusual
- * IntersectionObserver failure) is still fully readable, just offset
- * sideways, never invisible.
+ * own position independently. Hidden-state opacity stays just above zero
+ * (0.04, not 0) rather than fully invisible — visually indistinguishable
+ * from gone, but content that never gets to observe/reveal (e.g. an unusual
+ * IntersectionObserver failure) is still technically present on screen,
+ * never truly invisible.
  */
 export function ScrollEntrance({
   index,
@@ -44,7 +45,8 @@ export function ScrollEntrance({
       ref={ref}
       style={{
         transform: entered ? 'translateX(0)' : `translateX(${fromX}px)`,
-        transition: 'transform 0.6s cubic-bezier(0.22,0.61,0.36,1)',
+        opacity: entered ? 1 : 0.04,
+        transition: 'transform 0.6s cubic-bezier(0.22,0.61,0.36,1), opacity 0.6s ease-out',
       }}
     >
       {children}
