@@ -15,7 +15,7 @@ export default function DashboardPage() {
   return (
     <>
       <PageHero titleAccent="Dashboard" description="Ringkasan data live dari tiap aplikasi." />
-      <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 pb-8 sm:pb-10">
+      <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-10 lg:px-12 pb-8 sm:pb-10">
       <DashboardAppSection
         name="Henkaten"
         blurb="Data diambil langsung dari aplikasi e-Henkaten — Change Point Management."
