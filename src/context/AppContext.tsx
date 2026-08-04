@@ -5,14 +5,13 @@ import React, {
   useCallback, type ReactNode,
 } from 'react';
 import type { App } from '@/lib/types';
-import { ADMIN_CRED, CATEGORIES, DEFAULT_APPS } from '@/lib/constants';
-import { isAdminLoggedIn, startAdminSession, clearAdminSession } from '@/lib/storage';
+import { CATEGORIES, DEFAULT_APPS } from '@/lib/constants';
 
 interface AppStore {
   apps: App[];
   isAdmin: boolean;
-  login: (user: string, pass: string) => boolean;
-  logout: () => void;
+  login: (user: string, pass: string) => Promise<boolean>;
+  logout: () => Promise<void>;
   toggleApp: (id: number) => void;
   toggleMaintenance: (id: number) => void;
   addApp: (data: Omit<App, 'id'>) => Promise<string | null>;
@@ -36,20 +35,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then((data: App[]) => setApps(data.length ? data.map(normalize) : DEFAULT_APPS))
       .catch(() => setApps(DEFAULT_APPS));
-    setIsAdmin(isAdminLoggedIn());
+    fetch('/api/admin/session')
+      .then(r => (r.ok ? r.json() : { isAdmin: false }))
+      .then(data => setIsAdmin(Boolean(data.isAdmin)))
+      .catch(() => setIsAdmin(false));
   }, []);
 
-  const login = useCallback((user: string, pass: string) => {
-    if (user === ADMIN_CRED.user && pass === ADMIN_CRED.pass) {
-      startAdminSession(pass);
-      setIsAdmin(true);
-      return true;
-    }
-    return false;
+  const login = useCallback(async (user: string, pass: string) => {
+    const response = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: user, password: pass }),
+    });
+    if (!response.ok) return false;
+    setIsAdmin(true);
+    return true;
   }, []);
 
-  const logout = useCallback(() => {
-    clearAdminSession();
+  const logout = useCallback(async () => {
+    await fetch('/api/admin/logout', { method: 'POST' });
     setIsAdmin(false);
   }, []);
 

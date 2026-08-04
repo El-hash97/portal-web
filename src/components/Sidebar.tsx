@@ -52,7 +52,7 @@ export function Sidebar() {
     { label: 'Applications', icon: <Grid3x3 size={18} />,        href: '/applications' },
     { label: 'Open Request', icon: <MessageSquarePlus size={18} />, href: '/open-request' },
     { label: 'Reports',      icon: <FileBarChart size={18} />,   href: '/reports' },
-    { label: 'Notification', icon: <Bell size={18} /> },
+    { label: 'Notification', icon: <Bell size={18} />,        href: '/notifications' },
     { label: 'Story Board',  icon: <KanbanSquare size={18} /> },
   ];
 
@@ -61,8 +61,8 @@ export function Sidebar() {
     { label: 'Komentar',        icon: <MessageSquare size={18} />, tab: 'komentar' },
   ];
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     setMobileOpen(false);
     router.push('/');
   }

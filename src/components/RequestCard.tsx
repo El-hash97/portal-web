@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Check, X as XIcon } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
-import { getAdminPassword } from '@/lib/storage';
 import { PasswordModal } from '@/components/PasswordModal';
 import type { FeatureRequest, RequestStatus } from '@/lib/types';
 
@@ -38,8 +37,8 @@ export function RequestCard({ request, onChanged }: { request: FeatureRequest; o
     action: 'approve' | 'reject' | 'start' | 'finish',
     extra: Record<string, string> = {},
   ): Promise<string | null> {
-    const password = action === 'approve' || action === 'reject' ? extra.password : getAdminPassword();
-    if (!password) return 'Sesi admin tidak valid, silakan login ulang.';
+    const password = action === 'approve' || action === 'reject' ? extra.password : '';
+    if ((action === 'approve' || action === 'reject') && !password) return 'Password wajib diisi.';
 
     try {
       const res = await fetch(`/api/open-request/${request.id}`, {

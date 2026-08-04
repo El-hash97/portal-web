@@ -89,7 +89,20 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS idx_feature_requests_status     ON feature_requests(status)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_feature_requests_created_at ON feature_requests(created_at DESC)`;
 
-  console.log('Tables "apps" and "app_clicks" ready.');
+  await sql`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id           SERIAL PRIMARY KEY,
+      title        TEXT NOT NULL,
+      content      TEXT NOT NULL,
+      status       TEXT NOT NULL DEFAULT 'active',
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      completed_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_notifications_status ON notifications(status)`;
+
+  console.log('Database tables ready.');
   await sql.end();
 }
 
