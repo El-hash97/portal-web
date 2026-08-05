@@ -26,6 +26,7 @@ export interface Notification {
   id: number;
   title: string;
   content: string;
+  photo_data: string | null;
   status: NotificationStatus;
   created_at: string;
   completed_at: string | null;

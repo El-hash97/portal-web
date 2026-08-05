@@ -63,6 +63,7 @@ export const notifications = pgTable('notifications', {
   id:          serial('id').primaryKey(),
   title:       text('title').notNull(),
   content:     text('content').notNull(),
+  photoData:   text('photo_data'),
   status:      text('status').notNull().default('active'),
   createdAt:   timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   completedAt: timestamp('completed_at', { withTimezone: true }),

@@ -25,8 +25,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Status notifikasi tidak valid' }, { status: 400 });
     }
     const rows = status === 'completed'
-      ? await neonSql`UPDATE notifications SET status = 'completed', completed_at = NOW() WHERE id = ${id} RETURNING id, title, content, status, created_at, completed_at`
-      : await neonSql`UPDATE notifications SET status = 'active', completed_at = NULL WHERE id = ${id} RETURNING id, title, content, status, created_at, completed_at`;
+      ? await neonSql`UPDATE notifications SET status = 'completed', completed_at = NOW() WHERE id = ${id} RETURNING id, title, content, photo_data, status, created_at, completed_at`
+      : await neonSql`UPDATE notifications SET status = 'active', completed_at = NULL WHERE id = ${id} RETURNING id, title, content, photo_data, status, created_at, completed_at`;
     if (!rows[0]) return NextResponse.json({ error: 'Informasi tidak ditemukan' }, { status: 404 });
     return NextResponse.json(rows[0]);
   } catch (error) {

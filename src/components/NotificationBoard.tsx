@@ -1,13 +1,24 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
-import { Bell, Check, LogIn, LogOut, Plus, RotateCcw, Trash2, X } from 'lucide-react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { Bell, Check, ImagePlus, LogIn, LogOut, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import type { Notification, NotificationStatus } from '@/lib/types';
+
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024; // 2MB, before base64 encoding
 
 function formatDate(value: string | null): string {
   if (!value) return '';
   return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+}
+
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
 
 export function NotificationBoard() {
@@ -21,6 +32,9 @@ export function NotificationBoard() {
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [photoData, setPhotoData] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     try {
@@ -58,17 +72,39 @@ export function NotificationBoard() {
     }
   }
 
+  async function handlePhotoChange(event: FormEvent<HTMLInputElement>) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    (event.target as HTMLInputElement).value = ''; // allow re-selecting the same file later
+    if (!file) return;
+    setPhotoError('');
+    if (!file.type.startsWith('image/')) {
+      setPhotoError('File harus berupa gambar.');
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      setPhotoError('Ukuran foto maksimal 2MB.');
+      return;
+    }
+    try {
+      setPhotoData(await readAsDataUrl(file));
+    } catch {
+      setPhotoError('Gagal membaca file foto.');
+    }
+  }
+
   async function createNotification(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/notifications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, content }) });
+      const response = await fetch('/api/notifications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, content, photo_data: photoData }) });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error);
       setItems(previous => previous ? [body, ...previous] : [body]);
       setTitle('');
       setContent('');
+      setPhotoData(null);
+      setPhotoError('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal menyimpan informasi.');
     } finally {
@@ -124,6 +160,14 @@ export function NotificationBoard() {
         <form onSubmit={createNotification} className="grid gap-3">
           <input value={title} onChange={event => setTitle(event.target.value)} maxLength={160} required placeholder="Judul informasi" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={{ color: '#eef2ff', background: '#071a35', border: '1px solid rgba(217,226,255,0.2)' }} />
           <textarea value={content} onChange={event => setContent(event.target.value)} maxLength={5000} required rows={4} placeholder="Isi informasi" className="w-full resize-y rounded-xl px-4 py-3 text-sm outline-none" style={{ color: '#eef2ff', background: '#071a35', border: '1px solid rgba(217,226,255,0.2)' }} />
+          <div className="grid gap-1.5">
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+            {photoData ? <div className="relative inline-block w-fit">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photoData} alt="Pratinjau foto informasi" className="h-36 w-36 rounded-xl object-cover" style={{ border: '1px solid rgba(217,226,255,0.2)' }} />
+              <button type="button" onClick={() => setPhotoData(null)} aria-label="Hapus foto" className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full" style={{ background: '#07122a', border: '1px solid rgba(217,226,255,0.2)', color: '#ffb4aa' }}><X size={13} /></button>
+            </div> : <button type="button" onClick={() => fileInputRef.current?.click()} className="inline-flex w-fit items-center gap-2 rounded-xl px-4 py-2.5 text-sm" style={{ color: 'rgba(217,226,255,0.65)', background: '#071a35', border: '1px dashed rgba(217,226,255,0.28)' }}><ImagePlus size={15} />Unggah foto dokumentasi (opsional, maks. 2MB)</button>}            {photoError && <p className="text-xs" style={{ color: '#ffb4aa' }} role="alert">{photoError}</p>}
+          </div>
           <button disabled={loading} className="justify-self-start rounded-xl px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50" style={{ background: '#EB0A1E' }}>Publikasikan</button>
         </form>
       </section>}
@@ -134,7 +178,9 @@ export function NotificationBoard() {
         {!items ? <div className="grid gap-4"><div className="h-32 rounded-2xl animate-pulse" style={{ background: 'rgba(255,255,255,0.06)' }} /><div className="h-32 rounded-2xl animate-pulse" style={{ background: 'rgba(255,255,255,0.06)' }} /></div> : items.length === 0 ? <p className="py-12 text-center text-sm" style={{ color: 'rgba(217,226,255,0.55)' }}>Belum ada informasi.</p> : <div className="grid gap-4">{items.map(item => {
           const completed = item.status === 'completed';
           return <article key={item.id} className="rounded-xl p-4 sm:p-5 transition-opacity" style={{ background: 'rgba(3,13,37,0.74)', border: '1px solid rgba(217,226,255,0.14)', opacity: completed ? 0.56 : 1 }}>
-            <div className="flex items-start justify-between gap-4"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-display text-lg font-bold" style={{ color: '#fff' }}>{item.title}</h3>{completed && <span className="rounded-full px-2 py-0.5 font-mono-label text-[9px] tracking-wider uppercase" style={{ background: 'rgba(217,226,255,0.15)', color: '#d9e2ff' }}>Selesai</span>}</div><p className="mt-2 whitespace-pre-wrap text-sm leading-6" style={{ color: 'rgba(217,226,255,0.76)' }}>{item.content}</p><p className="mt-4 font-mono-label text-[10px]" style={{ color: 'rgba(217,226,255,0.45)' }}>{completed ? `Selesai ${formatDate(item.completed_at)}` : `Dipublikasikan ${formatDate(item.created_at)}`}</p></div>
+            <div className="flex items-start justify-between gap-4"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-display text-lg font-bold" style={{ color: '#fff' }}>{item.title}</h3>{completed && <span className="rounded-full px-2 py-0.5 font-mono-label text-[9px] tracking-wider uppercase" style={{ background: 'rgba(217,226,255,0.15)', color: '#d9e2ff' }}>Selesai</span>}</div><p className="mt-2 whitespace-pre-wrap text-sm leading-6" style={{ color: 'rgba(217,226,255,0.76)' }}>{item.content}</p>{item.photo_data && <div className="mt-4"><a href={item.photo_data} target="_blank" rel="noopener noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}
+<img src={item.photo_data} alt={`Foto dokumentasi: ${item.title}`} className="max-h-64 w-full rounded-xl object-cover" style={{ border: '1px solid rgba(217,226,255,0.18)' }} />
+</a></div>}<p className="mt-4 font-mono-label text-[10px]" style={{ color: 'rgba(217,226,255,0.45)' }}>{completed ? `Selesai ${formatDate(item.completed_at)}` : `Dipublikasikan ${formatDate(item.created_at)}`}</p></div>
             {isAdmin && <div className="flex shrink-0 gap-2">{completed ? <button disabled={loading} onClick={() => void updateStatus(item.id, 'active')} title="Aktifkan kembali" aria-label="Aktifkan kembali" className="p-2 rounded-lg disabled:opacity-50" style={{ color: '#9bd5ff', background: 'rgba(80,180,255,0.12)' }}><RotateCcw size={16} /></button> : <button disabled={loading} onClick={() => void updateStatus(item.id, 'completed')} title="Selesai" aria-label="Selesai" className="p-2 rounded-lg disabled:opacity-50" style={{ color: '#a8edc2', background: 'rgba(45,180,100,0.12)' }}><Check size={16} /></button>}<button disabled={loading} onClick={() => void removeNotification(item.id)} title="Hapus" aria-label="Hapus" className="p-2 rounded-lg disabled:opacity-50" style={{ color: '#ffb4aa', background: 'rgba(235,10,30,0.12)' }}><Trash2 size={16} /></button></div>}</div>
           </article>;
         })}</div>}

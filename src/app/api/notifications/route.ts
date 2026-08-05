@@ -13,7 +13,7 @@ async function isAdminRequest(): Promise<boolean> {
 export async function GET() {
   try {
     const rows = await neonSql`
-      SELECT id, title, content, status, created_at, completed_at
+      SELECT id, title, content, photo_data, status, created_at, completed_at
       FROM notifications
       ORDER BY created_at DESC
     `;
@@ -31,13 +31,22 @@ export async function POST(request: Request) {
     const body = await request.json();
     const title = typeof body.title === 'string' ? body.title.trim() : '';
     const content = typeof body.content === 'string' ? body.content.trim() : '';
+    const photoData = typeof body.photo_data === 'string' && body.photo_data ? body.photo_data : null;
     if (!title || !content) return NextResponse.json({ error: 'Judul dan isi informasi wajib diisi' }, { status: 400 });
     if (title.length > 160 || content.length > 5000) return NextResponse.json({ error: 'Panjang informasi melebihi batas' }, { status: 400 });
+    // The client caps the source file at 2MB before encoding — this is defense
+    // in depth against a payload sent directly to the API.
+    if (photoData && !/^data:image\/(png|jpe?g|webp|gif);base64,/.test(photoData)) {
+      return NextResponse.json({ error: 'Format foto tidak didukung' }, { status: 400 });
+    }
+    if (photoData && photoData.length > 3_000_000) {
+      return NextResponse.json({ error: 'Ukuran foto terlalu besar' }, { status: 400 });
+    }
 
     const rows = await neonSql`
-      INSERT INTO notifications (title, content)
-      VALUES (${title}, ${content})
-      RETURNING id, title, content, status, created_at, completed_at
+      INSERT INTO notifications (title, content, photo_data)
+      VALUES (${title}, ${content}, ${photoData})
+      RETURNING id, title, content, photo_data, status, created_at, completed_at
     `;
     return NextResponse.json(rows[0], { status: 201 });
   } catch (error) {

@@ -94,11 +94,15 @@ async function main() {
       id           SERIAL PRIMARY KEY,
       title        TEXT NOT NULL,
       content      TEXT NOT NULL,
+      photo_data   TEXT,
       status       TEXT NOT NULL DEFAULT 'active',
       created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       completed_at TIMESTAMPTZ
     )
   `;
+  // CREATE TABLE IF NOT EXISTS does not add columns to an existing table —
+  // ADD COLUMN IF NOT EXISTS reaches an already-created notifications table.
+  await sql`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS photo_data TEXT`;
   await sql`CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_notifications_status ON notifications(status)`;
 
