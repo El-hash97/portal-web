@@ -4,6 +4,7 @@ import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono, Inter } from 'next/fo
 import './globals.css';
 import { AppProvider } from '@/context/AppContext';
 import { RatingsProvider } from '@/context/RatingsContext';
+import { RealtimeProvider } from '@/context/RealtimeContext';
 import { Sidebar } from '@/components/Sidebar';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           <AppProvider>
             <RatingsProvider>
+              <RealtimeProvider>
               <Suspense fallback={null}>
                 <Sidebar />
               </Suspense>
@@ -61,7 +63,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
                 <Footer />
               </div>
-            </RatingsProvider>
+            </RealtimeProvider>
+          </RatingsProvider>
           </AppProvider>
         </GradientBarsBackground>
       </body>

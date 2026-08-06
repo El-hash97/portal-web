@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   Home, LayoutDashboard, Grid3x3, MessageSquarePlus, FileBarChart,
-  Bell, KanbanSquare, LogOut, Menu, X, AppWindow, MessageSquare,
+  Bell, KanbanSquare, LogOut, Menu, X, AppWindow, MessageSquare, Settings,
 } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 
@@ -59,6 +59,7 @@ export function Sidebar() {
   const adminNavItems: AdminNavItem[] = [
     { label: 'Kelola Aplikasi', icon: <AppWindow size={18} />, tab: 'apps' },
     { label: 'Komentar',        icon: <MessageSquare size={18} />, tab: 'komentar' },
+    { label: 'Pengaturan',      icon: <Settings size={18} />, tab: 'pengaturan' },
   ];
 
   async function handleLogout() {

@@ -70,3 +70,10 @@ export const notifications = pgTable('notifications', {
 });
 
 export type NotificationRecord = typeof notifications.$inferSelect;
+
+export const settings = pgTable('settings', {
+  key:   text('key').primaryKey(),
+  value: text('value').notNull(),
+});
+
+export type SettingRecord = typeof settings.$inferSelect;

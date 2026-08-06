@@ -106,6 +106,22 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_notifications_status ON notifications(status)`;
 
+  // Global key-value settings table
+  await sql`
+    CREATE TABLE IF NOT EXISTS settings (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    )
+  `;
+  // Seed the real-time dashboard flag so the first read defaults to ON even
+  // before any admin toggles it (the GET route also falls back to ON when
+  // the row is missing, so this is just for explicit visibility in the DB).
+  await sql`
+    INSERT INTO settings (key, value)
+    VALUES ('dashboard_realtime', 'true')
+    ON CONFLICT (key) DO NOTHING
+  `;
+
   console.log('Database tables ready.');
   await sql.end();
 }

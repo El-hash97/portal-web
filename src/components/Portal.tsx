@@ -2,15 +2,28 @@
 
 import { HeroSection } from './HeroSection';
 import { HenkatenKpiBar } from './HenkatenKpiBar';
+import { RealtimeOffPlaceholder } from './RealtimeOffPlaceholder';
+import { useRealtimeStore } from '@/context/RealtimeContext';
 
 export function Portal() {
+  const { enabled, loading } = useRealtimeStore();
+
   return (
     <div className="flex-1 flex flex-col">
       <HeroSection />
       <div className="px-4 sm:px-10 lg:px-12 pt-2 pb-8 sm:pb-10">
         <div className="max-w-6xl w-full mx-auto flex items-stretch gap-4">
           <div className="flex-1 min-w-0">
-            <HenkatenKpiBar />
+            {loading ? (
+              <div
+                className="h-[76px] rounded-xl animate-pulse"
+                style={{ background: 'rgba(217,226,255,0.06)', marginTop: 12 }}
+              />
+            ) : enabled ? (
+              <HenkatenKpiBar />
+            ) : (
+              <RealtimeOffPlaceholder />
+            )}
           </div>
 
           {/* Slogan ribbon — aligned with the live KPI bar and the app grid's right edge */}
