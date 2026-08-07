@@ -26,6 +26,10 @@ async function main() {
       aktif     BOOLEAN NOT NULL DEFAULT true
     )
   `;
+  // CREATE TABLE IF NOT EXISTS does not add columns to an existing table —
+  // ADD COLUMN IF NOT EXISTS reaches an already-created apps table. `urutan`
+  // is nullable: apps without an explicit order fall back to id ASC.
+  await sql`ALTER TABLE apps ADD COLUMN IF NOT EXISTS urutan INTEGER`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS app_clicks (

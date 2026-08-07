@@ -10,6 +10,7 @@ export const apps = pgTable('apps', {
   logo:      text('logo'),
   aktif:       boolean('aktif').notNull().default(true),
   maintenance: boolean('maintenance').notNull().default(false),
+  urutan:      integer('urutan'),
 });
 
 export const appClicks = pgTable('app_clicks', {
