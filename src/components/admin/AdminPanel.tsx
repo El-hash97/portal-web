@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Plus, Info, AppWindow, MessageSquare } from 'lucide-react';
+import { Plus, Info, AppWindow, MessageSquare, Settings } from 'lucide-react';
 import { useAppStore } from '@/context/AppContext';
 import { AppCard } from '@/components/AppCard';
 import { AppFormModal } from './AppFormModal';
 import { ConfirmModal } from './ConfirmModal';
 import { KpiSection } from './KpiSection';
 import { FeedbackInbox } from './FeedbackInbox';
+import { RealtimeToggle } from './RealtimeToggle';
 import type { App } from '@/lib/types';
 
 export function AdminPanel() {
@@ -105,6 +106,20 @@ export function AdminPanel() {
             Lihat dan kelola saran &amp; komentar yang dikirim oleh pengguna portal.
           </p>
           <FeedbackInbox />
+        </>
+      )}
+
+      {/* ── Tab: Pengaturan ── */}
+      {activeTab === 'pengaturan' && (
+        <>
+          <div className="flex items-center gap-2 mb-6">
+            <Settings size={16} style={{ color: '#EB0A1E' }} />
+            <h2 className="text-[20px] font-bold tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>Pengaturan</h2>
+          </div>
+          <p className="text-[13px] -mt-4 mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            Atur perilaku global portal untuk seluruh pengguna.
+          </p>
+          <RealtimeToggle />
         </>
       )}
 

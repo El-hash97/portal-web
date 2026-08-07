@@ -10,6 +10,7 @@ export const apps = pgTable('apps', {
   logo:      text('logo'),
   aktif:       boolean('aktif').notNull().default(true),
   maintenance: boolean('maintenance').notNull().default(false),
+  urutan:      integer('urutan'),
 });
 
 export const appClicks = pgTable('app_clicks', {
@@ -58,3 +59,22 @@ export const featureRequests = pgTable('feature_requests', {
 });
 
 export type FeatureRequestRecord = typeof featureRequests.$inferSelect;
+
+export const notifications = pgTable('notifications', {
+  id:          serial('id').primaryKey(),
+  title:       text('title').notNull(),
+  content:     text('content').notNull(),
+  photoData:   text('photo_data'),
+  status:      text('status').notNull().default('active'),
+  createdAt:   timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+});
+
+export type NotificationRecord = typeof notifications.$inferSelect;
+
+export const settings = pgTable('settings', {
+  key:   text('key').primaryKey(),
+  value: text('value').notNull(),
+});
+
+export type SettingRecord = typeof settings.$inferSelect;

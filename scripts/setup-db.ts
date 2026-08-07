@@ -26,6 +26,10 @@ async function main() {
       aktif     BOOLEAN NOT NULL DEFAULT true
     )
   `;
+  // CREATE TABLE IF NOT EXISTS does not add columns to an existing table —
+  // ADD COLUMN IF NOT EXISTS reaches an already-created apps table. `urutan`
+  // is nullable: apps without an explicit order fall back to id ASC.
+  await sql`ALTER TABLE apps ADD COLUMN IF NOT EXISTS urutan INTEGER`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS app_clicks (
@@ -89,7 +93,40 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS idx_feature_requests_status     ON feature_requests(status)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_feature_requests_created_at ON feature_requests(created_at DESC)`;
 
-  console.log('Tables "apps" and "app_clicks" ready.');
+  await sql`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id           SERIAL PRIMARY KEY,
+      title        TEXT NOT NULL,
+      content      TEXT NOT NULL,
+      photo_data   TEXT,
+      status       TEXT NOT NULL DEFAULT 'active',
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      completed_at TIMESTAMPTZ
+    )
+  `;
+  // CREATE TABLE IF NOT EXISTS does not add columns to an existing table —
+  // ADD COLUMN IF NOT EXISTS reaches an already-created notifications table.
+  await sql`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS photo_data TEXT`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_notifications_status ON notifications(status)`;
+
+  // Global key-value settings table
+  await sql`
+    CREATE TABLE IF NOT EXISTS settings (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    )
+  `;
+  // Seed the real-time dashboard flag so the first read defaults to ON even
+  // before any admin toggles it (the GET route also falls back to ON when
+  // the row is missing, so this is just for explicit visibility in the DB).
+  await sql`
+    INSERT INTO settings (key, value)
+    VALUES ('dashboard_realtime', 'true')
+    ON CONFLICT (key) DO NOTHING
+  `;
+
+  console.log('Database tables ready.');
   await sql.end();
 }
 

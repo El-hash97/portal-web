@@ -17,20 +17,22 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   useEffect(() => { userRef.current?.focus(); }, []);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setTimeout(() => {
-      const ok = login(user.trim(), pass);
+    try {
+      const ok = await login(user.trim(), pass);
       if (ok) {
         onSuccess();
-      } else {
-        setError('Username atau password salah.');
-        setPass('');
-        setLoading(false);
+        return;
       }
-    }, 300);
+      setError('Username atau password salah.');
+      setPass('');
+    } catch {
+      setError('Login tidak dapat diproses.');
+    }
+    setLoading(false);
   }
 
   return (

@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { apps } from '@/db/schema';
-import { asc } from 'drizzle-orm';
+import { asc, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const result = await db.select().from(apps).orderBy(asc(apps.id));
+    // Apps without an explicit `urutan` sort to the end (by id) so newly
+    // added apps keep appearing last, matching prior id-order behavior.
+    const result = await db.select().from(apps)
+      .orderBy(sql`${apps.urutan} IS NULL`, asc(apps.urutan), asc(apps.id));
     return NextResponse.json(result, {
       headers: { 'Cache-Control': 'no-store' },
     });

@@ -1,5 +1,7 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { neonSql } from '@/db';
+import { ADMIN_SESSION_COOKIE, isValidAdminSession } from '@/lib/admin-session';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,15 +39,15 @@ export async function PATCH(
 
     const password = typeof body.password === 'string' ? body.password : '';
     const isSectionAction = action === 'approve' || action === 'reject';
-    const requiredPassword = isSectionAction
-      ? process.env.SECTION_PASSWORD
-      : process.env.DEVELOPER_PASSWORD;
-
-    if (!requiredPassword) {
-      return NextResponse.json({ error: 'Fitur approval belum dikonfigurasi' }, { status: 503 });
-    }
-    if (password !== requiredPassword) {
-      return NextResponse.json({ error: 'Password salah' }, { status: 401 });
+    if (isSectionAction) {
+      const requiredPassword = process.env.SECTION_PASSWORD;
+      if (!requiredPassword) return NextResponse.json({ error: 'Fitur approval belum dikonfigurasi' }, { status: 503 });
+      if (password !== requiredPassword) return NextResponse.json({ error: 'Password salah' }, { status: 401 });
+    } else {
+      const cookieStore = await cookies();
+      if (!isValidAdminSession(cookieStore.get(ADMIN_SESSION_COOKIE)?.value)) {
+        return NextResponse.json({ error: 'Sesi admin tidak valid, silakan login ulang.' }, { status: 401 });
+      }
     }
 
     // No individual approver identity is collected — the shared Section

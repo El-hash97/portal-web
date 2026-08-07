@@ -4,14 +4,7 @@ import {
 } from 'lucide-react';
 import type { App, Category, IconKey } from './types';
 
-/* ── Admin credentials ───────────────────────────────────
-   Ganti username & password untuk keamanan.
-   (No backend: credentials visible in source — internal use only)
-─────────────────────────────────────────────────────── */
-export const ADMIN_CRED = { user: 'admin', pass: 'Cast2026!' };
-
 export const STORAGE_KEY  = 'casting_hub_v2';
-export const SESSION_KEY  = 'casting_hub_admin';
 
 /* ── Categories ─────────────────────────────────────────── */
 export const CATEGORIES: Category[] = [

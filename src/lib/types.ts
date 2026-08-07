@@ -20,6 +20,18 @@ export type IconKey = 'activity' | 'calculator' | 'thermometer' | 'clipboard' | 
 
 export type RequestStatus = 'menunggu' | 'disetujui' | 'ditolak' | 'dikerjakan' | 'selesai';
 
+export type NotificationStatus = 'active' | 'completed';
+
+export interface Notification {
+  id: number;
+  title: string;
+  content: string;
+  photo_data: string | null;
+  status: NotificationStatus;
+  created_at: string;
+  completed_at: string | null;
+}
+
 export interface FeatureRequest {
   id: number;
   requester: string;
