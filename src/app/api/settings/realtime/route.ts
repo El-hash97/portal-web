@@ -1,15 +1,18 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { neonSql } from '@/db';
-import { ADMIN_SESSION_COOKIE, isValidAdminSession } from '@/lib/admin-session';
+import { ADMIN_SESSION_COOKIE, isDeveloperSession } from '@/lib/admin-session';
 
 export const dynamic = 'force-dynamic';
 
 const REALTIME_KEY = 'dashboard_realtime';
 
+// This is an app-wide "Pengaturan" control (AdminPanel's Pengaturan tab) —
+// requires the full developer role, not just any admin session, so a
+// notification-scoped login can't flip it via a direct API call.
 async function isAdminRequest(): Promise<boolean> {
   const cookieStore = await cookies();
-  return isValidAdminSession(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
+  return isDeveloperSession(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
 }
 
 export async function GET() {

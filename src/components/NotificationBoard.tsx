@@ -57,7 +57,9 @@ export function NotificationBoard() {
     setLoading(true);
     setLoginError('');
     try {
-      const ok = await login(username.trim(), password);
+      // Scoped to 'notification': grants only the Tambah Informasi form on
+      // this page, not the full /admin panel (Kelola Aplikasi/Komentar/Pengaturan).
+      const ok = await login(username.trim(), password, 'notification');
       if (!ok) {
         setLoginError('Username atau password salah.');
         setPassword('');

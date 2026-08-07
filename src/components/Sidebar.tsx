@@ -43,7 +43,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAdmin, logout } = useAppStore();
+  const { isAdmin, isDeveloper, logout } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems: NavItem[] = [
@@ -119,8 +119,9 @@ export function Sidebar() {
           );
         })}
 
-        {/* Admin-only menu items */}
-        {isAdmin && (
+        {/* Developer-only menu items — a notification-scoped login (from the
+            Notification page) never sees these, only the full admin role does. */}
+        {isDeveloper && (
           <>
             <div className="mx-4 my-2 h-px" style={{ background: '#1f2942' }} />
             <div className="px-4 pb-1">

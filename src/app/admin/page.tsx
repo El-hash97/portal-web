@@ -7,7 +7,7 @@ import { AdminPanel } from '@/components/admin/AdminPanel';
 import { GradientBars } from '@/components/ui/gradient-bars-background';
 
 export default function AdminPage() {
-  const { isAdmin } = useAppStore();
+  const { isDeveloper } = useAppStore();
 
   return (
     <div className="relative flex-1 min-h-screen">
@@ -18,7 +18,10 @@ export default function AdminPage() {
         animationDuration={3}
       />
       <div className="relative z-10">
-        {isAdmin
+        {/* Requires the full developer role — a notification-scoped session
+            (from the Notification page's own login) lands here too but sees
+            the login form again, since it can't reach app-wide settings. */}
+        {isDeveloper
           ? <Suspense fallback={null}><AdminPanel /></Suspense>
           : <LoginForm onSuccess={() => {}} />
         }

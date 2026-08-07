@@ -10,7 +10,8 @@ import { CATEGORIES, DEFAULT_APPS } from '@/lib/constants';
 interface AppStore {
   apps: App[];
   isAdmin: boolean;
-  login: (user: string, pass: string) => Promise<boolean>;
+  isDeveloper: boolean;
+  login: (user: string, pass: string, scope?: 'developer' | 'notification') => Promise<boolean>;
   logout: () => Promise<void>;
   toggleApp: (id: number) => void;
   toggleMaintenance: (id: number) => void;
@@ -27,8 +28,9 @@ function normalize(app: App): App {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [apps, setApps]       = useState<App[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [apps, setApps]             = useState<App[]>([]);
+  const [isAdmin, setIsAdmin]       = useState(false);
+  const [isDeveloper, setIsDeveloper] = useState(false);
 
   useEffect(() => {
     fetch('/api/apps')
@@ -36,25 +38,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .then((data: App[]) => setApps(data.length ? data.map(normalize) : DEFAULT_APPS))
       .catch(() => setApps(DEFAULT_APPS));
     fetch('/api/admin/session')
-      .then(r => (r.ok ? r.json() : { isAdmin: false }))
-      .then(data => setIsAdmin(Boolean(data.isAdmin)))
-      .catch(() => setIsAdmin(false));
+      .then(r => (r.ok ? r.json() : { isAdmin: false, role: null }))
+      .then(data => {
+        setIsAdmin(Boolean(data.isAdmin));
+        setIsDeveloper(data.role === 'developer');
+      })
+      .catch(() => { setIsAdmin(false); setIsDeveloper(false); });
   }, []);
 
-  const login = useCallback(async (user: string, pass: string) => {
+  const login = useCallback(async (user: string, pass: string, scope: 'developer' | 'notification' = 'developer') => {
     const response = await fetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: user, password: pass }),
+      body: JSON.stringify({ username: user, password: pass, scope }),
     });
     if (!response.ok) return false;
     setIsAdmin(true);
+    setIsDeveloper(scope === 'developer');
     return true;
   }, []);
 
   const logout = useCallback(async () => {
     await fetch('/api/admin/logout', { method: 'POST' });
     setIsAdmin(false);
+    setIsDeveloper(false);
   }, []);
 
   const toggleApp = useCallback((id: number) => {
@@ -129,7 +136,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider value={{
-      apps, isAdmin,
+      apps, isAdmin, isDeveloper,
       login, logout,
       toggleApp, toggleMaintenance, addApp, updateApp, deleteApp,
       getCategoryStyle,
